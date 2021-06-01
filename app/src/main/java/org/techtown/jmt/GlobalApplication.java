@@ -16,25 +16,4 @@ public class GlobalApplication extends Application {
 
         KakaoSdk.init(this,getResources().getString(R.string.kakao_key));
     }
-
-    public static Activity getCurrentActivity(){
-        return currentActivity;
-    }
-
-    public static void setCurrentActivity(Activity currentActivity){
-        GlobalApplication.currentActivity = currentActivity;
-    }
-
-    public static GlobalApplication getGlobalApplicationContext() {
-        if (instance == null) {
-            throw new IllegalStateException("this application does no inherit com.kakao.GlobalApplication");
-        }
-        return instance;
-    }
-
-    @Override
-    public void onTerminate(){
-        super.onTerminate();
-        instance = null;
-    }
 }
