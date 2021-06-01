@@ -17,8 +17,8 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(viewGroup.getContext());
-        // if item에 image 있으면, comment_item 사용, image 없으면 comment_nopic_item 사용
-        View itemView = inflater.inflate(R.layout.comment_nopic_item, viewGroup, false);
+        // if item에 image 있으면, comment_item 사용, image 없으면 comment_nopic_item 사용(gone 사용해야. invisible은 공간 차지함)
+        View itemView = inflater.inflate(R.layout.comment_item, viewGroup, false);
         return new ViewHolder(itemView);
     }
 
