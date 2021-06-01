@@ -1,6 +1,7 @@
 package org.techtown.jmt;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -37,6 +38,22 @@ public class FavoriteList extends Fragment {
         adapter.addItem(new UserInfo("예은"));
 
         recyclerView.setAdapter(adapter);
+
+        v.findViewById(R.id.share_btn);
+        v.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent Sharing_intent = new Intent(Intent.ACTION_SEND);
+                Sharing_intent.setType("text/plain");
+
+                String Test_Message = "list for share should be here";
+
+                Sharing_intent.putExtra(Intent.EXTRA_TEXT, Test_Message);
+
+                Intent Sharing = Intent.createChooser(Sharing_intent, "공유하기");
+                startActivity(Sharing);
+            }
+        });
 
         // Inflate the layout for this fragment
         return v;
