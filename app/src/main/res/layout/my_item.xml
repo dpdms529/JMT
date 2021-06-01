@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="5dp"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="20dp"
+            android:layout_marginLeft="5dp"
+            android:layout_gravity="center_vertical"
+            android:text="TextView"
+            android:textSize="21sp"
+            android:textStyle="bold" />
+
+        <com.google.android.material.chip.ChipGroup
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center">
+
+            <com.google.android.material.chip.Chip
+                style="@style/ThinnerChip"
+                android:id="@+id/tag1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="연어 덮밥"/>
+
+            <com.google.android.material.chip.Chip
+                style="@style/ThinnerChip"
+                android:id="@+id/ex_tag"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="육회 덮밥"/>
+
+            <com.google.android.material.chip.Chip
+                style="@style/ThinnerChip"
+                android:id="@+id/ex_tag2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="소바"/>
+
+        </com.google.android.material.chip.ChipGroup>
+    </LinearLayout>
+</LinearLayout>
