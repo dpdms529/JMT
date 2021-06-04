@@ -3,19 +3,12 @@ package org.techtown.jmt;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.Signature;
 import android.os.Bundle;
-import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 
 import com.kakao.sdk.user.UserApiClient;
-
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 
 public class Login extends AppCompatActivity {
     private static final String TAG = "user";
@@ -49,6 +42,7 @@ public class Login extends AppCompatActivity {
                                         Log.i(TAG,"사용자 정보 요청 성공" + "\n회원번호 : " + user.getId() + "\n닉네임 : " + user.getKakaoAccount().getProfile().getNickname());
                                         Intent intent = new Intent(getApplicationContext(),MainActivity.class);
                                         startActivity(intent);
+                                        finish();
                                     }
                                     return null;
                                 });

@@ -3,16 +3,36 @@ package org.techtown.jmt;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreSettings;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
+import com.kakao.sdk.user.UserApiClient;
+import com.kakao.sdk.user.model.User;
+
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Map;
+
 public class MyList extends Fragment {
+    private static final String TAG = "TAG";
     private Context mComtext;
     Fragment frag_add_store;
     ImageButton add_btn;
@@ -32,18 +52,74 @@ public class MyList extends Fragment {
 
         MyAdapter adapter = new MyAdapter();
 
-        // 이 부분은 추후 데이터 베이스 연동으로 수정해야 함
-        adapter.addItem(new PersonalComment("히유히유", "연어 덮밥 존맛. 연어가 살아있다!"));
-        adapter.addItem(new PersonalComment("덕천식당", "순대 국밥이 참 맛있다~"));
-        adapter.addItem(new PersonalComment("청춘 튀겨", "치킨 JMT~~"));
-        adapter.addItem(new PersonalComment("히유히유", "연어 덮밥 존맛. 연어가 살아있다!"));
-        adapter.addItem(new PersonalComment("덕천식당", "순대 국밥이 참 맛있다~"));
-        adapter.addItem(new PersonalComment("청춘 튀겨", "치킨 JMT~~"));
-        adapter.addItem(new PersonalComment("히유히유", "연어 덮밥 존맛. 연어가 살아있다!"));
-        adapter.addItem(new PersonalComment("덕천식당", "순대 국밥이 참 맛있다~"));
-        adapter.addItem(new PersonalComment("청춘 튀겨", "치킨 JMT~~"));
-
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        UserApiClient.getInstance().me((user, error) -> {
+                    if (error != null) {
+                        Log.e(TAG, "사용자 정보 요청 실패", error);
+                    } else if (user != null) {
+                        db.collection("user")
+                                .document(String.valueOf(user.getId()))
+                                .get()
+                                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                          @Override
+                          public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                              if(task.isSuccessful()){
+                                 DocumentSnapshot userDoc = task.getResult();
+                                 if(userDoc.exists()){
+                                     Log.d(TAG,"사용자 정보 : " + userDoc.get("store"));
+                                     ArrayList storeArr = (ArrayList)userDoc.get("store");
+                                     for(int i = 0;i<storeArr.size();i++){
+                                         DocumentReference sdr = (DocumentReference)storeArr.get(i);
+                                         sdr.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                             @Override
+                                             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                                 if(task.isSuccessful()){
+                                                     DocumentSnapshot storeDoc = task.getResult();
+                                                     if(storeDoc.exists()){
+                                                         Log.d(TAG,"가게 정보 : " + storeDoc.getData());
+                                                         ArrayList commentArr = (ArrayList)storeDoc.get("comment");
+                                                         for(int j = 0;j<commentArr.size();j++){
+                                                             DocumentReference cdr = (DocumentReference)commentArr.get(j);
+                                                             cdr.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                                                 @Override
+                                                                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                                                     if(task.isSuccessful()){
+                                                                         DocumentSnapshot commentDoc = task.getResult();
+                                                                         if(commentDoc.exists()){
+                                                                             Log.d(TAG,"댓글 정보 : " + commentDoc.getData());
+                                                                             if((Long)commentDoc.get("user") == user.getId()){
+                                                                                 adapter.addItem(new PersonalComment(storeDoc.getString("name"),commentDoc.getString("content")));
+                                                                             }
+                                                                         }
+                                                                     }
+                                                                 }
+                                                             });
+                                                         }
+                                                     }
+                                                 }
+                                             }
+                                         });
+                                     }
+                                 }
+                              }
+                          }
+                      });
+            }
+            return null;
+        });
         recyclerView.setAdapter(adapter);
+        // 이 부분은 추후 데이터 베이스 연동으로 수정해야 함
+//        adapter.addItem(new PersonalComment("히유히유", "연어 덮밥 존맛. 연어가 살아있다!"));
+//        adapter.addItem(new PersonalComment("덕천식당", "순대 국밥이 참 맛있다~"));
+//        adapter.addItem(new PersonalComment("청춘 튀겨", "치킨 JMT~~"));
+//        adapter.addItem(new PersonalComment("히유히유", "연어 덮밥 존맛. 연어가 살아있다!"));
+//        adapter.addItem(new PersonalComment("덕천식당", "순대 국밥이 참 맛있다~"));
+//        adapter.addItem(new PersonalComment("청춘 튀겨", "치킨 JMT~~"));
+//        adapter.addItem(new PersonalComment("히유히유", "연어 덮밥 존맛. 연어가 살아있다!"));
+//        adapter.addItem(new PersonalComment("덕천식당", "순대 국밥이 참 맛있다~"));
+//        adapter.addItem(new PersonalComment("청춘 튀겨", "치킨 JMT~~"));
+//
+//        recyclerView.setAdapter(adapter);
 
         add_btn = v.findViewById(R.id.add_btn);
         add_btn.setOnClickListener(new View.OnClickListener() {
@@ -79,3 +155,4 @@ public class MyList extends Fragment {
         mComtext = context;
     }
 }
+
