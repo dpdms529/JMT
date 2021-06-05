@@ -1,5 +1,6 @@
 package org.techtown.jmt;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +13,11 @@ import java.util.ArrayList;
 
 public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
     ArrayList<UserInfo> items = new ArrayList<UserInfo>();
+    private Context context;
+
+    public UserAdapter(Context context){
+        this.context = context;
+    }
 
     @NonNull
     @Override

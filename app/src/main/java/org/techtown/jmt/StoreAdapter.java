@@ -1,5 +1,6 @@
 package org.techtown.jmt;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +13,11 @@ import java.util.ArrayList;
 
 public class StoreAdapter extends RecyclerView.Adapter<StoreAdapter.ViewHolder> {
     ArrayList<StoreInfo> items = new ArrayList<StoreInfo>();
+    private Context context;
+
+    public StoreAdapter(Context context){
+        this.context = context;
+    }
 
     @NonNull
     @Override
