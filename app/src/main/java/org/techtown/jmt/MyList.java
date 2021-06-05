@@ -37,6 +37,9 @@ public class MyList extends Fragment {
     Fragment frag_add_store;
     ImageButton add_btn;
     ImageButton share_btn;
+    RecyclerView recyclerView;
+    FirebaseFirestore db;
+    ArrayList<PersonalComment> myArrayList;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -45,14 +48,16 @@ public class MyList extends Fragment {
 
         frag_add_store = new AddStore();
 
-        RecyclerView recyclerView = v.findViewById(R.id.comments_recyclerview);
+        recyclerView = v.findViewById(R.id.comments_recyclerview);
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(mComtext, LinearLayoutManager.VERTICAL, false);
         recyclerView.setLayoutManager(layoutManager);
 
-        MyAdapter adapter = new MyAdapter();
+        myArrayList = new ArrayList<>();
 
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        MyAdapter adapter = new MyAdapter(myArrayList, mComtext);
+
+        db = FirebaseFirestore.getInstance();
         UserApiClient.getInstance().me((user, error) -> {
                     if (error != null) {
                         Log.e(TAG, "사용자 정보 요청 실패", error);
@@ -64,7 +69,7 @@ public class MyList extends Fragment {
                           @Override
                           public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                               if(task.isSuccessful()){
-                                 DocumentSnapshot userDoc = task.getResult();
+                                  DocumentSnapshot userDoc = task.getResult();
                                  if(userDoc.exists()){
                                      Log.d(TAG,"사용자 정보 : " + userDoc.get("store"));
                                      ArrayList storeArr = (ArrayList)userDoc.get("store");
@@ -90,6 +95,7 @@ public class MyList extends Fragment {
                                                                              if((Long)commentDoc.get("user") == user.getId()){
                                                                                  adapter.addItem(new PersonalComment(storeDoc.getString("name"),commentDoc.getString("content")));
                                                                              }
+                                                                             adapter.notifyDataSetChanged();
                                                                          }
                                                                      }
                                                                  }
