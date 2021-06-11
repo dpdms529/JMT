@@ -45,6 +45,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+
 import com.kakao.sdk.user.UserApiClient;
 
 import java.io.FileNotFoundException;
@@ -57,10 +58,13 @@ import java.util.Map;
 
 public class AddStore extends Fragment {
     private static final String TAG = "TAG";
+    private FirebaseStorage storage;
+    private FirebaseFirestore db;
+
     private Context mContext;
     private ArrayAdapter arrayAdapter;
-    private FirebaseFirestore db;
-    private FirebaseStorage storage;
+
+
 
     private EditText store_name_edit;
     private Spinner category_spinner;
@@ -73,8 +77,6 @@ public class AddStore extends Fragment {
 
     private String commentDocName;
     private String storeDocName;
-
-    private boolean flag;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -99,8 +101,6 @@ public class AddStore extends Fragment {
         register_btn.setOnClickListener(new Button.OnClickListener() {
             @Override
             public void onClick(View view) {
-                flag = false;
-
                 // 입력 값 가져오기
                 String store_name = store_name_edit.getText().toString();
                 String category_selected = category_spinner.getSelectedItem().toString();
@@ -110,6 +110,7 @@ public class AddStore extends Fragment {
                 // 사용자 확인 및 데이터 전송
                 Map<String, Object> commentData = new HashMap<>();
                 Map<String, Object> storeData = new HashMap<>();
+                Map<String, Object> menuData = new HashMap<>();
                 final DocumentReference[] ref = new DocumentReference[2];
                 UserApiClient.getInstance().me((user, error) -> {
                     if (error != null) {
@@ -123,7 +124,8 @@ public class AddStore extends Fragment {
                         storeData.put("comment", commentDocName);
                         storeData.put("location", "전라북도 전주시 덕진구 덕진동1가 664-6번지 KR 1층 110호"); // 주소 추가
                         storeData.put("name", store_name);
-                        storeData.put("menu", menu_name);
+                        menuData.put("menu_name", menu_name);
+                        menuData.put("lover", 1);
 
                         CollectionReference storeColRef = db.collection("store");
                         Task<QuerySnapshot> temp;
@@ -131,10 +133,9 @@ public class AddStore extends Fragment {
                         temp.addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                             @Override
                             public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                if (temp.getResult().isEmpty()){
-                                    storeColRef.document(storeDocName)
-                                            .set(storeData);
-
+                                if (temp.getResult().isEmpty()){    // 등록된 적 없는 식당
+                                    storeColRef.document(storeDocName).set(storeData);
+                                    storeColRef.document(storeDocName).collection("menu").add(menuData);
                                     storeColRef.document(storeDocName).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                         @Override
                                         public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -154,6 +155,7 @@ public class AddStore extends Fragment {
                                     commentData.put("user", user.getId());
                                     commentData.put("content", comment_content);
                                     commentData.put("store", storeDocName);
+                                    commentData.put("menu", menu_name);
 
                                     // add comment document
                                     db.collection("comment").document(commentDocName)
@@ -180,6 +182,7 @@ public class AddStore extends Fragment {
                                         commentData.put("user", user.getId());
                                         commentData.put("content", comment_content);
                                         commentData.put("store", storeDocName);
+                                        commentData.put("menu", menu_name);
 
                                         // add comment document
                                         db.collection("comment").document(commentDocName)
@@ -194,6 +197,22 @@ public class AddStore extends Fragment {
                                                         storeColRef.document(storeDocName)
                                                                 .update("comment", FieldValue.arrayUnion(ref[0]),
                                                                         "lover", FieldValue.increment(1));
+                                                        Task<QuerySnapshot> temp;
+                                                        temp = storeColRef.document(storeDocName).collection("menu")
+                                                                .whereEqualTo("menu_name", menu_name).get();    // 하위 콜렉션 menu에 같은 메뉴 입력된 적 있는지 확인
+                                                        temp.addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                                           @Override
+                                                           public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                               if (temp.getResult().isEmpty()){ // 같은 메뉴 없다면 새로 입력
+                                                                   storeColRef.document(storeDocName).collection("menu").add(menuData);
+                                                               } else { // 이미 입력된 메뉴라면, 카운트 값만 추가
+                                                                   for(QueryDocumentSnapshot document : temp.getResult()){
+                                                                       storeColRef.document(storeDocName).collection("menu").document(document.getId())
+                                                                               .update("lover", FieldValue.increment(1));
+                                                                   }
+                                                               }
+                                                           }
+                                                        });
                                                     }
                                                 }
                                             }
