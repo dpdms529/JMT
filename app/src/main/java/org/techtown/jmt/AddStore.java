@@ -83,6 +83,7 @@ public class AddStore extends Fragment {
                 // 사용자 확인 및 데이터 전송
                 Map<String, Object> commentData = new HashMap<>();
                 Map<String, Object> storeData = new HashMap<>();
+                final DocumentReference[] ref = new DocumentReference[1];
                 UserApiClient.getInstance().me((user, error) -> {
                     if (error != null) {
                         Log.e(TAG, "사용자 정보 요청 실패", error);
@@ -111,6 +112,9 @@ public class AddStore extends Fragment {
                                                     storeColRef.document(storeDocName)
                                                             .update("comment", FieldValue.arrayUnion("/comment/" + commentDocName),
                                                                     "lover", FieldValue.increment(1));
+                                                    ref[0] = document.getReference();
+                                                    Log.d(TAG,"레퍼런스 확인 : " + ref[0]);
+//                                                    ref[0] = document.getDocumentReference("store");
                                                 } else {    // 등록된 적 없는 식당 -> 모든 필드 업데이트
                                                     storeColRef.document(storeDocName)
                                                             .set(storeData);
@@ -118,6 +122,19 @@ public class AddStore extends Fragment {
                                                             .update("comment", FieldValue.arrayUnion("/comment/" + commentDocName),
                                                                     "lover", FieldValue.increment(1));
                                                 }
+                                                commentData.put("user", String.valueOf(user.getId()));
+                                                commentData.put("content", comment_content);
+                                                commentData.put("store", storeDocName);
+
+                                                // add comment document
+                                                db.collection("comment").document(commentDocName)
+                                                        .set(commentData);
+
+                                                Log.d("TAG","왜 째서 안나오냐 : " + ref[0]);
+                                                // user field update
+                                                db.collection("user").document(String.valueOf(user.getId()))
+                                                        .update("store", FieldValue.arrayUnion(ref[0]),
+                                                                "storeNum", FieldValue.increment(1));
                                             }
                                         } else {
                                             Log.d(TAG, "Error getting documents: ", task.getException());
@@ -125,18 +142,7 @@ public class AddStore extends Fragment {
                                     }
                                 });
 
-                        commentData.put("user", String.valueOf(user.getId()));
-                        commentData.put("content", comment_content);
-                        commentData.put("store", storeDocName);
 
-                        // add comment document
-                        db.collection("comment").document(commentDocName)
-                                .set(commentData);
-
-                        // user field update
-                        db.collection("user").document(String.valueOf(user.getId()))
-                                .update("store", FieldValue.arrayUnion("/store/" + storeDocName),
-                                        "storeNum", FieldValue.increment(1));
                     }
                     return null;
                 });
