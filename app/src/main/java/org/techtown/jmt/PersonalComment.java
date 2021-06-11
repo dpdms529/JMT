@@ -1,13 +1,14 @@
 package org.techtown.jmt;
 
 public class PersonalComment {
-    String store_name;
-    String comment;
-//    String image_path;  // 이미지 관련은 다시 알아볼 것(파이어베이스 저장소에서 가져와야 함)
+    private String store_name;
+    private String comment;
+    //private String image_url;
 
     public PersonalComment(String store_name, String comment) {
         this.store_name = store_name;
         this.comment = comment;
+        //this.image_url = image_url;
     }
 
     public String getStoreName() { return store_name; }
@@ -17,4 +18,8 @@ public class PersonalComment {
     public String getComment() { return comment; }
 
     public void setComment(String comment) { this.comment = comment; }
+
+    //public String getImageUrl() { return image_url; }
+
+    //public void setImageUrl(String image_url) { this.image_url = image_url; }
 }

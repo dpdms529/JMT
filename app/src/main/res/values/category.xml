@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="categories">
+        <item>한식</item>
+        <item>중식</item>
+        <item>일식</item>
+        <item>아시안, 양식</item>
+        <item>분식</item>
+        <item>카페, 디저트</item>
+        <item>패스트푸드</item>
+    </string-array>
+</resources>
