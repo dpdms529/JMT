@@ -27,6 +27,7 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.storage.FirebaseStorage;
 import com.kakao.sdk.user.UserApiClient;
 
 import java.text.SimpleDateFormat;
@@ -37,9 +38,12 @@ import java.util.Map;
 
 public class AddStore extends Fragment {
     private static final String TAG = "TAG";
+    private final int GALLERY_CODE = 10;
+    private FirebaseStorage storage;
+    private FirebaseFirestore db;
+
     private Context mContext;
     private ArrayAdapter arrayAdapter;
-    private FirebaseFirestore db;
 
     private EditText store_name_edit;
     private Spinner category_spinner;
