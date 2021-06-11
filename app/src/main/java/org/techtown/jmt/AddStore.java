@@ -91,6 +91,7 @@ public class AddStore extends Fragment {
                 // 사용자 확인 및 데이터 전송
                 Map<String, Object> commentData = new HashMap<>();
                 Map<String, Object> storeData = new HashMap<>();
+                final DocumentReference[] ref = new DocumentReference[2];
                 UserApiClient.getInstance().me((user, error) -> {
                     if (error != null) {
                         Log.e(TAG, "사용자 정보 요청 실패", error);
@@ -106,7 +107,6 @@ public class AddStore extends Fragment {
                         storeData.put("menu", menu_name);
 
                         CollectionReference storeColRef = db.collection("store");
-
                         Task<QuerySnapshot> temp;
                         temp = storeColRef.whereEqualTo("name", store_name).get(); // 이름 같은 가게 존재 여부 확인 후 docName 설정, 나중에 기준 더 추가할 것
                         temp.addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -115,39 +115,74 @@ public class AddStore extends Fragment {
                                 if (temp.getResult().isEmpty()){
                                     storeColRef.document(storeDocName)
                                             .set(storeData);
-                                    storeColRef.document(storeDocName)
-                                            .update("comment", FieldValue.arrayUnion("/comment/" + commentDocName),
-                                                    "lover", FieldValue.increment(1));
 
-                                    commentData.put("user", String.valueOf(user.getId()));
+                                    storeColRef.document(storeDocName).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                            if(task.isSuccessful()){
+                                                DocumentSnapshot doc = task.getResult();
+                                                if(doc.exists()){
+                                                    ref[1] = doc.getReference();
+                                                    // user field update
+                                                    db.collection("user").document(String.valueOf(user.getId()))
+                                                            .update("store", FieldValue.arrayUnion(ref[1]),
+                                                                    "storeNum", FieldValue.increment(1));
+                                                }
+                                            }
+                                        }
+                                    });
+
+                                    commentData.put("user", user.getId());
                                     commentData.put("content", comment_content);
                                     commentData.put("store", storeDocName);
 
                                     // add comment document
                                     db.collection("comment").document(commentDocName)
                                             .set(commentData);
+                                    db.collection("comment").document(commentDocName).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                            if(task.isSuccessful()){
+                                                DocumentSnapshot doc = task.getResult();
+                                                if(doc.exists()){
+                                                    ref[0] = doc.getReference();
+                                                    storeColRef.document(storeDocName)
+                                                            .update("comment", FieldValue.arrayUnion(ref[0]),
+                                                                    "lover", FieldValue.increment(1));
+                                                }
+                                            }
+                                        }
+                                    });
 
-                                    // user field update
-                                    db.collection("user").document(String.valueOf(user.getId()))
-                                            .update("store", FieldValue.arrayUnion("/store/" + storeDocName),
-                                                    "storeNum", FieldValue.increment(1));
                                 } else {    // 이미 등록된 식당 -> comment, lover 필드 update
                                     for(QueryDocumentSnapshot document : temp.getResult()) {
                                         storeDocName = document.getId();
-                                        storeColRef.document(storeDocName)
-                                                .update("comment", FieldValue.arrayUnion("/comment/" + commentDocName),
-                                                        "lover", FieldValue.increment(1));
-                                        commentData.put("user", String.valueOf(user.getId()));
+
+                                        commentData.put("user", user.getId());
                                         commentData.put("content", comment_content);
                                         commentData.put("store", storeDocName);
 
                                         // add comment document
                                         db.collection("comment").document(commentDocName)
                                                 .set(commentData);
+                                        db.collection("comment").document(commentDocName).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                                if(task.isSuccessful()){
+                                                    DocumentSnapshot doc = task.getResult();
+                                                    if(doc.exists()){
+                                                        ref[0] = doc.getReference();
+                                                        storeColRef.document(storeDocName)
+                                                                .update("comment", FieldValue.arrayUnion(ref[0]),
+                                                                        "lover", FieldValue.increment(1));
+                                                    }
+                                                }
+                                            }
+                                        });
 
                                         // user field update
                                         db.collection("user").document(String.valueOf(user.getId()))
-                                                .update("store", FieldValue.arrayUnion("/store/" + storeDocName),
+                                                .update("store", FieldValue.arrayUnion(document.getReference()),
                                                         "storeNum", FieldValue.increment(1));
                                     }
                                 }
