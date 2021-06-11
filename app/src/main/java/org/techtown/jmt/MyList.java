@@ -39,7 +39,6 @@ public class MyList extends Fragment {
     ImageButton share_btn;
     RecyclerView recyclerView;
     FirebaseFirestore db;
-    ArrayList<PersonalComment> myArrayList;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -53,9 +52,7 @@ public class MyList extends Fragment {
         LinearLayoutManager layoutManager = new LinearLayoutManager(mComtext, LinearLayoutManager.VERTICAL, false);
         recyclerView.setLayoutManager(layoutManager);
 
-        myArrayList = new ArrayList<>();
-
-        MyAdapter adapter = new MyAdapter(myArrayList, mComtext);
+        MyAdapter adapter = new MyAdapter(mComtext);
 
         db = FirebaseFirestore.getInstance();
         UserApiClient.getInstance().me((user, error) -> {
@@ -94,8 +91,8 @@ public class MyList extends Fragment {
                                                                              Log.d(TAG,"댓글 정보 : " + commentDoc.getData());
                                                                              if((Long)commentDoc.get("user") == user.getId()){
                                                                                  adapter.addItem(new PersonalComment(storeDoc.getString("name"),commentDoc.getString("content")));
+                                                                                 adapter.notifyDataSetChanged();
                                                                              }
-                                                                             adapter.notifyDataSetChanged();
                                                                          }
                                                                      }
                                                                  }
