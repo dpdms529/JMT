@@ -93,12 +93,13 @@
                 android:ems="10"
                 android:inputType="textPersonName"
                 android:hint="먹은 메뉴" />
-
+            <!-- 여러 메뉴 추가할 수 있도록 할 때 사용할 버튼
             <ImageButton
                 android:id="@+id/add_menu_btn"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:src="@drawable/ic_add" />
+            !-->
         </LinearLayout>
 
         <LinearLayout
