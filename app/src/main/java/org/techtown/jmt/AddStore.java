@@ -1,11 +1,24 @@
 package org.techtown.jmt;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.media.Image;
+import android.net.Uri;
 import android.os.Bundle;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContract;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,8 +26,10 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -27,8 +42,13 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 import com.kakao.sdk.user.UserApiClient;
 
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -40,6 +60,7 @@ public class AddStore extends Fragment {
     private Context mContext;
     private ArrayAdapter arrayAdapter;
     private FirebaseFirestore db;
+    private FirebaseStorage storage;
 
     private EditText store_name_edit;
     private Spinner category_spinner;
@@ -48,6 +69,7 @@ public class AddStore extends Fragment {
     private EditText comment_edit;
 
     private Button register_btn;
+    private ImageButton add_pic_btn;
 
     private String commentDocName;
     private String storeDocName;
@@ -60,6 +82,7 @@ public class AddStore extends Fragment {
         View v = inflater.inflate(R.layout.fragment_add_store, container, false);
 
         db = FirebaseFirestore.getInstance();
+        storage = FirebaseStorage.getInstance();
 
         // 스피너(카테고리) 구현
         category_spinner = (Spinner)v.findViewById(R.id.category);
@@ -190,6 +213,15 @@ public class AddStore extends Fragment {
 
             }
         });
+
+        add_pic_btn = (ImageButton)v.findViewById(R.id.add_pic_btn);
+        add_pic_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                loadAlbum();
+            }
+
+        });
         return v;
     }
 
@@ -197,6 +229,8 @@ public class AddStore extends Fragment {
     public void onAttach(Context context) {
         super.onAttach(context);
         mContext = context;
+
+
     }
 
     public String setDocID(String docType, String userID) {
@@ -204,4 +238,45 @@ public class AddStore extends Fragment {
         Date time = new Date();
         return docType + "_" + userID + "_" + dateformat.format(time);
     }
+
+    private void loadAlbum(){
+        Intent intent = new Intent(Intent.ACTION_PICK);
+        intent.setType(MediaStore.Images.Media.CONTENT_TYPE);
+        startActivityResult.launch(intent);
+    }
+
+    ActivityResultLauncher<Intent> startActivityResult = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+        @Override
+        public void onActivityResult(ActivityResult result) {
+            if(result.getResultCode() == Activity.RESULT_OK){
+                Intent data = result.getData();
+                Log.d(TAG," 데이터는 : " + data.getData());
+                Uri file = data.getData();
+                StorageReference storageRef = storage.getReference();
+                StorageReference riversRef = storageRef.child("photo/1.png");
+                UploadTask uploadTask = riversRef.putFile(file);
+                try{
+                    InputStream in = getActivity().getContentResolver().openInputStream(data.getData());
+                    Bitmap img = BitmapFactory.decodeStream(in);
+                    food_image.setImageBitmap(img);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                uploadTask.addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(getContext(),"사진이 정상적으로 업로드 되지 않음", Toast.LENGTH_SHORT).show();
+                    }
+                }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                        Toast.makeText(getContext(),"사진이 정상적으로 업로드 됨",Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+            }
+        }
+    });
+
+
 }
