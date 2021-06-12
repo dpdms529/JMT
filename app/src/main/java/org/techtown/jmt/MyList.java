@@ -111,24 +111,12 @@ public class MyList extends Fragment {
             return null;
         });
         recyclerView.setAdapter(adapter);
-        // 이 부분은 추후 데이터 베이스 연동으로 수정해야 함
-//        adapter.addItem(new PersonalComment("히유히유", "연어 덮밥 존맛. 연어가 살아있다!"));
-//        adapter.addItem(new PersonalComment("덕천식당", "순대 국밥이 참 맛있다~"));
-//        adapter.addItem(new PersonalComment("청춘 튀겨", "치킨 JMT~~"));
-//        adapter.addItem(new PersonalComment("히유히유", "연어 덮밥 존맛. 연어가 살아있다!"));
-//        adapter.addItem(new PersonalComment("덕천식당", "순대 국밥이 참 맛있다~"));
-//        adapter.addItem(new PersonalComment("청춘 튀겨", "치킨 JMT~~"));
-//        adapter.addItem(new PersonalComment("히유히유", "연어 덮밥 존맛. 연어가 살아있다!"));
-//        adapter.addItem(new PersonalComment("덕천식당", "순대 국밥이 참 맛있다~"));
-//        adapter.addItem(new PersonalComment("청춘 튀겨", "치킨 JMT~~"));
-//
-//        recyclerView.setAdapter(adapter);
 
         add_btn = v.findViewById(R.id.add_btn);
         add_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                getParentFragmentManager().beginTransaction().replace(R.id.main_layout, frag_add_store).commit();
+                getParentFragmentManager().beginTransaction().replace(R.id.main_layout, frag_add_store).addToBackStack(null).commit();
             }
         });
 

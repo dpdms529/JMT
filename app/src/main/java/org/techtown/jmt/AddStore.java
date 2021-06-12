@@ -5,18 +5,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContract;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -56,7 +54,6 @@ import com.kakao.sdk.user.UserApiClient;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -86,6 +83,9 @@ public class AddStore extends Fragment {
 
     private String commentDocName;
     private String storeDocName;
+
+    private Double latitude;
+    private Double longitude;
 
     ArrayList<Document> documentArrayList = new ArrayList<>(); //지역명 검색 결과 리스트
     EditText mSearchEdit;
@@ -164,8 +164,6 @@ public class AddStore extends Fragment {
 //                }
 //            }
 //        });
-
-        // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
         // 데이터베이스 업로드
         db = FirebaseFirestore.getInstance();
@@ -302,7 +300,6 @@ public class AddStore extends Fragment {
                                                 }
                                             }
                                         });
-
                                         // user field update
                                         db.collection("user").document(String.valueOf(user.getId()))
                                                 .update("store", FieldValue.arrayUnion(document.getReference()),
@@ -314,7 +311,9 @@ public class AddStore extends Fragment {
                     }
                     return null;
                 });
-
+                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                fragmentManager.beginTransaction().remove(AddStore.this).commit();
+                fragmentManager.popBackStack();
             }
         });
 

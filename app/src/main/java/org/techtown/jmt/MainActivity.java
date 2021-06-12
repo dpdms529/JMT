@@ -1,15 +1,7 @@
 package org.techtown.jmt;
 
-import android.content.Intent;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.Signature;
 import android.graphics.drawable.ColorDrawable;
-import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
-import android.util.Base64;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
@@ -21,13 +13,6 @@ import androidx.fragment.app.Fragment;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomnavigation.LabelVisibilityMode;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
-
-import org.w3c.dom.CDATASection;
-
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 
 public class MainActivity extends AppCompatActivity {
     Fragment frag_my_list;
@@ -67,22 +52,22 @@ public class MainActivity extends AppCompatActivity {
                     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                         switch (item.getItemId()) {
                             case R.id.tab_my_list:
-                                getSupportFragmentManager().beginTransaction().replace(R.id.main_layout, frag_my_list).commit();
+                                getSupportFragmentManager().beginTransaction().replace(R.id.main_layout, frag_my_list).addToBackStack(null).commit();
                                 setActionbarTitle("나의 맛집");
                                 currentTitle = "나의 맛집";  // 백업을 위한 flag
                                 return true;
                             case R.id.tab_store_list:
-                                getSupportFragmentManager().beginTransaction().replace(R.id.main_layout, frag_store_list).commit();
+                                getSupportFragmentManager().beginTransaction().replace(R.id.main_layout, frag_store_list).addToBackStack(null).commit();
                                 setActionbarTitle("모두의 맛집");
                                 currentTitle = "모두의 맛집";
                                 return true;
                             case R.id.tab_user_list:
-                                getSupportFragmentManager().beginTransaction().replace(R.id.main_layout, frag_user_list).commit();
+                                getSupportFragmentManager().beginTransaction().replace(R.id.main_layout, frag_user_list).addToBackStack(null).commit();
                                 setActionbarTitle("맛집 킬러");
                                 currentTitle = "맛집 킬러";
                                 return true;
                             case R.id.tab_favorite_list:
-                                getSupportFragmentManager().beginTransaction().replace(R.id.main_layout, frag_favorite_list).commit();
+                                getSupportFragmentManager().beginTransaction().replace(R.id.main_layout, frag_favorite_list).addToBackStack(null).commit();
                                 setActionbarTitle("즐겨찾는 리스트");
                                 currentTitle = "즐겨찾는 리스트";
                                 return true;
@@ -116,23 +101,21 @@ public class MainActivity extends AppCompatActivity {
 
         switch (backup_str) {
             case "나의 맛집":
-                getSupportFragmentManager().beginTransaction().replace(R.id.main_layout, frag_my_list).commit();
+                getSupportFragmentManager().beginTransaction().replace(R.id.main_layout, frag_my_list).addToBackStack(null).commit();
                 setActionbarTitle("나의 맛집");
                 break;
             case "모두의 맛집":
-                getSupportFragmentManager().beginTransaction().replace(R.id.main_layout, frag_store_list).commit();
+                getSupportFragmentManager().beginTransaction().replace(R.id.main_layout, frag_store_list).addToBackStack(null).commit();
                 setActionbarTitle("모두의 맛집");
                 break;
             case "맛집 킬러":
-                getSupportFragmentManager().beginTransaction().replace(R.id.main_layout, frag_user_list).commit();
+                getSupportFragmentManager().beginTransaction().replace(R.id.main_layout, frag_user_list).addToBackStack(null).commit();
                 setActionbarTitle("맛집 킬러");
                 break;
             case "즐겨찾는 리스트":
-                getSupportFragmentManager().beginTransaction().replace(R.id.main_layout, frag_favorite_list).commit();
+                getSupportFragmentManager().beginTransaction().replace(R.id.main_layout, frag_favorite_list).addToBackStack(null).commit();
                 setActionbarTitle("즐겨찾는 리스트");
                 break;
         }
     }
-
-
 }
