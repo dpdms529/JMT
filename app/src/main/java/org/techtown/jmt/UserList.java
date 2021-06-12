@@ -26,8 +26,6 @@ public class UserList extends Fragment {    // 어댑터가 storeAdapter랑 유�
     private static final String TAG = "TAG";
     private Context mContext;
     FirebaseFirestore db;
-    private Spinner category_spinner;
-    private ArrayAdapter arrayAdapter;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -38,11 +36,6 @@ public class UserList extends Fragment {    // 어댑터가 storeAdapter랑 유�
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(mContext, LinearLayoutManager.VERTICAL, false);
         recyclerView.setLayoutManager(layoutManager);
-
-        // 스피너(카테고리) 구현
-        category_spinner = (Spinner)v.findViewById(R.id.category);
-        arrayAdapter = ArrayAdapter.createFromResource(mContext, R.array.categories_all, R.layout.support_simple_spinner_dropdown_item);
-        category_spinner.setAdapter(arrayAdapter);
 
         UserAdapter adapter = new UserAdapter(mContext);
 

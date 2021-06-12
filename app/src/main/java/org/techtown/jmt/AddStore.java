@@ -35,6 +35,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -57,6 +58,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -83,6 +85,7 @@ public class AddStore extends Fragment {
 
     private String commentDocName;
     private String storeDocName;
+    private Uri file;
 
     private Double latitude;
     private Double longitude;
@@ -178,6 +181,7 @@ public class AddStore extends Fragment {
                 String category_selected = category_spinner.getSelectedItem().toString();
                 String menu_name = menu_edit.getText().toString();
                 String comment_content = comment_edit.getText().toString();
+                StorageReference storageRef = storage.getReference();
 
                 // 사용자 확인 및 데이터 전송
                 Map<String, Object> commentData = new HashMap<>();
@@ -198,6 +202,26 @@ public class AddStore extends Fragment {
                         storeData.put("name", store_name);
                         menuData.put("menu_name", menu_name);
                         menuData.put("lover", 1);
+                        if(file != null){
+                            StorageReference riversRef = storageRef.child(storeDocName + "/" + user.getId() + ".png");
+                            Log.d(TAG,"사진 : " + riversRef.getPath());
+                            storeData.put("photo", Arrays.asList(riversRef.getPath()));
+                            commentData.put("photo", riversRef.getPath());
+
+                            UploadTask uploadTask = riversRef.putFile(file);
+                            uploadTask.addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Toast.makeText(getContext(),"사진이 정상적으로 업로드 되지 않음", Toast.LENGTH_SHORT).show();
+                                }
+                            }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                                @Override
+                                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                                    Toast.makeText(getContext(),"사진이 정상적으로 업로드 됨",Toast.LENGTH_SHORT).show();
+                                }
+                            });
+
+                        }
 
                         CollectionReference storeColRef = db.collection("store");
                         Task<QuerySnapshot> temp;
@@ -297,6 +321,7 @@ public class AddStore extends Fragment {
                                 }
                             }
                         });
+
                     }
                     return null;
                 });
@@ -341,28 +366,14 @@ public class AddStore extends Fragment {
             if(result.getResultCode() == Activity.RESULT_OK){
                 Intent data = result.getData();
                 Log.d(TAG," 데이터는 : " + data.getData());
-                Uri file = data.getData();
-                StorageReference storageRef = storage.getReference();
-                StorageReference riversRef = storageRef.child("photo/1.png");
-                UploadTask uploadTask = riversRef.putFile(file);
+                file = data.getData();
                 try{
-                    InputStream in = getActivity().getContentResolver().openInputStream(data.getData());
+                    InputStream in = getActivity().getContentResolver().openInputStream(file);
                     Bitmap img = BitmapFactory.decodeStream(in);
                     food_image.setImageBitmap(img);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-                uploadTask.addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(getContext(),"사진이 정상적으로 업로드 되지 않음", Toast.LENGTH_SHORT).show();
-                    }
-                }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                    @Override
-                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                        Toast.makeText(getContext(),"사진이 정상적으로 업로드 됨",Toast.LENGTH_SHORT).show();
-                    }
-                });
 
             }
         }
