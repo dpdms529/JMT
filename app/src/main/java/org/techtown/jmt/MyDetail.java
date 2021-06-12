@@ -87,6 +87,8 @@ public class MyDetail extends Fragment {
     private Uri file;
     private int index;
 
+    private String storeName;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -95,7 +97,7 @@ public class MyDetail extends Fragment {
         getParentFragmentManager().setFragmentResultListener("requestKey", this, new FragmentResultListener() {
             @Override
             public void onFragmentResult(@NonNull String requestKey, @NonNull Bundle result) {
-                index = result.getInt("index");
+                storeName = result.getString("store_name");
             }
         });
         store_name = v.findViewById(R.id.store_name);
@@ -124,42 +126,39 @@ public class MyDetail extends Fragment {
                                         Log.d(TAG, "사용자 정보 : " + userDoc.get("store"));
                                         ArrayList storeArr = (ArrayList) userDoc.get("store");
                                         for (int i = 0; i < storeArr.size(); i++) {
-                                            if(i == index){
-                                                DocumentReference sdr = (DocumentReference) storeArr.get(i);
-                                                sdr.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                                    @Override
-                                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                                        if (task.isSuccessful()) {
-                                                            DocumentSnapshot storeDoc = task.getResult();
-                                                            if (storeDoc.exists()) {
-                                                                Log.d(TAG, "가게 정보 : " + storeDoc.getData());
-                                                                store_name.setText(storeDoc.getString("name"));
-                                                                store_address.setText(storeDoc.getString("location"));
-                                                                ArrayList commentArr = (ArrayList) storeDoc.get("comment");
-                                                                for (int j = 0; j < commentArr.size(); j++) {
-                                                                    DocumentReference cdr = (DocumentReference) commentArr.get(j);
-                                                                    cdr.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                                                        @Override
-                                                                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                                                            if (task.isSuccessful()) {
-                                                                                DocumentSnapshot commentDoc = task.getResult();
-                                                                                if (commentDoc.exists()) {
-                                                                                    Log.d(TAG, "댓글 정보 : " + commentDoc.getData());
-                                                                                    if ((Long) commentDoc.get("user") == user.getId()) {
-                                                                                        menu_edit.setText(commentDoc.getString("menu"));
-                                                                                        comment_edit.setText(commentDoc.getString("content"));
-                                                                                    }
+                                            DocumentReference sdr = (DocumentReference) storeArr.get(i);
+                                            sdr.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                                @Override
+                                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                                    if(task.isSuccessful()) {
+                                                        DocumentSnapshot storeDoc = task.getResult();
+                                                        if(storeDoc.exists() && storeDoc.getString("name").equals(storeName)){
+                                                            Log.d(TAG, "가게 정보 : " + storeDoc.getData());
+                                                            store_name.setText(storeDoc.getString("name"));
+                                                            store_address.setText(storeDoc.getString("location"));
+                                                            ArrayList commentArr = (ArrayList) storeDoc.get("comment");
+                                                            for (int j = 0; j < commentArr.size(); j++) {
+                                                                DocumentReference cdr = (DocumentReference) commentArr.get(j);
+                                                                cdr.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                                                    @Override
+                                                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                                                        if (task.isSuccessful()) {
+                                                                            DocumentSnapshot commentDoc = task.getResult();
+                                                                            if (commentDoc.exists()) {
+                                                                                Log.d(TAG, "댓글 정보 : " + commentDoc.getData());
+                                                                                if ((Long) commentDoc.get("user") == user.getId()) {
+                                                                                    menu_edit.setText(commentDoc.getString("menu"));
+                                                                                    comment_edit.setText(commentDoc.getString("content"));
                                                                                 }
                                                                             }
                                                                         }
-                                                                    });
-                                                                }
+                                                                    }
+                                                                });
                                                             }
                                                         }
                                                     }
-                                                });
-                                            }
-
+                                                }
+                                            });
                                         }
                                     }
                                 }

@@ -33,7 +33,7 @@ import java.util.Map;
 
 public class MyList extends Fragment {
     private static final String TAG = "TAG";
-    private Context mComtext;
+    private Context mContext;
     Fragment frag_add_store;
     Fragment frag_my_detail;
     ImageButton add_btn;
@@ -51,10 +51,10 @@ public class MyList extends Fragment {
 
         recyclerView = v.findViewById(R.id.comments_recyclerview);
 
-        LinearLayoutManager layoutManager = new LinearLayoutManager(mComtext, LinearLayoutManager.VERTICAL, false);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(mContext, LinearLayoutManager.VERTICAL, false);
         recyclerView.setLayoutManager(layoutManager);
 
-        MyAdapter adapter = new MyAdapter(mComtext);
+        MyAdapter adapter = new MyAdapter(mContext);
 
         db = FirebaseFirestore.getInstance();
         UserApiClient.getInstance().me((user, error) -> {
@@ -119,11 +119,10 @@ public class MyList extends Fragment {
             public void onItemClick(MyAdapter.ViewHolder holder, View view, int position) {
                 PersonalComment item = adapter.getItem(position);
                 Bundle bundle = new Bundle();
-                bundle.putInt("index",position);
-                Log.d(TAG,"send Index is " + bundle.getInt("index"));
+                bundle.putString("store_name", item.getStoreName());
+                Log.d(TAG,"send store_name is " + bundle.getString("store_name"));
                 getParentFragmentManager().setFragmentResult("requestKey",bundle);
-                getParentFragmentManager().beginTransaction().replace(R.id.main_layout,frag_my_detail).commit();
-
+                getParentFragmentManager().beginTransaction().replace(R.id.main_layout, frag_my_detail).addToBackStack(null).commit();
             }
         });
 
@@ -158,7 +157,7 @@ public class MyList extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        mComtext = context;
+        mContext = context;
     }
 }
 
