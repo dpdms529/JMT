@@ -6,156 +6,158 @@
     android:layout_height="match_parent"
     tools:context=".AddStore">
 
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_height="match_parent">
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="horizontal">
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
-            <TextView
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:gravity="center_vertical"
-                android:layout_marginRight="5dp"
-                android:text="식당 이름" />
+                android:orientation="horizontal">
 
-            <EditText
-                android:id="@+id/edit_store_name"
-                android:layout_width="wrap_content"
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginRight="5dp"
+                    android:gravity="center_vertical"
+                    android:text="식당 이름" />
+
+                <EditText
+                    android:id="@+id/search_editText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:drawableRight="@drawable/ic_search"
+                    android:hint="입력 후, 아래 목록에서 선택" />
+
+            </LinearLayout>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/search_recyclerView"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:ems="10"
-                android:inputType="textPersonName"
-                android:hint="식당 이름" />
-        </LinearLayout>
+                android:visibility="gone" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:gravity="center_vertical"
-                android:layout_marginRight="5dp"
-                android:text="카테고리" />
-
-            <Spinner
-                android:id="@+id/category"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:gravity="center_vertical"
-                android:layout_marginRight="5dp"
-                android:text="음식 사진" />
-
-            <ImageButton
-                android:id="@+id/add_pic_btn"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:src="@drawable/ic_add_from_album" />
-
-            <ImageView
-                android:id="@+id/food_image"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:gravity="center_vertical"
-                android:layout_marginRight="5dp"
-                android:text="먹은 메뉴" />
-
-            <EditText
-                android:id="@+id/menu"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:ems="10"
-                android:inputType="textPersonName"
-                android:hint="먹은 메뉴" />
-            <!-- 여러 메뉴 추가할 수 있도록 할 때 사용할 버튼
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="위치" />
+
+                <TextView
+                    android:id="@+id/store_address"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginRight="5dp"
+                    android:gravity="center_vertical"
+                    android:text="카테고리" />
+
+                <Spinner
+                    android:id="@+id/category"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginRight="5dp"
+                    android:gravity="center_vertical"
+                    android:text="음식 사진" />
+
+                <ImageButton
+                    android:id="@+id/add_pic_btn"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:src="@drawable/ic_add_from_album" />
+
+                <ImageView
+                    android:id="@+id/food_image"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginRight="5dp"
+                    android:gravity="center_vertical"
+                    android:text="먹은 메뉴" />
+
+                <EditText
+                    android:id="@+id/menu"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:hint="먹은 메뉴"
+                    android:inputType="textPersonName" />
+                <!-- 여러 메뉴 추가할 수 있도록 할 때 사용할 버튼
             <ImageButton
                 android:id="@+id/add_menu_btn"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:src="@drawable/ic_add" />
             !-->
-        </LinearLayout>
+            </LinearLayout>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:text="한줄평" />
-
-            <EditText
-                android:id="@+id/comment"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:ems="10"
-                android:inputType="textPersonName"
-                android:hint="한줄평" />
-        </LinearLayout>
+                android:orientation="vertical">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="한줄평" />
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:text="위치" />
+                <EditText
+                    android:id="@+id/comment"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:hint="한줄평"
+                    android:inputType="textPersonName" />
+            </LinearLayout>
 
-            <SearchView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
-
-            <com.google.android.gms.maps.MapView
-                android:id="@+id/mapView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-
-            <TextView
-                android:id="@+id/store_address"
-                android:layout_width="match_parent"
+            <Button
+                android:id="@+id/button"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="address should be here" />
+                android:layout_gravity="center_horizontal"
+                android:layout_margin="10dp"
+                android:background="@drawable/button"
+                android:text="등록하기"
+                android:textColor="@color/white"
+                android:textSize="20sp" />
         </LinearLayout>
+    </ScrollView>
 
-        <Button
-            android:id="@+id/button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:background="@drawable/button"
-            android:text="등록하기"
-            android:textColor="@color/white"
-            android:textSize="20sp"
-            android:layout_margin="10dp"/>
-    </LinearLayout>
 </FrameLayout>
