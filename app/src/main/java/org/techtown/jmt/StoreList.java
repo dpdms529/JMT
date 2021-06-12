@@ -6,6 +6,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -22,12 +26,17 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.kakao.sdk.user.UserApiClient;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class StoreList extends Fragment {
     private static final String TAG = "TAG";
-    private Context mComtext;
+    private Context mContext;
     FirebaseFirestore db;
+    private Spinner category_spinner;
+    private ArrayAdapter arrayAdapter;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -36,11 +45,79 @@ public class StoreList extends Fragment {
 
         RecyclerView recyclerView = v.findViewById(R.id.store_name_recyclerview);
 
-        LinearLayoutManager layoutManager = new LinearLayoutManager(mComtext, LinearLayoutManager.VERTICAL, false);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(mContext, LinearLayoutManager.VERTICAL, false);
         recyclerView.setLayoutManager(layoutManager);
 
-        StoreAdapter adapter = new StoreAdapter(mComtext);
+        // 스피너(카테고리) 구현
+        category_spinner = (Spinner)v.findViewById(R.id.category);
+        arrayAdapter = ArrayAdapter.createFromResource(mContext, R.array.categories_all, R.layout.support_simple_spinner_dropdown_item);
+        category_spinner.setAdapter(arrayAdapter);
 
+        // 카테고리별 분류
+        category_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                StoreAdapter adapter = new StoreAdapter(mContext);
+                switch(i){
+                    case 1:
+                        DBonAdapter(adapter, "한식");
+                        break;
+                    case 2:
+                        DBonAdapter(adapter, "중식");
+                        break;
+                    case 3:
+                        DBonAdapter(adapter, "일식");
+                        break;
+                    case 4:
+                        DBonAdapter(adapter, "아시안, 양식");
+                        break;
+                    case 5:
+                        DBonAdapter(adapter, "분식");
+                        break;
+                    case 6:
+                        DBonAdapter(adapter, "카페, 디저트");
+                        break;
+                    case 7:
+                        DBonAdapter(adapter, "패스트푸드");
+                        break;
+                    default:
+                        AllDBonAdapter(adapter);
+                        break;
+                }
+                recyclerView.setAdapter(adapter);
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+                StoreAdapter adapter = new StoreAdapter(mContext);
+                AllDBonAdapter(adapter);
+                recyclerView.setAdapter(adapter);
+            }
+        });
+
+        // Inflate the layout for this fragment
+        return v;
+    }
+
+    public void DBonAdapter(StoreAdapter adapter, String category) {
+        db = FirebaseFirestore.getInstance();
+        db.collection("store")
+                .whereEqualTo("category", category)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if(task.isSuccessful()){
+                            for(QueryDocumentSnapshot document : task.getResult()){
+                                Log.d(TAG,"가게 정보" + document.getData());
+                                adapter.addItem(new StoreInfo(document.getString("name"), (Long) document.get("lover")));
+                                adapter.notifyDataSetChanged();
+                            }
+                        }
+                    }
+                });
+    }
+
+    public void AllDBonAdapter(StoreAdapter adapter) {
         db = FirebaseFirestore.getInstance();
         db.collection("store")
                 .orderBy("lover", Query.Direction.DESCENDING)
@@ -51,34 +128,18 @@ public class StoreList extends Fragment {
                         if(task.isSuccessful()){
                             for(QueryDocumentSnapshot document : task.getResult()){
                                 Log.d(TAG,"가게 정보" + document.getData());
-                                adapter.addItem(new StoreInfo(document.getString("name")));
+                                adapter.addItem(new StoreInfo(document.getString("name"), (Long) document.get("lover")));
                                 adapter.notifyDataSetChanged();
                             }
                         }
                     }
                 });
-
-        // 이 부분은 추후 데이터 베이스 연동으로 수정해야 함
-//        adapter.addItem(new StoreInfo("히유히유"));
-//        adapter.addItem(new StoreInfo("덕천식당"));
-//        adapter.addItem(new StoreInfo("청춘 튀겨"));
-//        adapter.addItem(new StoreInfo("히유히유"));
-//        adapter.addItem(new StoreInfo("덕천식당"));
-//        adapter.addItem(new StoreInfo("청춘 튀겨"));
-//        adapter.addItem(new StoreInfo("히유히유"));
-//        adapter.addItem(new StoreInfo("덕천식당"));
-//        adapter.addItem(new StoreInfo("청춘 튀겨"));
-
-        recyclerView.setAdapter(adapter);
-
-        // Inflate the layout for this fragment
-        return v;
     }
 
     // 프래그먼트는 context를 바로 가져올 수 없음. getActivity 또는 getContext는 종종 Null을 가져오므로 안전한 코드 다음과 같이 작성
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        mComtext = context;
+        mContext = context;
     }
 }

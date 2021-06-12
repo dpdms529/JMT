@@ -6,6 +6,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -21,8 +24,10 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 public class UserList extends Fragment {    // 어댑터가 storeAdapter랑 유사함. 중복 제거할 방법 찾기!
     private static final String TAG = "TAG";
-    private Context mComtext;
+    private Context mContext;
     FirebaseFirestore db;
+    private Spinner category_spinner;
+    private ArrayAdapter arrayAdapter;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -31,10 +36,15 @@ public class UserList extends Fragment {    // 어댑터가 storeAdapter랑 유�
 
         RecyclerView recyclerView = v.findViewById(R.id.user_name_recyclerview);
 
-        LinearLayoutManager layoutManager = new LinearLayoutManager(mComtext, LinearLayoutManager.VERTICAL, false);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(mContext, LinearLayoutManager.VERTICAL, false);
         recyclerView.setLayoutManager(layoutManager);
 
-        UserAdapter adapter = new UserAdapter(mComtext);
+        // 스피너(카테고리) 구현
+        category_spinner = (Spinner)v.findViewById(R.id.category);
+        arrayAdapter = ArrayAdapter.createFromResource(mContext, R.array.categories_all, R.layout.support_simple_spinner_dropdown_item);
+        category_spinner.setAdapter(arrayAdapter);
+
+        UserAdapter adapter = new UserAdapter(mContext);
 
         db = FirebaseFirestore.getInstance();
         db.collection("user")
@@ -46,27 +56,22 @@ public class UserList extends Fragment {    // 어댑터가 storeAdapter랑 유�
                         if(task.isSuccessful()){
                             for(QueryDocumentSnapshot document : task.getResult()){
                                 Log.d(TAG,"회원 정보" + document.getData());
-                                adapter.addItem(new UserInfo(document.getString("name")));
+                                adapter.addItem(new UserInfo(document.getString("name"), (Long) document.get("storeNum")));
                                 adapter.notifyDataSetChanged();
                             }
                         }
                     }
                 });
 
-        // 이 부분은 추후 데이터 베이스 연동으로 수정해야 함
-//        adapter.addItem(new UserInfo("soy-A"));
-//        adapter.addItem(new UserInfo("백구"));
-//        adapter.addItem(new UserInfo("랄랄"));
-//        adapter.addItem(new UserInfo("skql1502"));
-//        adapter.addItem(new UserInfo("musiclove"));
-//        adapter.addItem(new UserInfo("zl존고양이"));
-//        adapter.addItem(new UserInfo("안드s2"));
-//        adapter.addItem(new UserInfo("소연"));
-//        adapter.addItem(new UserInfo("예은"));
-
         recyclerView.setAdapter(adapter);
 
         // Inflate the layout for this fragment
         return v;
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        mContext = context;
     }
 }

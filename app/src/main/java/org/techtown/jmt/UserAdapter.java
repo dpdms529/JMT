@@ -56,12 +56,15 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         TextView title_textView;
+        TextView num_of_comment;
         public ViewHolder(View itemView) {
             super(itemView);
             title_textView = itemView.findViewById(R.id.name);
+            num_of_comment = itemView.findViewById(R.id.num_of_comment);
         }
         public void setItem(UserInfo item) {
             title_textView.setText(item.getUserName());
+            num_of_comment.setText("총 " + String.valueOf(item.getNumOfComment()) + " 개의 맛집");
         }
     }
 }

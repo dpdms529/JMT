@@ -29,15 +29,15 @@ public class FavoriteList extends Fragment {
         FavoriteAdapter adapter = new FavoriteAdapter();
 
         // 이 부분은 추후 데이터 베이스 연동으로 수정해야 함
-        adapter.addItem(new UserInfo("soy-A"));
-        adapter.addItem(new UserInfo("백구"));
-        adapter.addItem(new UserInfo("랄랄"));
-        adapter.addItem(new UserInfo("skql1502"));
-        adapter.addItem(new UserInfo("musiclove"));
-        adapter.addItem(new UserInfo("zl존고양이"));
-        adapter.addItem(new UserInfo("안드s2"));
-        adapter.addItem(new UserInfo("소연"));
-        adapter.addItem(new UserInfo("예은"));
+//        adapter.addItem(new UserInfo("soy-A"));
+//        adapter.addItem(new UserInfo("백구"));
+//        adapter.addItem(new UserInfo("랄랄"));
+//        adapter.addItem(new UserInfo("skql1502"));
+//        adapter.addItem(new UserInfo("musiclove"));
+//        adapter.addItem(new UserInfo("zl존고양이"));
+//        adapter.addItem(new UserInfo("안드s2"));
+//        adapter.addItem(new UserInfo("소연"));
+//        adapter.addItem(new UserInfo("예은"));
 
         recyclerView.setAdapter(adapter);
 

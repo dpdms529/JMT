@@ -1,13 +1,18 @@
 package org.techtown.jmt;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.material.chip.Chip;
+import com.google.android.material.chip.ChipGroup;
 
 import java.util.ArrayList;
 
@@ -56,12 +61,16 @@ public class StoreAdapter extends RecyclerView.Adapter<StoreAdapter.ViewHolder> 
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         TextView title_textView;
+        TextView lover_textView;
+
         public ViewHolder(View itemView) {
             super(itemView);
             title_textView = itemView.findViewById(R.id.name);
+            lover_textView = itemView.findViewById(R.id.num_of_comment);
         }
         public void setItem(StoreInfo item) {
             title_textView.setText(item.getStoreName());
+            lover_textView.setText(String.valueOf(item.getLover()) + "명의 유저가 좋아합니다");
         }
     }
 }

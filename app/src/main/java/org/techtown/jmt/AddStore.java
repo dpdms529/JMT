@@ -155,16 +155,6 @@ public class AddStore extends Fragment {
             }
         });
 
-//        mSearchEdit.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-//            @Override
-//            public void onFocusChange(View view, boolean hasFocus) {
-//                if (hasFocus) {
-//                } else {
-//                    recyclerView.setVisibility(View.GONE);
-//                }
-//            }
-//        });
-
         // 데이터베이스 업로드
         db = FirebaseFirestore.getInstance();
         storage = FirebaseStorage.getInstance();
@@ -175,7 +165,6 @@ public class AddStore extends Fragment {
         category_spinner.setAdapter(arrayAdapter);
 
         // 뷰 설정
-        //store_name_edit = (EditText)v.findViewById(R.id.edit_store_name);
         food_image = (ImageView)v.findViewById(R.id.food_image); // 어떻게 해야?
         menu_edit = (EditText)v.findViewById(R.id.menu);
         comment_edit = (EditText)v.findViewById(R.id.comment);

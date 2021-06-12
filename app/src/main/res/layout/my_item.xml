@@ -23,32 +23,27 @@
             android:textSize="21sp"
             android:textStyle="bold" />
 
-        <com.google.android.material.chip.ChipGroup
+        <TextView
+            android:id="@+id/num_of_comment"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center">
+            android:layout_marginRight="20dp"
+            android:layout_gravity="center_vertical"
+            android:textSize="13sp"
+            android:textStyle="bold" />
 
-            <com.google.android.material.chip.Chip
-                style="@style/ThinnerChip"
-                android:id="@+id/tag1"
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scrollbars="none">
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/chip_group"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="연어 덮밥"/>
+                android:layout_height="match_parent">
 
-            <com.google.android.material.chip.Chip
-                style="@style/ThinnerChip"
-                android:id="@+id/ex_tag"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="육회 덮밥"/>
+            </com.google.android.material.chip.ChipGroup>
+        </HorizontalScrollView>
 
-            <com.google.android.material.chip.Chip
-                style="@style/ThinnerChip"
-                android:id="@+id/ex_tag2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="소바"/>
-
-        </com.google.android.material.chip.ChipGroup>
     </LinearLayout>
 </LinearLayout>
