@@ -102,6 +102,7 @@ public class StoreList extends Fragment {
         db = FirebaseFirestore.getInstance();
         db.collection("store")
                 .whereEqualTo("category", category)
+                .orderBy("lover", Query.Direction.DESCENDING)
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
