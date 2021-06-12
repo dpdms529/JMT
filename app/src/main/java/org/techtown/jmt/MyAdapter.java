@@ -3,6 +3,7 @@ package org.techtown.jmt;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.TextView;
 import android.content.Context;
 
@@ -72,5 +73,6 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
             comment_textView.setText(item.getComment());
 //            picture_imageView.setImageBitmap(); // https://art-coding3.tistory.com/38 참고
         }
+
     }
 }
