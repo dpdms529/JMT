@@ -35,6 +35,7 @@ public class MyList extends Fragment {
     private static final String TAG = "TAG";
     private Context mComtext;
     Fragment frag_add_store;
+    Fragment frag_my_detail;
     ImageButton add_btn;
     ImageButton share_btn;
     RecyclerView recyclerView;
@@ -46,6 +47,7 @@ public class MyList extends Fragment {
         View v = inflater.inflate(R.layout.fragment_my_list, container, false);
 
         frag_add_store = new AddStore();
+        frag_my_detail = new MyDetail();
 
         recyclerView = v.findViewById(R.id.comments_recyclerview);
 
@@ -111,6 +113,19 @@ public class MyList extends Fragment {
             return null;
         });
         recyclerView.setAdapter(adapter);
+
+        adapter.setOnItemClickListener(new OnMyItemClickListener() {
+            @Override
+            public void onItemClick(MyAdapter.ViewHolder holder, View view, int position) {
+                PersonalComment item = adapter.getItem(position);
+                Bundle bundle = new Bundle();
+                bundle.putInt("index",position);
+                Log.d(TAG,"send Index is " + bundle.getInt("index"));
+                getParentFragmentManager().setFragmentResult("requestKey",bundle);
+                getParentFragmentManager().beginTransaction().replace(R.id.main_layout,frag_my_detail).commit();
+
+            }
+        });
 
         add_btn = v.findViewById(R.id.add_btn);
         add_btn.setOnClickListener(new View.OnClickListener() {

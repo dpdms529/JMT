@@ -14,8 +14,9 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 
-public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
+public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> implements OnMyItemClickListener {
     ArrayList<PersonalComment> items = new ArrayList<PersonalComment>();
+    OnMyItemClickListener listener;
     private Context context;
 
     public MyAdapter(Context context){
@@ -28,7 +29,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
         LayoutInflater inflater = LayoutInflater.from(viewGroup.getContext());
         // if item에 image 있으면, comment_item 사용, image 없으면 comment_nopic_item 사용(gone 사용해야. invisible은 공간 차지함)
         View itemView = inflater.inflate(R.layout.comment_item, viewGroup, false);
-        return new ViewHolder(itemView);
+        return new ViewHolder(itemView, this);
     }
 
     @Override
@@ -58,14 +59,35 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
         items.set(position, item);
     }
 
+    public void setOnItemClickListener(OnMyItemClickListener listener){
+        this.listener = listener;
+    }
+
+    @Override
+    public void onItemClick(ViewHolder holder, View view, int position) {
+        if(listener != null){
+            listener.onItemClick(holder,view,position);
+        }
+    }
+
+
     static class ViewHolder extends RecyclerView.ViewHolder {
         TextView title_textView;
         TextView comment_textView;
 //        ImageView picture_imageView;
-        public ViewHolder(View itemView) {
+        public ViewHolder(View itemView, final OnMyItemClickListener listener) {
             super(itemView);
             title_textView = itemView.findViewById(R.id.comment_title);
             comment_textView = itemView.findViewById(R.id.comment_text);
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    int position = getAdapterPosition();
+                    if(listener != null){
+                        listener.onItemClick(ViewHolder.this,view,position);
+                    }
+                }
+            });
 //            picture_imageView = itemView.findViewById(R.id.comment_img);
         }
         public void setItem(PersonalComment item) {
