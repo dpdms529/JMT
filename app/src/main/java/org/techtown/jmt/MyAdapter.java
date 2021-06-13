@@ -24,7 +24,6 @@ import java.util.ArrayList;
 
 public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> implements OnMyItemClickListener {
     ArrayList<PersonalComment> items = new ArrayList<PersonalComment>();
-    ArrayList<String> paths = new ArrayList<String>();
     OnMyItemClickListener listener;
     private Context context;
 
@@ -44,7 +43,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> implem
     @Override
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, int position) {
         PersonalComment item = items.get(position);
-        viewHolder.setItem(context,item,paths.get(position));
+        viewHolder.setItem(context,item);
     }
 
     @Override
@@ -52,9 +51,8 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> implem
         return items.size();
     }
 
-    public void addItem(PersonalComment item, String path) {
+    public void addItem(PersonalComment item) {
         items.add(item);
-        paths.add(path);
     }
 
     public void setItems(ArrayList<PersonalComment> items){
@@ -87,6 +85,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> implem
         ImageView picture_imageView;
         FirebaseStorage storage;
         StorageReference storageReference;
+        String path;
 
         public ViewHolder(View itemView, final OnMyItemClickListener listener) {
             super(itemView);
@@ -105,9 +104,10 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> implem
                 }
             });
         }
-        public void setItem(Context context, PersonalComment item, String path) {
+        public void setItem(Context context, PersonalComment item) {
             title_textView.setText(item.getStoreName());
             comment_textView.setText(item.getComment());
+            path = item.getImageUrl();
             if(path != null){
                 storageReference.child(path).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                     @Override

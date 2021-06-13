@@ -43,6 +43,7 @@ public class StoreDetail extends Fragment {
     private TextView store_name;
     private TextView store_address;
     RecyclerView recyclerView;
+    CommentAdapter adapter;
 
     private String storeName;
 
@@ -58,16 +59,16 @@ public class StoreDetail extends Fragment {
         LinearLayoutManager layoutManager = new LinearLayoutManager(mContext, LinearLayoutManager.VERTICAL, false);
         recyclerView.setLayoutManager(layoutManager);
 
+        db = FirebaseFirestore.getInstance();
+
+        adapter = new CommentAdapter(mContext);
+
         getParentFragmentManager().setFragmentResultListener("requestKey", this, new FragmentResultListener() {
             @Override
             public void onFragmentResult(@NonNull String requestKey, @NonNull Bundle result) {
                 storeName = result.getString("store_name");
 
                 store_name.setText(storeName);
-
-                db = FirebaseFirestore.getInstance();
-
-                CommentAdapter adapter = new CommentAdapter(mContext);
 
                 db.collection("store")
                         .whereEqualTo("name", storeName)
@@ -96,7 +97,7 @@ public class StoreDetail extends Fragment {
                                                                             if(task.isSuccessful()) {
                                                                                 DocumentSnapshot userDoc = task.getResult();
                                                                                 if(userDoc.exists()){
-                                                                                    adapter.addItem(new StoreComment(userDoc.getString("name"), commentDoc.getString("content")));
+                                                                                    adapter.addItem(new StoreComment(userDoc.getString("name"), commentDoc.getString("content"),commentDoc.getString("photo")));
                                                                                     adapter.notifyDataSetChanged();
                                                                                 }
                                                                             }
@@ -116,7 +117,6 @@ public class StoreDetail extends Fragment {
             }
         });
 
-        // Inflate the layout for this fragment
         return v;
     }
 

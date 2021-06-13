@@ -1,13 +1,22 @@
 package org.techtown.jmt;
 
 import android.content.Context;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.bumptech.glide.Glide;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
 
@@ -31,7 +40,7 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.ViewHold
     @Override
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, int position) {
         StoreComment item = items.get(position);
-        viewHolder.setItem(item);
+        viewHolder.setItem(context,item);
     }
 
     public int getItemCount() {
@@ -57,15 +66,38 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.ViewHold
     static class ViewHolder extends RecyclerView.ViewHolder {
         TextView title_textView;
         TextView comment_textView;
+        ImageView picture_imageView;
+        FirebaseStorage storage;
+        StorageReference storageReference;
+        String path;
 
         public ViewHolder(View itemView) {
             super(itemView);
             title_textView = itemView.findViewById(R.id.comment_title);
             comment_textView = itemView.findViewById(R.id.comment_text);
+            picture_imageView = itemView.findViewById(R.id.comment_img);
+            storage = FirebaseStorage.getInstance("gs://android-jmt.appspot.com");
+            storageReference = storage.getReference();
         }
-        public void setItem(StoreComment item) {
+        public void setItem(Context context, StoreComment item) {
             title_textView.setText(item.getUserName());
             comment_textView.setText(item.getComment());
+            path = item.getImageUrl();
+            if(path != null){
+                storageReference.child(path).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                    @Override
+                    public void onSuccess(Uri uri) {
+                        Glide.with(context)
+                                .load(uri)
+                                .into(picture_imageView);
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(context,"실패",Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
         }
     }
 }

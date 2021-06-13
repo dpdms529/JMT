@@ -97,7 +97,7 @@ public class MyList extends Fragment {
                                                                          if(commentDoc.exists()){
                                                                              Log.d(TAG,"댓글 정보 : " + commentDoc.getData());
                                                                              if((Long)commentDoc.get("user") == user.getId()){
-                                                                                 adapter.addItem(new PersonalComment(storeDoc.getString("name"),commentDoc.getString("content")), commentDoc.getString("photo"));
+                                                                                 adapter.addItem(new PersonalComment(storeDoc.getString("name"),commentDoc.getString("content"),commentDoc.getString("photo")));
                                                                                  adapter.notifyDataSetChanged();
                                                                              }
                                                                          }

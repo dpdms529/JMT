@@ -33,11 +33,14 @@ public class OtherList extends Fragment {
     private String userId;
 
     MyAdapter adapter;
+    Fragment frag_store_detail;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_other_list, container, false);
+
+        frag_store_detail = new StoreDetail();
 
         recyclerView = v.findViewById(R.id.comments_recyclerview);
 
@@ -82,7 +85,7 @@ public class OtherList extends Fragment {
                                                                         if(commentDoc.exists()){
                                                                             if(String.valueOf(commentDoc.get("user")).equals(userId)){
                                                                                 Log.d(TAG, "comment info is " + commentDoc.getData());
-                                                                                adapter.addItem(new PersonalComment(storeDoc.getString("name"),commentDoc.getString("content")), commentDoc.getString("photo"));
+                                                                                adapter.addItem(new PersonalComment(storeDoc.getString("name"),commentDoc.getString("content"),commentDoc.getString("photo")) );
                                                                                 adapter.notifyDataSetChanged();
                                                                             }
                                                                         }
@@ -100,8 +103,19 @@ public class OtherList extends Fragment {
                         }
                     });
                 recyclerView.setAdapter(adapter);
+                adapter.setOnItemClickListener(new OnMyItemClickListener() {
+                    @Override
+                    public void onItemClick(MyAdapter.ViewHolder holder, View view, int position) {
+                        PersonalComment item = adapter.getItem(position);
+                        Bundle bundle = new Bundle();
+                        bundle.putString("store_name",item.getStoreName());
+                        getParentFragmentManager().setFragmentResult("requestKey",bundle);
+                        getParentFragmentManager().beginTransaction().replace(R.id.main_layout,frag_store_detail).addToBackStack(null).commit();
+                    }
+                });
             }
         });
+
         return v;
     }
 
