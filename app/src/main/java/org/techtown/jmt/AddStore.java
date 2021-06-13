@@ -81,14 +81,10 @@ public class AddStore extends Fragment {
     private EditText comment_edit;
 
     private Button register_btn;
-    private ImageButton add_pic_btn;
 
     private String commentDocName;
     private String storeDocName;
     private Uri file;
-
-    private Double latitude;
-    private Double longitude;
 
     ArrayList<Document> documentArrayList = new ArrayList<>(); //지역명 검색 결과 리스트
     EditText mSearchEdit;
@@ -168,7 +164,7 @@ public class AddStore extends Fragment {
         category_spinner.setAdapter(arrayAdapter);
 
         // 뷰 설정
-        food_image = (ImageView)v.findViewById(R.id.food_image); // 어떻게 해야?
+        food_image = (ImageView)v.findViewById(R.id.food_image);
         menu_edit = (EditText)v.findViewById(R.id.menu);
         comment_edit = (EditText)v.findViewById(R.id.comment);
 
@@ -181,6 +177,10 @@ public class AddStore extends Fragment {
                 String category_selected = category_spinner.getSelectedItem().toString();
                 String menu_name = menu_edit.getText().toString();
                 String comment_content = comment_edit.getText().toString();
+                String location = address_tv.getText().toString();
+                String[] location_array = location.split(" ");
+                String do_location = location_array[0];
+                String si_location = location_array[1];
                 StorageReference storageRef = storage.getReference();
 
                 // 사용자 확인 및 데이터 전송
@@ -198,7 +198,9 @@ public class AddStore extends Fragment {
                         // store 데이터 전송
                         storeData.put("category", category_selected);
                         storeData.put("comment", commentDocName);
-                        storeData.put("location", address_tv.getText()); // 주소 추가
+                        storeData.put("location", location); // 주소 추가
+                        storeData.put("do", do_location);
+                        storeData.put("si", si_location);
                         storeData.put("name", store_name);
                         menuData.put("menu_name", menu_name);
                         menuData.put("lover", 1);
@@ -331,13 +333,11 @@ public class AddStore extends Fragment {
             }
         });
 
-        add_pic_btn = (ImageButton)v.findViewById(R.id.add_pic_btn);
-        add_pic_btn.setOnClickListener(new View.OnClickListener() {
+        food_image.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 loadAlbum();
             }
-
         });
         return v;
     }
