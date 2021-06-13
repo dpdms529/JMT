@@ -35,6 +35,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -75,7 +76,7 @@ public class MyDetail extends Fragment {
 
     private TextView store_name;
     private TextView store_address;
-    private Spinner category_spinner;
+    private TextView category;
     private ImageView food_image;
     private EditText menu_edit;
     private EditText comment_edit;
@@ -100,15 +101,17 @@ public class MyDetail extends Fragment {
                 storeName = result.getString("store_name");
             }
         });
+        Log.d(TAG, "storeName is " + storeName);
         store_name = v.findViewById(R.id.store_name);
         store_address = v.findViewById(R.id.store_address);
-        category_spinner = v.findViewById(R.id.category);
+        category = v.findViewById(R.id.category);
         food_image = v.findViewById(R.id.food_image);
         menu_edit = v.findViewById(R.id.menu);
         comment_edit = v.findViewById(R.id.comment);
 
         db = FirebaseFirestore.getInstance();
-        storage = FirebaseStorage.getInstance();
+        storage = FirebaseStorage.getInstance("gs://android-jmt.appspot.com");
+        StorageReference storageReference = storage.getReference();
 
         UserApiClient.getInstance().me((user, error) -> {
             if (error != null) {
@@ -132,10 +135,12 @@ public class MyDetail extends Fragment {
                                                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                                                     if(task.isSuccessful()) {
                                                         DocumentSnapshot storeDoc = task.getResult();
+                                                        Log.d(TAG, "StoreName is " + storeName);
                                                         if(storeDoc.exists() && storeDoc.getString("name").equals(storeName)){
                                                             Log.d(TAG, "가게 정보 : " + storeDoc.getData());
                                                             store_name.setText(storeDoc.getString("name"));
                                                             store_address.setText(storeDoc.getString("location"));
+                                                            category.setText(storeDoc.getString("category"));
                                                             ArrayList commentArr = (ArrayList) storeDoc.get("comment");
                                                             for (int j = 0; j < commentArr.size(); j++) {
                                                                 DocumentReference cdr = (DocumentReference) commentArr.get(j);
@@ -149,6 +154,23 @@ public class MyDetail extends Fragment {
                                                                                 if ((Long) commentDoc.get("user") == user.getId()) {
                                                                                     menu_edit.setText(commentDoc.getString("menu"));
                                                                                     comment_edit.setText(commentDoc.getString("content"));
+                                                                                    if(commentDoc.getString("photo")!=null){
+                                                                                        storageReference.child(commentDoc.getString("photo")).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                                                                            @Override
+                                                                                            public void onSuccess(Uri uri) {
+                                                                                                Glide.with(getContext())
+                                                                                                        .load(uri)
+                                                                                                        .into(food_image);
+                                                                                            }
+                                                                                        }).addOnFailureListener(new OnFailureListener() {
+                                                                                            @Override
+                                                                                            public void onFailure(@NonNull Exception e) {
+                                                                                                Toast.makeText(getContext(),"실패",Toast.LENGTH_SHORT).show();
+                                                                                            }
+                                                                                        });
+
+                                                                                    }
+
                                                                                 }
                                                                             }
                                                                         }

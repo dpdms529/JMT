@@ -26,13 +26,17 @@ public class UserList extends Fragment {    // 어댑터가 storeAdapter랑 유�
     private static final String TAG = "TAG";
     private Context mContext;
     FirebaseFirestore db;
+    Fragment frag_other_list;
+    RecyclerView recyclerView;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_user_list, container, false);
 
-        RecyclerView recyclerView = v.findViewById(R.id.user_name_recyclerview);
+        frag_other_list = new OtherList();
+
+        recyclerView = v.findViewById(R.id.user_name_recyclerview);
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(mContext, LinearLayoutManager.VERTICAL, false);
         recyclerView.setLayoutManager(layoutManager);
@@ -49,7 +53,7 @@ public class UserList extends Fragment {    // 어댑터가 storeAdapter랑 유�
                         if(task.isSuccessful()){
                             for(QueryDocumentSnapshot document : task.getResult()){
                                 Log.d(TAG,"회원 정보" + document.getData());
-                                adapter.addItem(new UserInfo(document.getString("name"), (Long) document.get("storeNum")));
+                                adapter.addItem(new UserInfo(document.getString("name"), String.valueOf(document.get("id")), document.getLong("storeNum")));
                                 adapter.notifyDataSetChanged();
                             }
                         }
@@ -58,7 +62,18 @@ public class UserList extends Fragment {    // 어댑터가 storeAdapter랑 유�
 
         recyclerView.setAdapter(adapter);
 
-        // Inflate the layout for this fragment
+        adapter.setOnItemClickListener(new OnUserItemClickListener() {
+            @Override
+            public void onItemClick(UserAdapter.ViewHolder holder, View view, int position) {
+                UserInfo item = adapter.getItem(position);
+                Bundle bundle = new Bundle();
+                bundle.putString("user_id",item.getUserID());
+                Log.d(TAG, bundle.getString("user_id"));
+                getParentFragmentManager().setFragmentResult("otherList",bundle);
+                getParentFragmentManager().beginTransaction().replace(R.id.main_layout, frag_other_list).addToBackStack(null).commit();
+            }
+        });
+
         return v;
     }
 

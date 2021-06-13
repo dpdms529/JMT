@@ -6,8 +6,9 @@ public class UserInfo {
     String userID;
     long num_of_comment;
 
-    public UserInfo(String user_name, long num_of_comment) {   // 리스트에서 이용하므로 chip에 추가할 best menu도 필요함
+    public UserInfo(String user_name, String userID, long num_of_comment) {   // 리스트에서 이용하므로 chip에 추가할 best menu도 필요함
         this.user_name = user_name;
+        this.userID = userID;
         this.num_of_comment = num_of_comment;
     }
 
