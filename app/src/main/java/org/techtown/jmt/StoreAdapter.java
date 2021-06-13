@@ -16,8 +16,9 @@ import com.google.android.material.chip.ChipGroup;
 
 import java.util.ArrayList;
 
-public class StoreAdapter extends RecyclerView.Adapter<StoreAdapter.ViewHolder> {
+public class StoreAdapter extends RecyclerView.Adapter<StoreAdapter.ViewHolder> implements OnStoreItemClickListener {
     ArrayList<StoreInfo> items = new ArrayList<StoreInfo>();
+    OnStoreItemClickListener listener;
     private Context context;
 
     public StoreAdapter(Context context){
@@ -29,7 +30,7 @@ public class StoreAdapter extends RecyclerView.Adapter<StoreAdapter.ViewHolder> 
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(viewGroup.getContext());
         View itemView = inflater.inflate(R.layout.my_item, viewGroup, false);
-        return new ViewHolder(itemView);
+        return new ViewHolder(itemView, this);
     }
 
     @Override
@@ -59,14 +60,34 @@ public class StoreAdapter extends RecyclerView.Adapter<StoreAdapter.ViewHolder> 
         items.set(position, item);
     }
 
+    public void setOnItemClickListener(OnStoreItemClickListener listener){
+        this.listener = listener;
+    }
+
+    @Override
+    public void onItemClick(StoreAdapter.ViewHolder holder, View view, int position) {
+        if(listener != null){
+            listener.onItemClick(holder,view,position);
+        }
+    }
+
     static class ViewHolder extends RecyclerView.ViewHolder {
         TextView title_textView;
         TextView lover_textView;
 
-        public ViewHolder(View itemView) {
+        public ViewHolder(View itemView, final OnStoreItemClickListener listener) {
             super(itemView);
             title_textView = itemView.findViewById(R.id.name);
             lover_textView = itemView.findViewById(R.id.num_of_comment);
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    int position = getAdapterPosition();
+                    if(listener != null){
+                        listener.onItemClick(StoreAdapter.ViewHolder.this,view,position);
+                    }
+                }
+            });
         }
         public void setItem(StoreInfo item) {
             title_textView.setText(item.getStoreName());

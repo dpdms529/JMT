@@ -183,7 +183,6 @@ public class MyDetail extends Fragment {
     public void onAttach(Context context) {
         super.onAttach(context);
         mContext = context;
-
     }
 
 }
