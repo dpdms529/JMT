@@ -136,25 +136,28 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> im
                             if(task.isSuccessful()){
                                 DocumentSnapshot userDoc = task.getResult();
                                 if(userDoc.exists()){
-                                    ArrayList favoriteArr = (ArrayList)userDoc.get("favorite");
-                                    for(int i = 0;i<favoriteArr.size();i++){
-                                        DocumentReference fdr = (DocumentReference)favoriteArr.get(i);
-                                        fdr.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                            @Override
-                                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                                if(task.isSuccessful()){
-                                                    DocumentSnapshot favoriteDoc = task.getResult();
-                                                    if(favoriteDoc.exists()){
-                                                        if(String.valueOf(favoriteDoc.get("id")).equals(item.getUserID())){
-                                                            star.setSelected(true);
-                                                        }else{
-                                                            star.setSelected(false);
+                                    if(userDoc.get("favorite") != null){
+                                        ArrayList<DocumentReference> favoriteArr = (ArrayList)userDoc.get("favorite");
+                                        for(DocumentReference fdr : favoriteArr){
+                                            fdr.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                                @Override
+                                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                                    if(task.isSuccessful()){
+                                                        DocumentSnapshot favoriteDoc = task.getResult();
+                                                        if(favoriteDoc.exists()){
+                                                            if(String.valueOf(favoriteDoc.get("id")).equals(item.getUserID())){
+                                                                star.setSelected(true);
+                                                            }else{
+                                                                star.setSelected(false);
+                                                            }
                                                         }
                                                     }
                                                 }
-                                            }
-                                        });
+                                            });
+                                        }
+
                                     }
+
                                 }
                             }
                         }
