@@ -81,7 +81,6 @@ public class AddStore extends Fragment {
     private EditText comment_edit;
 
     private Button register_btn;
-    private ImageButton add_pic_btn;
 
     private String commentDocName;
     private String storeDocName;
@@ -165,7 +164,7 @@ public class AddStore extends Fragment {
         category_spinner.setAdapter(arrayAdapter);
 
         // 뷰 설정
-        food_image = (ImageView)v.findViewById(R.id.food_image); // 어떻게 해야?
+        food_image = (ImageView)v.findViewById(R.id.food_image);
         menu_edit = (EditText)v.findViewById(R.id.menu);
         comment_edit = (EditText)v.findViewById(R.id.comment);
 
@@ -334,13 +333,11 @@ public class AddStore extends Fragment {
             }
         });
 
-        add_pic_btn = (ImageButton)v.findViewById(R.id.add_pic_btn);
-        add_pic_btn.setOnClickListener(new View.OnClickListener() {
+        food_image.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 loadAlbum();
             }
-
         });
         return v;
     }
