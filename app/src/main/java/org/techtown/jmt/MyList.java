@@ -86,41 +86,41 @@ public class MyList extends Fragment {
                                             DocumentSnapshot userDoc = task.getResult();
                                             if(userDoc.exists()){
                                                 Log.d(TAG,"사용자 정보 : " + userDoc.get("store"));
-                                                ArrayList storeArr = (ArrayList)userDoc.get("store");
-                                                for(int i = 0;i<storeArr.size();i++){
-                                                    DocumentReference sdr = (DocumentReference)storeArr.get(i);
-                                                    int finalI = i;
-                                                    sdr.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                                        @Override
-                                                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                                            if(task.isSuccessful()){
-                                                                DocumentSnapshot storeDoc = task.getResult();
-                                                                if(storeDoc.exists()){
-                                                                    Log.d(TAG,"i = " + finalI);
-                                                                    Log.d(TAG,"가게 정보 : " + storeDoc.getData());
-                                                                    ArrayList commentArr = (ArrayList)storeDoc.get("comment");
-                                                                    for(int j = 0;j<commentArr.size();j++){
-                                                                        DocumentReference cdr = (DocumentReference)commentArr.get(j);
-                                                                        cdr.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                                                            @Override
-                                                                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                                                                if(task.isSuccessful()){
-                                                                                    DocumentSnapshot commentDoc = task.getResult();
-                                                                                    if(commentDoc.exists()){
-                                                                                        Log.d(TAG,"댓글 정보 : " + commentDoc.getData());
-                                                                                        if(String.valueOf(commentDoc.get("user")).equals(myId)){
-                                                                                            adapter.addItem(new PersonalComment(storeDoc.getString("name"),commentDoc.getString("content"),commentDoc.getString("photo")));
-                                                                                            adapter.notifyDataSetChanged();
+                                                if(userDoc.get("store")!=null){
+                                                    ArrayList<DocumentReference> storeArr = (ArrayList)userDoc.get("store");
+                                                    for(DocumentReference sdr : storeArr){
+                                                        sdr.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                                            @Override
+                                                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                                                if(task.isSuccessful()){
+                                                                    DocumentSnapshot storeDoc = task.getResult();
+                                                                    if(storeDoc.exists()){
+                                                                        Log.d(TAG,"가게 정보 : " + storeDoc.getData());
+                                                                        ArrayList<DocumentReference> commentArr = (ArrayList)storeDoc.get("comment");
+                                                                        for(DocumentReference cdr : commentArr){
+                                                                            cdr.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                                                                @Override
+                                                                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                                                                    if(task.isSuccessful()){
+                                                                                        DocumentSnapshot commentDoc = task.getResult();
+                                                                                        if(commentDoc.exists()){
+                                                                                            Log.d(TAG,"댓글 정보 : " + commentDoc.getData());
+                                                                                            if(String.valueOf(commentDoc.get("user")).equals(myId)){
+                                                                                                Log.d(TAG,storeDoc.getString("name") + commentDoc.getString("photo"));
+                                                                                                adapter.addItem(new PersonalComment(storeDoc.getString("name"),commentDoc.getString("content"),commentDoc.getString("photo")));
+                                                                                                adapter.notifyDataSetChanged();
+                                                                                            }
                                                                                         }
                                                                                     }
                                                                                 }
-                                                                            }
-                                                                        });
+                                                                            });
+                                                                        }
                                                                     }
                                                                 }
                                                             }
-                                                        }
-                                                    });
+                                                        });
+                                                    }
+
                                                 }
                                             }
                                         }
