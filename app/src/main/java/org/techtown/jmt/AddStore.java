@@ -207,7 +207,6 @@ public class AddStore extends Fragment {
                         if(file != null){
                             StorageReference riversRef = storageRef.child(storeDocName + "/" + user.getId() + ".png");
                             Log.d(TAG,"사진 : " + riversRef.getPath());
-                            storeData.put("photo", Arrays.asList(riversRef.getPath()));
                             commentData.put("photo", riversRef.getPath());
 
                             UploadTask uploadTask = riversRef.putFile(file);
