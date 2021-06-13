@@ -15,6 +15,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.protobuf.StringValue;
 import com.kakao.sdk.user.UserApiClient;
 
 import java.util.HashMap;
@@ -71,6 +72,9 @@ public class Login extends AppCompatActivity {
                                                 db.collection("user")
                                                         .document(String.valueOf(user.getId()))
                                                         .set(userInfo);
+                                                myId = String.valueOf(user.getId());
+                                                editor.putString("myId",myId);
+                                                editor.apply();
                                                 Intent intent = new Intent(getApplicationContext(),MainActivity.class);
                                                 startActivity(intent);
                                                 finish();
@@ -88,6 +92,9 @@ public class Login extends AppCompatActivity {
 
             }else if(accessTokenInfo != null) {
                 Log.i(TAG, "토큰 정보 보기 성공" + "\n회원 번호 : " + accessTokenInfo.getId());
+                myId = String.valueOf(accessTokenInfo.getId());
+                editor.putString("myId",myId);
+                editor.apply();
                 Intent intent = new Intent(getApplicationContext(),MainActivity.class);
                 startActivity(intent);
                 finish();
