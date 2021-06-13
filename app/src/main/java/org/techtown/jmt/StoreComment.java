@@ -3,12 +3,12 @@ package org.techtown.jmt;
 public class StoreComment {
     private String user_name;
     private String comment;
-    //private String image_url;
+    private String image_url;
 
-    public StoreComment(String user_name, String comment) {
+    public StoreComment(String user_name, String comment, String image_url) {
         this.user_name = user_name;
         this.comment = comment;
-        //this.image_url = image_url;
+        this.image_url = image_url;
     }
 
     public String getUserName() { return user_name; }
@@ -19,7 +19,7 @@ public class StoreComment {
 
     public void setComment(String comment) { this.comment = comment; }
 
-    //public String getImageUrl() { return image_url; }
+    public String getImageUrl() { return image_url; }
 
-    //public void setImageUrl(String image_url) { this.image_url = image_url; }
+    public void setImageUrl(String image_url) { this.image_url = image_url; }
 }

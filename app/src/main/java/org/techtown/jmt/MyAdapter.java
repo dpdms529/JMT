@@ -1,16 +1,24 @@
 package org.techtown.jmt;
 
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.content.Context;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
 
@@ -35,7 +43,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> implem
     @Override
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, int position) {
         PersonalComment item = items.get(position);
-        viewHolder.setItem(item);
+        viewHolder.setItem(context,item);
     }
 
     @Override
@@ -74,11 +82,18 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> implem
     static class ViewHolder extends RecyclerView.ViewHolder {
         TextView title_textView;
         TextView comment_textView;
-//        ImageView picture_imageView;
+        ImageView picture_imageView;
+        FirebaseStorage storage;
+        StorageReference storageReference;
+        String path;
+
         public ViewHolder(View itemView, final OnMyItemClickListener listener) {
             super(itemView);
             title_textView = itemView.findViewById(R.id.comment_title);
             comment_textView = itemView.findViewById(R.id.comment_text);
+            picture_imageView = itemView.findViewById(R.id.comment_img);
+            storage = FirebaseStorage.getInstance("gs://android-jmt.appspot.com");
+            storageReference = storage.getReference();
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -88,12 +103,27 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> implem
                     }
                 }
             });
-//            picture_imageView = itemView.findViewById(R.id.comment_img);
         }
-        public void setItem(PersonalComment item) {
+        public void setItem(Context context, PersonalComment item) {
             title_textView.setText(item.getStoreName());
             comment_textView.setText(item.getComment());
-//            picture_imageView.setImageBitmap(); // https://art-coding3.tistory.com/38 참고
+            path = item.getImageUrl();
+            if(path != null){
+                storageReference.child(path).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                    @Override
+                    public void onSuccess(Uri uri) {
+                        Glide.with(context)
+                                .load(uri)
+                                .into(picture_imageView);
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(context,"실패",Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+
         }
 
     }

@@ -23,6 +23,8 @@ import com.google.firebase.firestore.FirebaseFirestoreSettings;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.kakao.sdk.user.UserApiClient;
 import com.kakao.sdk.user.model.User;
 
@@ -57,6 +59,7 @@ public class MyList extends Fragment {
         MyAdapter adapter = new MyAdapter(mContext);
 
         db = FirebaseFirestore.getInstance();
+
         UserApiClient.getInstance().me((user, error) -> {
                     if (error != null) {
                         Log.e(TAG, "사용자 정보 요청 실패", error);
@@ -69,17 +72,19 @@ public class MyList extends Fragment {
                           public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                               if(task.isSuccessful()){
                                   DocumentSnapshot userDoc = task.getResult();
-                                 if(userDoc.exists()){
+                                  if(userDoc.exists()){
                                      Log.d(TAG,"사용자 정보 : " + userDoc.get("store"));
                                      ArrayList storeArr = (ArrayList)userDoc.get("store");
                                      for(int i = 0;i<storeArr.size();i++){
                                          DocumentReference sdr = (DocumentReference)storeArr.get(i);
+                                         int finalI = i;
                                          sdr.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                              @Override
                                              public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                                                  if(task.isSuccessful()){
                                                      DocumentSnapshot storeDoc = task.getResult();
                                                      if(storeDoc.exists()){
+                                                         Log.d(TAG,"i = " + finalI);
                                                          Log.d(TAG,"가게 정보 : " + storeDoc.getData());
                                                          ArrayList commentArr = (ArrayList)storeDoc.get("comment");
                                                          for(int j = 0;j<commentArr.size();j++){
@@ -92,7 +97,7 @@ public class MyList extends Fragment {
                                                                          if(commentDoc.exists()){
                                                                              Log.d(TAG,"댓글 정보 : " + commentDoc.getData());
                                                                              if((Long)commentDoc.get("user") == user.getId()){
-                                                                                 adapter.addItem(new PersonalComment(storeDoc.getString("name"),commentDoc.getString("content")));
+                                                                                 adapter.addItem(new PersonalComment(storeDoc.getString("name"),commentDoc.getString("content"),commentDoc.getString("photo")));
                                                                                  adapter.notifyDataSetChanged();
                                                                              }
                                                                          }
