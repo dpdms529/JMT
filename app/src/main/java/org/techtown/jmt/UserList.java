@@ -1,7 +1,9 @@
 package org.techtown.jmt;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,6 +14,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentResultListener;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -28,6 +31,7 @@ public class UserList extends Fragment {    // 어댑터가 storeAdapter랑 유�
     FirebaseFirestore db;
     Fragment frag_other_list;
     RecyclerView recyclerView;
+    UserAdapter adapter;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -41,7 +45,7 @@ public class UserList extends Fragment {    // 어댑터가 storeAdapter랑 유�
         LinearLayoutManager layoutManager = new LinearLayoutManager(mContext, LinearLayoutManager.VERTICAL, false);
         recyclerView.setLayoutManager(layoutManager);
 
-        UserAdapter adapter = new UserAdapter(mContext);
+        adapter = new UserAdapter(mContext);
 
         db = FirebaseFirestore.getInstance();
         db.collection("user")

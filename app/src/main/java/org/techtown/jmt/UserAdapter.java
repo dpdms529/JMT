@@ -1,13 +1,26 @@
 package org.techtown.jmt;
 
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
+import com.kakao.sdk.user.UserApiClient;
 
 import java.util.ArrayList;
 
@@ -25,7 +38,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> im
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(viewGroup.getContext());
         View itemView = inflater.inflate(R.layout.my_item, viewGroup, false);
-        return new ViewHolder(itemView,this);
+        return new ViewHolder(context,itemView,this);
     }
 
     @Override
@@ -57,6 +70,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> im
 
     public void setOnItemClickListener(OnUserItemClickListener listener){this.listener = listener;}
 
+
     @Override
     public void onItemClick(ViewHolder holder, View view, int position) {
         if(listener != null){
@@ -65,12 +79,36 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> im
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
+        private static final String TAG = "TAG";
         TextView title_textView;
         TextView num_of_comment;
-        public ViewHolder(View itemView, final OnUserItemClickListener listener) {
+        ImageButton star;
+        FirebaseFirestore db;
+        String myId;
+        private SharedPreferences preferences;
+        private SharedPreferences.Editor editor;
+
+        public ViewHolder(Context context, View itemView, final OnUserItemClickListener listener) {
             super(itemView);
+
+            preferences = PreferenceManager.getDefaultSharedPreferences(context);
+            myId = preferences.getString("myId","noId");
+
+            db = FirebaseFirestore.getInstance();
+
             title_textView = itemView.findViewById(R.id.name);
             num_of_comment = itemView.findViewById(R.id.num_of_comment);
+            star = itemView.findViewById(R.id.star);
+            star.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if(view.isSelected()){
+                        view.setSelected(false);
+                    }else{
+                        view.setSelected(true);
+                    }
+                }
+            });
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -84,6 +122,43 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> im
         public void setItem(UserInfo item) {
             title_textView.setText(item.getUserName());
             num_of_comment.setText("총 " + String.valueOf(item.getNumOfComment()) + " 개의 맛집");
+            starState(item);
+        }
+
+        public void starState(UserInfo item){
+            Log.d(TAG,"myId is "+myId);
+            db.collection("user")
+                    .document(myId)
+                    .get()
+                    .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                            if(task.isSuccessful()){
+                                DocumentSnapshot userDoc = task.getResult();
+                                if(userDoc.exists()){
+                                    ArrayList favoriteArr = (ArrayList)userDoc.get("favorite");
+                                    for(int i = 0;i<favoriteArr.size();i++){
+                                        DocumentReference fdr = (DocumentReference)favoriteArr.get(i);
+                                        fdr.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                                if(task.isSuccessful()){
+                                                    DocumentSnapshot favoriteDoc = task.getResult();
+                                                    if(favoriteDoc.exists()){
+                                                        if(String.valueOf(favoriteDoc.get("id")).equals(item.getUserID())){
+                                                            star.setSelected(true);
+                                                        }else{
+                                                            star.setSelected(false);
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        });
+                                    }
+                                }
+                            }
+                        }
+                    });
         }
     }
 }
