@@ -37,13 +37,17 @@ public class StoreList extends Fragment {
     FirebaseFirestore db;
     private Spinner category_spinner;
     private ArrayAdapter arrayAdapter;
+    RecyclerView recyclerView;
+    Fragment frag_store_detail;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_store_list, container, false);
 
-        RecyclerView recyclerView = v.findViewById(R.id.store_name_recyclerview);
+        frag_store_detail = new StoreDetail();
+
+        recyclerView = v.findViewById(R.id.store_name_recyclerview);
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(mContext, LinearLayoutManager.VERTICAL, false);
         recyclerView.setLayoutManager(layoutManager);
@@ -85,12 +89,36 @@ public class StoreList extends Fragment {
                         break;
                 }
                 recyclerView.setAdapter(adapter);
+
+                adapter.setOnItemClickListener(new OnStoreItemClickListener() {
+                    @Override
+                    public void onItemClick(StoreAdapter.ViewHolder holder, View view, int position) {
+                        StoreInfo item = adapter.getItem(position);
+                        Bundle bundle = new Bundle();
+                        bundle.putString("store_name", item.getStoreName());
+                        Log.d(TAG,"send store_name is " + bundle.getString("store_name"));
+                        getParentFragmentManager().setFragmentResult("requestKey",bundle);
+                        getParentFragmentManager().beginTransaction().replace(R.id.main_layout, frag_store_detail).addToBackStack(null).commit();
+                    }
+                });
             }
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
                 StoreAdapter adapter = new StoreAdapter(mContext);
                 AllDBonAdapter(adapter);
                 recyclerView.setAdapter(adapter);
+
+                adapter.setOnItemClickListener(new OnStoreItemClickListener() {
+                    @Override
+                    public void onItemClick(StoreAdapter.ViewHolder holder, View view, int position) {
+                        StoreInfo item = adapter.getItem(position);
+                        Bundle bundle = new Bundle();
+                        bundle.putString("store_name", item.getStoreName());
+                        Log.d(TAG,"send store_name is " + bundle.getString("store_name"));
+                        getParentFragmentManager().setFragmentResult("requestKey",bundle);
+                        getParentFragmentManager().beginTransaction().replace(R.id.main_layout, frag_store_detail).addToBackStack(null).commit();
+                    }
+                });
             }
         });
 

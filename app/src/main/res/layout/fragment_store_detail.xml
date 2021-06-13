@@ -25,24 +25,6 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center">
 
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chip4"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="연어 덮밥"/>
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chip5"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="육회 덮밥"/>
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chip6"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="소바"/>
-
         </com.google.android.material.chip.ChipGroup>
 
         <LinearLayout
@@ -64,8 +46,7 @@
                 android:id="@+id/store_address"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="전라북도 전주시 덕진구 머머로 213" />
+                android:layout_weight="1" />
         </LinearLayout>
 
         <TextView
@@ -77,6 +58,7 @@
             android:textSize="17sp"/>
 
         <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/comments_recyclerview"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
