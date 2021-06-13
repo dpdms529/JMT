@@ -2,7 +2,9 @@ package org.techtown.jmt;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -42,11 +44,17 @@ public class MyList extends Fragment {
     ImageButton share_btn;
     RecyclerView recyclerView;
     FirebaseFirestore db;
+    String myId;
+    private SharedPreferences preferences;
+    private SharedPreferences.Editor editor;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_my_list, container, false);
+
+        preferences = PreferenceManager.getDefaultSharedPreferences(this.getContext());
+        editor = preferences.edit();
 
         frag_add_store = new AddStore();
         frag_my_detail = new MyDetail();
@@ -64,56 +72,60 @@ public class MyList extends Fragment {
                     if (error != null) {
                         Log.e(TAG, "사용자 정보 요청 실패", error);
                     } else if (user != null) {
+                        myId = String.valueOf(user.getId());
+                        editor.putString("myId",myId);
+                        editor.apply();
+                        Log.d(TAG,preferences.getString("myId","noId"));
                         db.collection("user")
-                                .document(String.valueOf(user.getId()))
+                                .document(myId)
                                 .get()
                                 .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                          @Override
-                          public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                              if(task.isSuccessful()){
-                                  DocumentSnapshot userDoc = task.getResult();
-                                  if(userDoc.exists()){
-                                     Log.d(TAG,"사용자 정보 : " + userDoc.get("store"));
-                                     ArrayList storeArr = (ArrayList)userDoc.get("store");
-                                     for(int i = 0;i<storeArr.size();i++){
-                                         DocumentReference sdr = (DocumentReference)storeArr.get(i);
-                                         int finalI = i;
-                                         sdr.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                             @Override
-                                             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                                 if(task.isSuccessful()){
-                                                     DocumentSnapshot storeDoc = task.getResult();
-                                                     if(storeDoc.exists()){
-                                                         Log.d(TAG,"i = " + finalI);
-                                                         Log.d(TAG,"가게 정보 : " + storeDoc.getData());
-                                                         ArrayList commentArr = (ArrayList)storeDoc.get("comment");
-                                                         for(int j = 0;j<commentArr.size();j++){
-                                                             DocumentReference cdr = (DocumentReference)commentArr.get(j);
-                                                             cdr.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                                                 @Override
-                                                                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                                                     if(task.isSuccessful()){
-                                                                         DocumentSnapshot commentDoc = task.getResult();
-                                                                         if(commentDoc.exists()){
-                                                                             Log.d(TAG,"댓글 정보 : " + commentDoc.getData());
-                                                                             if((Long)commentDoc.get("user") == user.getId()){
-                                                                                 adapter.addItem(new PersonalComment(storeDoc.getString("name"),commentDoc.getString("content"),commentDoc.getString("photo")));
-                                                                                 adapter.notifyDataSetChanged();
-                                                                             }
-                                                                         }
-                                                                     }
-                                                                 }
-                                                             });
-                                                         }
-                                                     }
-                                                 }
-                                             }
-                                         });
-                                     }
-                                 }
-                              }
-                          }
-                      });
+                                    @Override
+                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                        if(task.isSuccessful()){
+                                            DocumentSnapshot userDoc = task.getResult();
+                                            if(userDoc.exists()){
+                                                Log.d(TAG,"사용자 정보 : " + userDoc.get("store"));
+                                                ArrayList storeArr = (ArrayList)userDoc.get("store");
+                                                for(int i = 0;i<storeArr.size();i++){
+                                                    DocumentReference sdr = (DocumentReference)storeArr.get(i);
+                                                    int finalI = i;
+                                                    sdr.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                                        @Override
+                                                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                                            if(task.isSuccessful()){
+                                                                DocumentSnapshot storeDoc = task.getResult();
+                                                                if(storeDoc.exists()){
+                                                                    Log.d(TAG,"i = " + finalI);
+                                                                    Log.d(TAG,"가게 정보 : " + storeDoc.getData());
+                                                                    ArrayList commentArr = (ArrayList)storeDoc.get("comment");
+                                                                    for(int j = 0;j<commentArr.size();j++){
+                                                                        DocumentReference cdr = (DocumentReference)commentArr.get(j);
+                                                                        cdr.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                                                            @Override
+                                                                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                                                                if(task.isSuccessful()){
+                                                                                    DocumentSnapshot commentDoc = task.getResult();
+                                                                                    if(commentDoc.exists()){
+                                                                                        Log.d(TAG,"댓글 정보 : " + commentDoc.getData());
+                                                                                        if(String.valueOf(commentDoc.get("user")).equals(myId)){
+                                                                                            adapter.addItem(new PersonalComment(storeDoc.getString("name"),commentDoc.getString("content"),commentDoc.getString("photo")));
+                                                                                            adapter.notifyDataSetChanged();
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                        });
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    });
+                                                }
+                                            }
+                                        }
+                                    }
+                                });
             }
             return null;
         });
@@ -154,7 +166,6 @@ public class MyList extends Fragment {
                 startActivity(Sharing);
             }
         });
-
         // Inflate the layout for this fragment
         return v;
     }
