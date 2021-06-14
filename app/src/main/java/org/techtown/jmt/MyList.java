@@ -47,7 +47,9 @@ public class MyList extends Fragment {
     MyAdapter adapter;
     FirebaseFirestore db;
     String myId;
+    String userName;
     private SharedPreferences preferences;
+    String mjlist;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -77,6 +79,8 @@ public class MyList extends Fragment {
                         if(task.isSuccessful()){
                             DocumentSnapshot userDoc = task.getResult();
                             if(userDoc.exists()){
+                                userName = String.valueOf(userDoc.get("name"));
+                                mjlist = "<" + userName + "님의 맛집 리스트>";
                                 Log.d(TAG,"사용자 정보 : " + userDoc.get("store"));
                                 if(userDoc.get("store")!=null){
                                     ArrayList<DocumentReference> storeArr = (ArrayList)userDoc.get("store");
@@ -120,6 +124,32 @@ public class MyList extends Fragment {
                 });
         recyclerView.setAdapter(adapter);
 
+        db.collection("user").document(myId).get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if(task.isSuccessful()){
+                            DocumentSnapshot document = task.getResult();
+                            ArrayList<DocumentReference> storeArr = (ArrayList<DocumentReference>) document.get("store");
+                            for(DocumentReference storeDoc : storeArr){
+                                storeDoc.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                        if(task.isSuccessful()){
+                                            DocumentSnapshot document = task.getResult();
+                                            mjlist = mjlist + "\n- " + String.valueOf(document.get("name"));
+                                            mjlist = mjlist + "\n  (" + String.valueOf(document.get("location")) + ")";
+//                                                    mjlist.concat("\n- " + String.valueOf(document.get("name")));
+//                                                    mjlist.concat("\n  (" + String.valueOf(document.get("location")) + ")");
+                                            Log.d(TAG,"mjList: " + mjlist);
+                                        }
+                                    }
+                                });
+                            }
+                        }
+                    }
+                });
+
         adapter.setOnItemClickListener(new OnMyItemClickListener() {
             @Override
             public void onItemClick(MyAdapter.ViewHolder holder, View view, int position) {
@@ -147,9 +177,7 @@ public class MyList extends Fragment {
                 Intent Sharing_intent = new Intent(Intent.ACTION_SEND);
                 Sharing_intent.setType("text/plain");
 
-                String Test_Message = "list for share should be here";
-
-                Sharing_intent.putExtra(Intent.EXTRA_TEXT, Test_Message);
+                Sharing_intent.putExtra(Intent.EXTRA_TEXT, mjlist);
 
                 Intent Sharing = Intent.createChooser(Sharing_intent, "공유하기");
                 startActivity(Sharing);

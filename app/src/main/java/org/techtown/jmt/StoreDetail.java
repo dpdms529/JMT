@@ -11,11 +11,13 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
@@ -23,6 +25,8 @@ import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.chip.Chip;
+import com.google.android.material.chip.ChipGroup;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -45,6 +49,8 @@ public class StoreDetail extends Fragment {
     RecyclerView recyclerView;
     CommentAdapter adapter;
 
+    ChipGroup chipGroup;
+
     private String storeName;
 
     @Override
@@ -55,6 +61,7 @@ public class StoreDetail extends Fragment {
         store_name = v.findViewById(R.id.store_name);
         store_address = v.findViewById(R.id.store_address);
         recyclerView = v.findViewById(R.id.comments_recyclerview);
+        chipGroup = v.findViewById(R.id.chip_group);
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(mContext, LinearLayoutManager.VERTICAL, false);
         recyclerView.setLayoutManager(layoutManager);
@@ -79,6 +86,19 @@ public class StoreDetail extends Fragment {
                                 if(task.isSuccessful()){
                                     for(QueryDocumentSnapshot document : task.getResult()){
                                         Log.d(TAG,"가게 정보" + document.getData());
+                                        ArrayList<String> menu = new ArrayList<String>();
+                                        document.getReference().collection("menu")
+                                                .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                if(task.isSuccessful()){
+                                                    for(QueryDocumentSnapshot menuDoc : task.getResult()){
+                                                        menu.add(String.valueOf(menuDoc.get("menu_name")));
+                                                    }
+                                                    setMenuChips(menu);
+                                                }
+                                            }
+                                        });
                                         store_address.setText(String.valueOf(document.get("location")));
                                         ArrayList commentArr = (ArrayList) document.get("comment");
                                         for (int i = 0; i < commentArr.size(); i++) {
@@ -118,6 +138,19 @@ public class StoreDetail extends Fragment {
         });
 
         return v;
+    }
+
+    public void setMenuChips(ArrayList<String> menuArr) {
+        for (String menu : menuArr) {
+            Chip mChip = (Chip) this.getLayoutInflater().inflate(R.layout.chip, null, false);
+            mChip.setText(menu);
+            int paddingDp = (int) TypedValue.applyDimension(
+                    TypedValue.COMPLEX_UNIT_DIP, 10,
+                    getResources().getDisplayMetrics()
+            );
+            mChip.setPadding(paddingDp, 0, paddingDp, 0);
+            chipGroup.addView(mChip);
+        }
     }
 
     @Override
