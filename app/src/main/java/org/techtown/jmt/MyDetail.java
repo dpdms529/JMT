@@ -93,10 +93,8 @@ public class MyDetail extends Fragment {
 
     private String storeName;
     private String myId;
-    SharedPreferences pref;
 
     private SharedPreferences preferences;
-    String myId;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -110,9 +108,6 @@ public class MyDetail extends Fragment {
         comment_edit = v.findViewById(R.id.comment);
         modify_btn = v.findViewById(R.id.button);
         delete_btn = v.findViewById(R.id.button_delete);
-
-        pref = mContext.getSharedPreferences("pref", Activity.MODE_PRIVATE);
-        myId = pref.getString("myId", null);
 
         db = FirebaseFirestore.getInstance();
         storage = FirebaseStorage.getInstance("gs://android-jmt.appspot.com");
@@ -301,7 +296,6 @@ public class MyDetail extends Fragment {
                 builder.setPositiveButton("삭제", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        Log.d(TAG, "myId: " + String.valueOf(myId));
                         db.collection("user")
                                 .document(String.valueOf(myId))
                                 .get()
@@ -333,18 +327,40 @@ public class MyDetail extends Fragment {
                                                                                     DocumentSnapshot commentDoc = task.getResult();
                                                                                     if (commentDoc.exists()) {
                                                                                         Log.d(TAG, "댓글 정보 : " + commentDoc.getData());
-                                                                                        if (commentDoc.get("user").equals(myId)) {
+                                                                                        if (String.valueOf(commentDoc.get("user")).equals(myId)) {
                                                                                             // user 문서 - store필드에서 ref제거, storeNum 업데이트
                                                                                             db.collection("user")
                                                                                                     .document(String.valueOf(myId))
-                                                                                                    .update("store", FieldValue.arrayRemove(sdr.getPath()),
+                                                                                                    .update("store", FieldValue.arrayRemove(sdr),
                                                                                                             "storeNum", FieldValue.increment(-1));
                                                                                             // store 문서 - 해당 가게를 추가한 사람이 한 명이면 문서 삭제,
                                                                                             // 한 명 이상이면 comment필드에서 ref 제거, lover 업데이트
                                                                                             if((long) storeDoc.get("lover") == 1) {
+                                                                                                sdr.collection("menu").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                                                                                    @Override
+                                                                                                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                                                                        for(DocumentSnapshot document : task.getResult()){
+                                                                                                            document.getReference().delete();
+                                                                                                        }
+                                                                                                    }
+                                                                                                });
                                                                                                 sdr.delete();
                                                                                             } else if((long) storeDoc.get("lover") > 1) {
-                                                                                                sdr.update("comment", FieldValue.arrayRemove(cdr.getPath()),
+                                                                                                sdr.collection("menu").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                                                                                    @Override
+                                                                                                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                                                                        for(DocumentSnapshot document : task.getResult()){
+                                                                                                            if(document.get("menu_name").equals(commentDoc.get("menu"))) {
+                                                                                                                if((long) document.get("lover") == 1){
+                                                                                                                    document.getReference().delete();
+                                                                                                                } else if((long) document.get("lover") > 1) {
+                                                                                                                    document.getReference().update("lover", FieldValue.increment(-1));
+                                                                                                                }
+                                                                                                            }
+                                                                                                        }
+                                                                                                    }
+                                                                                                });
+                                                                                                sdr.update("comment", FieldValue.arrayRemove(cdr),
                                                                                                         "lover", FieldValue.increment(-1));
                                                                                             }
                                                                                             // 연결된 사진 storage에서 삭제
@@ -363,7 +379,6 @@ public class MyDetail extends Fragment {
                                                                                                 });
                                                                                             }
                                                                                             // comment 콜렉션에서 문서 제거
-                                                                                            //db.collection("comment").document(commentDoc.getId())
                                                                                             cdr.delete();  // comment 콜렉션에서 문서 제거
 
                                                                                             FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
