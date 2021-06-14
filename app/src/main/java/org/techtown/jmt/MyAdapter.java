@@ -123,6 +123,8 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> implem
                         Toast.makeText(context,"실패",Toast.LENGTH_SHORT).show();
                     }
                 });
+            } else {
+                picture_imageView.setVisibility(View.GONE);
             }
 
         }
