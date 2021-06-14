@@ -3,6 +3,7 @@ package org.techtown.jmt;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -19,6 +20,7 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -90,6 +92,9 @@ public class MyDetail extends Fragment {
 
     private String storeName;
 
+    private SharedPreferences preferences;
+    String myId;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -105,87 +110,83 @@ public class MyDetail extends Fragment {
         storage = FirebaseStorage.getInstance("gs://android-jmt.appspot.com");
         StorageReference storageReference = storage.getReference();
 
+        preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+        myId = preferences.getString("myId","noID");
+
         getParentFragmentManager().setFragmentResultListener("requestKey", this, new FragmentResultListener() {
             @Override
             public void onFragmentResult(@NonNull String requestKey, @NonNull Bundle result) {
                 storeName = result.getString("store_name");
                 Log.d(TAG, "storeName is " + storeName);
-                UserApiClient.getInstance().me((user, error) -> {
-                    if (error != null) {
-                        Log.e(TAG, "사용자 정보 요청 실패", error);
-                    } else if (user != null) {
-                        db.collection("user")
-                                .document(String.valueOf(user.getId()))
-                                .get()
-                                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                        if (task.isSuccessful()) {
-                                            DocumentSnapshot userDoc = task.getResult();
-                                            if (userDoc.exists()) {
-                                                Log.d(TAG, "사용자 정보 : " + userDoc.get("store"));
-                                                ArrayList storeArr = (ArrayList) userDoc.get("store");
-                                                for (int i = 0; i < storeArr.size(); i++) {
-                                                    DocumentReference sdr = (DocumentReference) storeArr.get(i);
-                                                    sdr.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                                        @Override
-                                                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                                            if(task.isSuccessful()) {
-                                                                DocumentSnapshot storeDoc = task.getResult();
-                                                                Log.d(TAG, "StoreName is " + storeName);
-                                                                if(storeDoc.exists() && storeDoc.getString("name").equals(storeName)){
-                                                                    Log.d(TAG, "가게 정보 : " + storeDoc.getData());
-                                                                    store_name.setText(storeDoc.getString("name"));
-                                                                    store_address.setText(storeDoc.getString("location"));
-                                                                    category.setText(storeDoc.getString("category"));
-                                                                    ArrayList commentArr = (ArrayList) storeDoc.get("comment");
-                                                                    for (int j = 0; j < commentArr.size(); j++) {
-                                                                        DocumentReference cdr = (DocumentReference) commentArr.get(j);
-                                                                        cdr.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                                                            @Override
-                                                                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                                                                if (task.isSuccessful()) {
-                                                                                    DocumentSnapshot commentDoc = task.getResult();
-                                                                                    if (commentDoc.exists()) {
-                                                                                        Log.d(TAG, "댓글 정보 : " + commentDoc.getData());
-                                                                                        if ((Long) commentDoc.get("user") == user.getId()) {
-                                                                                            menu_edit.setText(commentDoc.getString("menu"));
-                                                                                            comment_edit.setText(commentDoc.getString("content"));
-                                                                                            if(commentDoc.getString("photo")!=null){
-                                                                                                storageReference.child(commentDoc.getString("photo")).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                                                                                    @Override
-                                                                                                    public void onSuccess(Uri uri) {
-                                                                                                        Glide.with(getContext())
-                                                                                                                .load(uri)
-                                                                                                                .into(food_image);
-                                                                                                    }
-                                                                                                }).addOnFailureListener(new OnFailureListener() {
-                                                                                                    @Override
-                                                                                                    public void onFailure(@NonNull Exception e) {
-                                                                                                        Toast.makeText(getContext(),"실패",Toast.LENGTH_SHORT).show();
-                                                                                                    }
-                                                                                                });
-
+                db.collection("user")
+                        .document(myId)
+                        .get()
+                        .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                if (task.isSuccessful()) {
+                                    DocumentSnapshot userDoc = task.getResult();
+                                    if (userDoc.exists()) {
+                                        Log.d(TAG, "사용자 정보 : " + userDoc.get("store"));
+                                        ArrayList storeArr = (ArrayList) userDoc.get("store");
+                                        for (int i = 0; i < storeArr.size(); i++) {
+                                            DocumentReference sdr = (DocumentReference) storeArr.get(i);
+                                            sdr.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                                @Override
+                                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                                    if(task.isSuccessful()) {
+                                                        DocumentSnapshot storeDoc = task.getResult();
+                                                        Log.d(TAG, "StoreName is " + storeName);
+                                                        if(storeDoc.exists() && storeDoc.getString("name").equals(storeName)){
+                                                            Log.d(TAG, "가게 정보 : " + storeDoc.getData());
+                                                            store_name.setText(storeDoc.getString("name"));
+                                                            store_address.setText(storeDoc.getString("location"));
+                                                            category.setText(storeDoc.getString("category"));
+                                                            ArrayList commentArr = (ArrayList) storeDoc.get("comment");
+                                                            for (int j = 0; j < commentArr.size(); j++) {
+                                                                DocumentReference cdr = (DocumentReference) commentArr.get(j);
+                                                                cdr.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                                                    @Override
+                                                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                                                        if (task.isSuccessful()) {
+                                                                            DocumentSnapshot commentDoc = task.getResult();
+                                                                            if (commentDoc.exists()) {
+                                                                                Log.d(TAG, "댓글 정보 : " + commentDoc.getData());
+                                                                                if (String.valueOf(commentDoc.get("user")).equals(myId)) {
+                                                                                    menu_edit.setText(commentDoc.getString("menu"));
+                                                                                    comment_edit.setText(commentDoc.getString("content"));
+                                                                                    if(commentDoc.getString("photo")!=null){
+                                                                                        storageReference.child(commentDoc.getString("photo")).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                                                                            @Override
+                                                                                            public void onSuccess(Uri uri) {
+                                                                                                Glide.with(getContext())
+                                                                                                        .load(uri)
+                                                                                                        .into(food_image);
                                                                                             }
+                                                                                        }).addOnFailureListener(new OnFailureListener() {
+                                                                                            @Override
+                                                                                            public void onFailure(@NonNull Exception e) {
+                                                                                                Toast.makeText(getContext(),"실패",Toast.LENGTH_SHORT).show();
+                                                                                            }
+                                                                                        });
 
-                                                                                        }
                                                                                     }
+
                                                                                 }
                                                                             }
-                                                                        });
+                                                                        }
                                                                     }
-                                                                }
+                                                                });
                                                             }
                                                         }
-                                                    });
+                                                    }
                                                 }
-                                            }
+                                            });
                                         }
                                     }
-                                });
-                    }
-                    return null;
-                });
+                                }
+                            }
+                        });
             }
         });
 

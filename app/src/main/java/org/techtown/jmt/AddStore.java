@@ -213,12 +213,12 @@ public class AddStore extends Fragment {
                             uploadTask.addOnFailureListener(new OnFailureListener() {
                                 @Override
                                 public void onFailure(@NonNull Exception e) {
-                                    Toast.makeText(getContext(),"사진이 정상적으로 업로드 되지 않음", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(mContext,"사진이 정상적으로 업로드 되지 않음", Toast.LENGTH_SHORT).show();
                                 }
                             }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                                 @Override
                                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                                    Toast.makeText(getContext(),"사진이 정상적으로 업로드 됨",Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(mContext,"사진이 정상적으로 업로드 됨",Toast.LENGTH_SHORT).show();
                                 }
                             });
 

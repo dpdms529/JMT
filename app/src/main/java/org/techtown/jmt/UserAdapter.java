@@ -17,6 +17,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -86,7 +87,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> im
         FirebaseFirestore db;
         String myId;
         private SharedPreferences preferences;
-        private SharedPreferences.Editor editor;
+        UserInfo item;
 
         public ViewHolder(Context context, View itemView, final OnUserItemClickListener listener) {
             super(itemView);
@@ -95,6 +96,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> im
             myId = preferences.getString("myId","noId");
 
             db = FirebaseFirestore.getInstance();
+            final DocumentReference[] ref = new DocumentReference[1];
 
             title_textView = itemView.findViewById(R.id.name);
             num_of_comment = itemView.findViewById(R.id.num_of_comment);
@@ -104,8 +106,45 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> im
                 public void onClick(View view) {
                     if(view.isSelected()){
                         view.setSelected(false);
+                        db.collection("user")
+                                .document(item.getUserID())
+                                .get()
+                                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                        if(task.isSuccessful()){
+                                            DocumentSnapshot userDoc = task.getResult();
+                                            if(userDoc.exists()){
+                                                ref[0] = userDoc.getReference();
+                                                db.collection("user")
+                                                        .document(myId)
+                                                        .update("favorite", FieldValue.arrayRemove(ref[0]));
+
+                                            }
+                                        }
+                                    }
+                                });
                     }else{
                         view.setSelected(true);
+                        db.collection("user")
+                                .document(item.getUserID())
+                                .get()
+                                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                        if(task.isSuccessful()){
+                                            DocumentSnapshot userDoc = task.getResult();
+                                            if(userDoc.exists()){
+                                                ref[0] = userDoc.getReference();
+                                                db.collection("user")
+                                                        .document(myId)
+                                                        .update("favorite", FieldValue.arrayUnion(ref[0]));
+
+                                            }
+                                        }
+                                    }
+                                });
+
                     }
                 }
             });
@@ -123,6 +162,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> im
             title_textView.setText(item.getUserName());
             num_of_comment.setText("총 " + String.valueOf(item.getNumOfComment()) + " 개의 맛집");
             starState(item);
+            this.item = item;
         }
 
         public void starState(UserInfo item){
@@ -147,8 +187,6 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> im
                                                         if(favoriteDoc.exists()){
                                                             if(String.valueOf(favoriteDoc.get("id")).equals(item.getUserID())){
                                                                 star.setSelected(true);
-                                                            }else{
-                                                                star.setSelected(false);
                                                             }
                                                         }
                                                     }
