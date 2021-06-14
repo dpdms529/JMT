@@ -77,7 +77,6 @@ public class MyDetail extends Fragment {
     private FirebaseFirestore db;
 
     private Context mContext;
-    private ArrayAdapter arrayAdapter;
 
     private TextView store_name;
     private TextView store_address;
@@ -93,7 +92,6 @@ public class MyDetail extends Fragment {
 
     private String storeName;
     private String myId;
-
     private SharedPreferences preferences;
 
     @Override
@@ -205,82 +203,76 @@ public class MyDetail extends Fragment {
             public void onClick(View view) {
                 Fragment frag_my_list = new MyList();
                 StorageReference storageRef = storage.getReference();
-                UserApiClient.getInstance().me((user, error) -> {
-                    if (error != null) {
-                        Log.e(TAG, "사용자 정보 요청 실패", error);
-                    } else if (user != null) {
-                        db.collection("user")
-                                .document(String.valueOf(user.getId()))
-                                .get()
-                                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                        if (task.isSuccessful()) {
-                                            DocumentSnapshot userDoc = task.getResult();
-                                            if (userDoc.exists()) {
-                                                Log.d(TAG, "사용자 정보 : " + userDoc.get("store"));
-                                                ArrayList storeArr = (ArrayList) userDoc.get("store");
-                                                for (int i = 0; i < storeArr.size(); i++) {
-                                                    DocumentReference sdr = (DocumentReference) storeArr.get(i);
-                                                    sdr.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                                        @Override
-                                                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                                            if(task.isSuccessful()) {
-                                                                DocumentSnapshot storeDoc = task.getResult();
-                                                                Log.d(TAG, "StoreName is " + storeName);
-                                                                if(storeDoc.exists() && storeDoc.getString("name").equals(storeName)){
-                                                                    Log.d(TAG, "가게 정보 : " + storeDoc.getData());
-                                                                    ArrayList commentArr = (ArrayList) storeDoc.get("comment");
-                                                                    for (int j = 0; j < commentArr.size(); j++) {
-                                                                        DocumentReference cdr = (DocumentReference) commentArr.get(j);
-                                                                        cdr.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                                                            @Override
-                                                                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                                                                if (task.isSuccessful()) {
-                                                                                    DocumentSnapshot commentDoc = task.getResult();
-                                                                                    if (commentDoc.exists()) {
-                                                                                        Log.d(TAG, "댓글 정보 : " + commentDoc.getData());
-                                                                                        if ((Long) commentDoc.get("user") == user.getId()) {
-                                                                                            db.collection("comment").document(commentDoc.getId())
-                                                                                                    .update("content", comment_edit.getText().toString(),
-                                                                                                            "menu", menu_edit.getText().toString());
-                                                                                            if(file != null){   // 추가 또는 수정한 사진이 있다면 넣는다.
-                                                                                                StorageReference riversRef = storageRef.child(storeDoc.getId() + "/" + user.getId() + ".png");
-                                                                                                Log.d(TAG,"사진 : " + riversRef.getPath());
-                                                                                                db.collection("comment").document(commentDoc.getId())
-                                                                                                        .update("photo", riversRef.getPath());
 
-                                                                                                UploadTask uploadTask = riversRef.putFile(file);
-                                                                                                uploadTask.addOnFailureListener(new OnFailureListener() {
-                                                                                                    @Override
-                                                                                                    public void onFailure(@NonNull Exception e) {
-                                                                                                        Toast.makeText(mContext,"사진이 정상적으로 업로드 되지 않음", Toast.LENGTH_SHORT).show();
-                                                                                                    }
-                                                                                                }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                                                                                                    @Override
-                                                                                                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                                                                                                        Toast.makeText(mContext,"사진이 정상적으로 업로드 됨",Toast.LENGTH_SHORT).show();
-                                                                                                    }
-                                                                                                });
+                db.collection("user")
+                        .document(myId)
+                        .get()
+                        .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                if (task.isSuccessful()) {
+                                    DocumentSnapshot userDoc = task.getResult();
+                                    if (userDoc.exists()) {
+                                        Log.d(TAG, "사용자 정보 : " + userDoc.get("store"));
+                                        ArrayList storeArr = (ArrayList) userDoc.get("store");
+                                        for (int i = 0; i < storeArr.size(); i++) {
+                                            DocumentReference sdr = (DocumentReference) storeArr.get(i);
+                                            sdr.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                                @Override
+                                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                                    if(task.isSuccessful()) {
+                                                        DocumentSnapshot storeDoc = task.getResult();
+                                                        Log.d(TAG, "StoreName is " + storeName);
+                                                        if(storeDoc.exists() && storeDoc.getString("name").equals(storeName)){
+                                                            Log.d(TAG, "가게 정보 : " + storeDoc.getData());
+                                                            ArrayList commentArr = (ArrayList) storeDoc.get("comment");
+                                                            for (int j = 0; j < commentArr.size(); j++) {
+                                                                DocumentReference cdr = (DocumentReference) commentArr.get(j);
+                                                                cdr.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                                                    @Override
+                                                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                                                        if (task.isSuccessful()) {
+                                                                            DocumentSnapshot commentDoc = task.getResult();
+                                                                            if (commentDoc.exists()) {
+                                                                                Log.d(TAG, "댓글 정보 : " + commentDoc.getData());
+                                                                                if (commentDoc.get("user").equals(myId)) {
+                                                                                    db.collection("comment").document(commentDoc.getId())
+                                                                                            .update("content", comment_edit.getText().toString(),
+                                                                                                    "menu", menu_edit.getText().toString());
+                                                                                    if(file != null){   // 추가 또는 수정한 사진이 있다면 넣는다.
+                                                                                        StorageReference riversRef = storageRef.child(storeDoc.getId() + "/" + myId + ".png");
+                                                                                        Log.d(TAG,"사진 : " + riversRef.getPath());
+                                                                                        db.collection("comment").document(commentDoc.getId())
+                                                                                                .update("photo", riversRef.getPath());
+
+                                                                                        UploadTask uploadTask = riversRef.putFile(file);
+                                                                                        uploadTask.addOnFailureListener(new OnFailureListener() {
+                                                                                            @Override
+                                                                                            public void onFailure(@NonNull Exception e) {
+                                                                                                Toast.makeText(mContext,"사진이 정상적으로 업로드 되지 않음", Toast.LENGTH_SHORT).show();
                                                                                             }
-                                                                                        }
+                                                                                        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                                                                                            @Override
+                                                                                            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                                                                                                Toast.makeText(mContext,"사진이 정상적으로 업로드 됨",Toast.LENGTH_SHORT).show();
+                                                                                            }
+                                                                                        });
                                                                                     }
                                                                                 }
                                                                             }
-                                                                        });
+                                                                        }
                                                                     }
-                                                                }
+                                                                });
                                                             }
                                                         }
-                                                    });
+                                                    }
                                                 }
-                                            }
+                                            });
                                         }
                                     }
-                                });
-                    }
-                    return null;
-                });
+                                }
+                            }
+                        });
                 FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
                 fragmentManager.beginTransaction().remove(MyDetail.this).commit();
                 fragmentManager.popBackStack();

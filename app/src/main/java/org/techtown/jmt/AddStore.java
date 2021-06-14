@@ -3,6 +3,7 @@ package org.techtown.jmt;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -19,6 +20,7 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -83,15 +85,21 @@ public class AddStore extends Fragment {
     private String storeDocName;
     private Uri file;
 
-    ArrayList<Document> documentArrayList = new ArrayList<>(); //지역명 검색 결과 리스트
-    EditText mSearchEdit;
-    TextView address_tv;
-    RecyclerView recyclerView;
+    private String myId;
+    private SharedPreferences preferences;
+
+    private ArrayList<Document> documentArrayList = new ArrayList<>(); //지역명 검색 결과 리스트
+    private EditText mSearchEdit;
+    private TextView address_tv;
+    private RecyclerView recyclerView;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_add_store, container, false);
+
+        preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+        myId = preferences.getString("myId","noID");
 
         // 맛집 검색
         mSearchEdit = v.findViewById(R.id.search_editText);
@@ -200,143 +208,136 @@ public class AddStore extends Fragment {
                 Map<String, Object> storeData = new HashMap<>();
                 Map<String, Object> menuData = new HashMap<>();
                 final DocumentReference[] ref = new DocumentReference[2];
-                UserApiClient.getInstance().me((user, error) -> {
-                    if (error != null) {
-                        Log.e(TAG, "사용자 정보 요청 실패", error);
-                    } else if (user != null) {
-                        commentDocName = setDocID("comment", String.valueOf(user.getId()));
-                        storeDocName = setDocID("store", String.valueOf(user.getId()));
 
-                        // store 데이터 전송
-                        storeData.put("category", category_selected);
-                        storeData.put("comment", commentDocName);
-                        storeData.put("location", location); // 주소 추가
-                        storeData.put("do", do_location);
-                        storeData.put("si", si_location);
-                        storeData.put("name", store_name);
-                        menuData.put("menu_name", menu_name);
-                        menuData.put("lover", 1);
-                        if(file != null){
-                            StorageReference riversRef = storageRef.child(storeDocName + "/" + user.getId() + ".png");
-                            Log.d(TAG,"사진 : " + riversRef.getPath());
-                            commentData.put("photo", riversRef.getPath());
+                commentDocName = setDocID("comment", myId);
+                storeDocName = setDocID("store", myId);
 
-                            UploadTask uploadTask = riversRef.putFile(file);
-                            uploadTask.addOnFailureListener(new OnFailureListener() {
+                // store 데이터 전송
+                storeData.put("category", category_selected);
+                storeData.put("comment", commentDocName);
+                storeData.put("location", location); // 주소 추가
+                storeData.put("do", do_location);
+                storeData.put("si", si_location);
+                storeData.put("name", store_name);
+                menuData.put("menu_name", menu_name);
+                menuData.put("lover", 1);
+                if(file != null){
+                    StorageReference riversRef = storageRef.child(storeDocName + "/" + myId + ".png");
+                    Log.d(TAG,"사진 : " + riversRef.getPath());
+                    commentData.put("photo", riversRef.getPath());
+
+                    UploadTask uploadTask = riversRef.putFile(file);
+                    uploadTask.addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Toast.makeText(mContext,"사진이 정상적으로 업로드 되지 않음", Toast.LENGTH_SHORT).show();
+                        }
+                    }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            Toast.makeText(mContext,"사진이 정상적으로 업로드 됨",Toast.LENGTH_SHORT).show();
+                        }
+                    });
+
+                }
+
+                CollectionReference storeColRef = db.collection("store");
+                Task<QuerySnapshot> temp;
+                temp = storeColRef.whereEqualTo("name", store_name).get(); // 이름 같은 가게 존재 여부 확인 후 docName 설정, 나중에 기준 더 추가할 것
+                temp.addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (temp.getResult().isEmpty()){    // 등록된 적 없는 식당
+                            storeColRef.document(storeDocName).set(storeData);
+                            storeColRef.document(storeDocName).collection("menu").add(menuData);
+                            storeColRef.document(storeDocName).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                 @Override
-                                public void onFailure(@NonNull Exception e) {
-                                    Toast.makeText(mContext,"사진이 정상적으로 업로드 되지 않음", Toast.LENGTH_SHORT).show();
-                                }
-                            }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                                @Override
-                                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                                    Toast.makeText(mContext,"사진이 정상적으로 업로드 됨",Toast.LENGTH_SHORT).show();
+                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                    if(task.isSuccessful()){
+                                        DocumentSnapshot doc = task.getResult();
+                                        if(doc.exists()){
+                                            ref[1] = doc.getReference();
+                                            // user field update
+                                            db.collection("user").document(String.valueOf(myId))
+                                                    .update("store", FieldValue.arrayUnion(ref[1]),
+                                                            "storeNum", FieldValue.increment(1));
+                                        }
+                                    }
                                 }
                             });
 
-                        }
+                            commentData.put("user", myId);
+                            commentData.put("content", comment_content);
+                            commentData.put("store", storeDocName);
+                            commentData.put("menu", menu_name);
 
-                        CollectionReference storeColRef = db.collection("store");
-                        Task<QuerySnapshot> temp;
-                        temp = storeColRef.whereEqualTo("name", store_name).get(); // 이름 같은 가게 존재 여부 확인 후 docName 설정, 나중에 기준 더 추가할 것
-                        temp.addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                            @Override
-                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                if (temp.getResult().isEmpty()){    // 등록된 적 없는 식당
-                                    storeColRef.document(storeDocName).set(storeData);
-                                    storeColRef.document(storeDocName).collection("menu").add(menuData);
-                                    storeColRef.document(storeDocName).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                            if(task.isSuccessful()){
-                                                DocumentSnapshot doc = task.getResult();
-                                                if(doc.exists()){
-                                                    ref[1] = doc.getReference();
-                                                    // user field update
-                                                    db.collection("user").document(String.valueOf(user.getId()))
-                                                            .update("store", FieldValue.arrayUnion(ref[1]),
-                                                                    "storeNum", FieldValue.increment(1));
-                                                }
-                                            }
+                            // add comment document
+                            db.collection("comment").document(commentDocName)
+                                    .set(commentData);
+                            db.collection("comment").document(commentDocName).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                    if(task.isSuccessful()){
+                                        DocumentSnapshot doc = task.getResult();
+                                        if(doc.exists()){
+                                            ref[0] = doc.getReference();
+                                            storeColRef.document(storeDocName)
+                                                    .update("comment", FieldValue.arrayUnion(ref[0]),
+                                                            "lover", FieldValue.increment(1));
                                         }
-                                    });
-
-                                    commentData.put("user", user.getId());
-                                    commentData.put("content", comment_content);
-                                    commentData.put("store", storeDocName);
-                                    commentData.put("menu", menu_name);
-
-                                    // add comment document
-                                    db.collection("comment").document(commentDocName)
-                                            .set(commentData);
-                                    db.collection("comment").document(commentDocName).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                            if(task.isSuccessful()){
-                                                DocumentSnapshot doc = task.getResult();
-                                                if(doc.exists()){
-                                                    ref[0] = doc.getReference();
-                                                    storeColRef.document(storeDocName)
-                                                            .update("comment", FieldValue.arrayUnion(ref[0]),
-                                                                    "lover", FieldValue.increment(1));
-                                                }
-                                            }
-                                        }
-                                    });
-
-                                } else {    // 이미 등록된 식당 -> comment, lover 필드 update
-                                    for(QueryDocumentSnapshot document : temp.getResult()) {
-                                        storeDocName = document.getId();
-
-                                        commentData.put("user", user.getId());
-                                        commentData.put("content", comment_content);
-                                        commentData.put("store", storeDocName);
-                                        commentData.put("menu", menu_name);
-
-                                        // add comment document
-                                        db.collection("comment").document(commentDocName)
-                                                .set(commentData);
-                                        db.collection("comment").document(commentDocName).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                            @Override
-                                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                                if(task.isSuccessful()){
-                                                    DocumentSnapshot doc = task.getResult();
-                                                    if(doc.exists()){
-                                                        ref[0] = doc.getReference();
-                                                        storeColRef.document(storeDocName)
-                                                                .update("comment", FieldValue.arrayUnion(ref[0]),
-                                                                        "lover", FieldValue.increment(1));
-                                                        Task<QuerySnapshot> temp;
-                                                        temp = storeColRef.document(storeDocName).collection("menu")
-                                                                .whereEqualTo("menu_name", menu_name).get();    // 하위 콜렉션 menu에 같은 메뉴 입력된 적 있는지 확인
-                                                        temp.addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                                           @Override
-                                                           public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                                               if (temp.getResult().isEmpty()){ // 같은 메뉴 없다면 새로 입력
-                                                                   storeColRef.document(storeDocName).collection("menu").add(menuData);
-                                                               } else { // 이미 입력된 메뉴라면, 카운트 값만 추가
-                                                                   for(QueryDocumentSnapshot document : temp.getResult()){
-                                                                       storeColRef.document(storeDocName).collection("menu").document(document.getId())
-                                                                               .update("lover", FieldValue.increment(1));
-                                                                   }
-                                                               }
-                                                           }
-                                                        });
-                                                    }
-                                                }
-                                            }
-                                        });
-                                        // user field update
-                                        db.collection("user").document(String.valueOf(user.getId()))
-                                                .update("store", FieldValue.arrayUnion(document.getReference()),
-                                                        "storeNum", FieldValue.increment(1));
                                     }
                                 }
-                            }
-                        });
+                            });
 
+                        } else {    // 이미 등록된 식당 -> comment, lover 필드 update
+                            for(QueryDocumentSnapshot document : temp.getResult()) {
+                                storeDocName = document.getId();
+
+                                commentData.put("user", myId);
+                                commentData.put("content", comment_content);
+                                commentData.put("store", storeDocName);
+                                commentData.put("menu", menu_name);
+
+                                // add comment document
+                                db.collection("comment").document(commentDocName)
+                                        .set(commentData);
+                                db.collection("comment").document(commentDocName).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                        if(task.isSuccessful()){
+                                            DocumentSnapshot doc = task.getResult();
+                                            if(doc.exists()){
+                                                ref[0] = doc.getReference();
+                                                storeColRef.document(storeDocName)
+                                                        .update("comment", FieldValue.arrayUnion(ref[0]),
+                                                                "lover", FieldValue.increment(1));
+                                                Task<QuerySnapshot> temp;
+                                                temp = storeColRef.document(storeDocName).collection("menu")
+                                                        .whereEqualTo("menu_name", menu_name).get();    // 하위 콜렉션 menu에 같은 메뉴 입력된 적 있는지 확인
+                                                temp.addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                                   @Override
+                                                   public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                       if (temp.getResult().isEmpty()){ // 같은 메뉴 없다면 새로 입력
+                                                           storeColRef.document(storeDocName).collection("menu").add(menuData);
+                                                       } else { // 이미 입력된 메뉴라면, 카운트 값만 추가
+                                                           for(QueryDocumentSnapshot document : temp.getResult()){
+                                                               storeColRef.document(storeDocName).collection("menu").document(document.getId())
+                                                                       .update("lover", FieldValue.increment(1));
+                                                           }
+                                                       }
+                                                   }
+                                                });
+                                            }
+                                        }
+                                    }
+                                });
+                                // user field update
+                                db.collection("user").document(myId)
+                                        .update("store", FieldValue.arrayUnion(document.getReference()),
+                                                "storeNum", FieldValue.increment(1));
+                            }
+                        }
                     }
-                    return null;
                 });
                 FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
                 fragmentManager.beginTransaction().remove(AddStore.this).commit();
