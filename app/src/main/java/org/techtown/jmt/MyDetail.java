@@ -1,8 +1,11 @@
 package org.techtown.jmt;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -83,13 +86,13 @@ public class MyDetail extends Fragment {
     private EditText comment_edit;
 
     private Button modify_btn;
+    private Button delete_btn;
 
-    private String commentDocName;
-    private String storeDocName;
     private Uri file;
-    private int index;
 
     private String storeName;
+    private String myId;
+    SharedPreferences pref;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -101,6 +104,11 @@ public class MyDetail extends Fragment {
         food_image = v.findViewById(R.id.food_image);
         menu_edit = v.findViewById(R.id.menu);
         comment_edit = v.findViewById(R.id.comment);
+        modify_btn = v.findViewById(R.id.button);
+        delete_btn = v.findViewById(R.id.button_delete);
+
+        pref = mContext.getSharedPreferences("pref", Activity.MODE_PRIVATE);
+        myId = pref.getString("myId", null);
 
         db = FirebaseFirestore.getInstance();
         storage = FirebaseStorage.getInstance("gs://android-jmt.appspot.com");
@@ -197,10 +205,10 @@ public class MyDetail extends Fragment {
             }
         });
 
-        modify_btn = v.findViewById(R.id.button);
         modify_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Fragment frag_my_list = new MyList();
                 StorageReference storageRef = storage.getReference();
                 UserApiClient.getInstance().me((user, error) -> {
                     if (error != null) {
@@ -251,12 +259,12 @@ public class MyDetail extends Fragment {
                                                                                                 uploadTask.addOnFailureListener(new OnFailureListener() {
                                                                                                     @Override
                                                                                                     public void onFailure(@NonNull Exception e) {
-                                                                                                        Toast.makeText(getContext(),"사진이 정상적으로 업로드 되지 않음", Toast.LENGTH_SHORT).show();
+                                                                                                        Toast.makeText(mContext,"사진이 정상적으로 업로드 되지 않음", Toast.LENGTH_SHORT).show();
                                                                                                     }
                                                                                                 }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                                                                                                     @Override
                                                                                                     public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                                                                                                        Toast.makeText(getContext(),"사진이 정상적으로 업로드 됨",Toast.LENGTH_SHORT).show();
+                                                                                                        Toast.makeText(mContext,"사진이 정상적으로 업로드 됨",Toast.LENGTH_SHORT).show();
                                                                                                     }
                                                                                                 });
                                                                                             }
@@ -281,6 +289,112 @@ public class MyDetail extends Fragment {
                 FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
                 fragmentManager.beginTransaction().remove(MyDetail.this).commit();
                 fragmentManager.popBackStack();
+                getParentFragmentManager().beginTransaction().replace(R.id.main_layout, frag_my_list).addToBackStack(null).commit();
+            }
+        });
+
+        delete_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+                builder.setMessage("정말로 삭제하시겠습니까?");
+                builder.setPositiveButton("삭제", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Log.d(TAG, "myId: " + String.valueOf(myId));
+                        db.collection("user")
+                                .document(String.valueOf(myId))
+                                .get()
+                                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                        if (task.isSuccessful()) {
+                                            DocumentSnapshot userDoc = task.getResult();
+                                            if (userDoc.exists()) {
+                                                Log.d(TAG, "사용자 정보 : " + userDoc.get("store"));
+                                                ArrayList storeArr = (ArrayList) userDoc.get("store");
+                                                for (int i = 0; i < storeArr.size(); i++) {
+                                                    DocumentReference sdr = (DocumentReference) storeArr.get(i);
+                                                    sdr.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                                        @Override
+                                                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                                            if(task.isSuccessful()) {
+                                                                DocumentSnapshot storeDoc = task.getResult();
+                                                                Log.d(TAG, "StoreName is " + storeName);
+                                                                if(storeDoc.exists() && storeDoc.getString("name").equals(storeName)) {
+                                                                    Log.d(TAG, "가게 정보 : " + storeDoc.getData());
+                                                                    ArrayList commentArr = (ArrayList) storeDoc.get("comment");
+                                                                    for (int j = 0; j < commentArr.size(); j++) {
+                                                                        DocumentReference cdr = (DocumentReference) commentArr.get(j);
+                                                                        cdr.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                                                            @Override
+                                                                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                                                                if (task.isSuccessful()) {
+                                                                                    DocumentSnapshot commentDoc = task.getResult();
+                                                                                    if (commentDoc.exists()) {
+                                                                                        Log.d(TAG, "댓글 정보 : " + commentDoc.getData());
+                                                                                        if (commentDoc.get("user").equals(myId)) {
+                                                                                            // user 문서 - store필드에서 ref제거, storeNum 업데이트
+                                                                                            db.collection("user")
+                                                                                                    .document(String.valueOf(myId))
+                                                                                                    .update("store", FieldValue.arrayRemove(sdr.getPath()),
+                                                                                                            "storeNum", FieldValue.increment(-1));
+                                                                                            // store 문서 - 해당 가게를 추가한 사람이 한 명이면 문서 삭제,
+                                                                                            // 한 명 이상이면 comment필드에서 ref 제거, lover 업데이트
+                                                                                            if((long) storeDoc.get("lover") == 1) {
+                                                                                                sdr.delete();
+                                                                                            } else if((long) storeDoc.get("lover") > 1) {
+                                                                                                sdr.update("comment", FieldValue.arrayRemove(cdr.getPath()),
+                                                                                                        "lover", FieldValue.increment(-1));
+                                                                                            }
+                                                                                            // 연결된 사진 storage에서 삭제
+                                                                                            if(commentDoc.get("photo") != null){
+                                                                                                StorageReference photoRef = storageReference.child(String.valueOf(commentDoc.get("photo")));
+                                                                                                photoRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                                                                    @Override
+                                                                                                    public void onSuccess(Void aVoid) {
+                                                                                                        Toast.makeText(mContext,"사진이 정상적으로 삭제됨", Toast.LENGTH_SHORT).show();
+                                                                                                    }
+                                                                                                }).addOnFailureListener(new OnFailureListener() {
+                                                                                                    @Override
+                                                                                                    public void onFailure(@NonNull Exception e) {
+                                                                                                        Toast.makeText(mContext,"사진이 정상적으로 삭제되지 않음", Toast.LENGTH_SHORT).show();
+                                                                                                    }
+                                                                                                });
+                                                                                            }
+                                                                                            // comment 콜렉션에서 문서 제거
+                                                                                            //db.collection("comment").document(commentDoc.getId())
+                                                                                            cdr.delete();  // comment 콜렉션에서 문서 제거
+
+                                                                                            FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                                                                                            fragmentManager.beginTransaction().remove(MyDetail.this).commit();
+                                                                                            fragmentManager.popBackStack();
+                                                                                            Toast.makeText(mContext,"정상적으로 삭제되었습니다.",Toast.LENGTH_SHORT).show();
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                        });
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    });
+                                                }
+                                            }
+                                        }
+                                    }
+                                });
+                    }
+                });
+                builder.setNegativeButton("취소", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                });
+                AlertDialog alertDialog = builder.create();
+                alertDialog.show();
             }
         });
 
