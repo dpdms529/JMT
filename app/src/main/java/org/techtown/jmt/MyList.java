@@ -43,10 +43,10 @@ public class MyList extends Fragment {
     ImageButton add_btn;
     ImageButton share_btn;
     RecyclerView recyclerView;
+    MyAdapter adapter;
     FirebaseFirestore db;
     String myId;
     private SharedPreferences preferences;
-    private SharedPreferences.Editor editor;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -54,7 +54,6 @@ public class MyList extends Fragment {
         View v = inflater.inflate(R.layout.fragment_my_list, container, false);
 
         preferences = PreferenceManager.getDefaultSharedPreferences(this.getContext());
-        editor = preferences.edit();
 
         frag_add_store = new AddStore();
         frag_my_detail = new MyDetail();
@@ -63,72 +62,61 @@ public class MyList extends Fragment {
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(mContext, LinearLayoutManager.VERTICAL, false);
         recyclerView.setLayoutManager(layoutManager);
-
-        MyAdapter adapter = new MyAdapter(mContext);
+        adapter = new MyAdapter(mContext);
 
         db = FirebaseFirestore.getInstance();
-
-        UserApiClient.getInstance().me((user, error) -> {
-                    if (error != null) {
-                        Log.e(TAG, "사용자 정보 요청 실패", error);
-                    } else if (user != null) {
-                        myId = String.valueOf(user.getId());
-                        editor.putString("myId",myId);
-                        editor.apply();
-                        Log.d(TAG,preferences.getString("myId","noId"));
-                        db.collection("user")
-                                .document(myId)
-                                .get()
-                                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                        if(task.isSuccessful()){
-                                            DocumentSnapshot userDoc = task.getResult();
-                                            if(userDoc.exists()){
-                                                Log.d(TAG,"사용자 정보 : " + userDoc.get("store"));
-                                                if(userDoc.get("store")!=null){
-                                                    ArrayList<DocumentReference> storeArr = (ArrayList)userDoc.get("store");
-                                                    for(DocumentReference sdr : storeArr){
-                                                        sdr.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                                            @Override
-                                                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                                                if(task.isSuccessful()){
-                                                                    DocumentSnapshot storeDoc = task.getResult();
-                                                                    if(storeDoc.exists()){
-                                                                        Log.d(TAG,"가게 정보 : " + storeDoc.getData());
-                                                                        ArrayList<DocumentReference> commentArr = (ArrayList)storeDoc.get("comment");
-                                                                        for(DocumentReference cdr : commentArr){
-                                                                            cdr.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                                                                @Override
-                                                                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                                                                    if(task.isSuccessful()){
-                                                                                        DocumentSnapshot commentDoc = task.getResult();
-                                                                                        if(commentDoc.exists()){
-                                                                                            Log.d(TAG,"댓글 정보 : " + commentDoc.getData());
-                                                                                            if(String.valueOf(commentDoc.get("user")).equals(myId)){
-                                                                                                Log.d(TAG,storeDoc.getString("name") + commentDoc.getString("photo"));
-                                                                                                adapter.addItem(new PersonalComment(storeDoc.getString("name"),commentDoc.getString("content"),commentDoc.getString("photo")));
-                                                                                                adapter.notifyDataSetChanged();
-                                                                                            }
-                                                                                        }
-                                                                                    }
-                                                                                }
-                                                                            });
+        myId = preferences.getString("myId","noId");
+        Log.d(TAG,"myId is " + myId);
+        db.collection("user")
+                .document(myId)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if(task.isSuccessful()){
+                            DocumentSnapshot userDoc = task.getResult();
+                            if(userDoc.exists()){
+                                Log.d(TAG,"사용자 정보 : " + userDoc.get("store"));
+                                if(userDoc.get("store")!=null){
+                                    ArrayList<DocumentReference> storeArr = (ArrayList)userDoc.get("store");
+                                    for(DocumentReference sdr : storeArr){
+                                        sdr.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                                if(task.isSuccessful()){
+                                                    DocumentSnapshot storeDoc = task.getResult();
+                                                    if(storeDoc.exists()){
+                                                        Log.d(TAG,"가게 정보 : " + storeDoc.getData());
+                                                        ArrayList<DocumentReference> commentArr = (ArrayList)storeDoc.get("comment");
+                                                        for(DocumentReference cdr : commentArr){
+                                                            cdr.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                                                @Override
+                                                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                                                    if(task.isSuccessful()){
+                                                                        DocumentSnapshot commentDoc = task.getResult();
+                                                                        if(commentDoc.exists()){
+                                                                            Log.d(TAG,"댓글 정보 : " + commentDoc.getData());
+                                                                            if(String.valueOf(commentDoc.get("user")).equals(myId)){
+                                                                                Log.d(TAG,storeDoc.getString("name") + commentDoc.getString("photo"));
+                                                                                adapter.addItem(new PersonalComment(storeDoc.getString("name"),commentDoc.getString("content"),commentDoc.getString("photo")));
+                                                                                adapter.notifyDataSetChanged();
+                                                                            }
                                                                         }
                                                                     }
                                                                 }
-                                                            }
-                                                        });
+                                                            });
+                                                        }
                                                     }
-
                                                 }
                                             }
-                                        }
+                                        });
                                     }
-                                });
-            }
-            return null;
-        });
+
+                                }
+                            }
+                        }
+                    }
+                });
         recyclerView.setAdapter(adapter);
 
         adapter.setOnItemClickListener(new OnMyItemClickListener() {

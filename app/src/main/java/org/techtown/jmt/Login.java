@@ -15,6 +15,8 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.protobuf.StringValue;
 import com.kakao.sdk.user.UserApiClient;
 
@@ -29,6 +31,7 @@ public class Login extends AppCompatActivity {
     SharedPreferences preferences;
     SharedPreferences.Editor editor;
     Map<String,Object> userInfo;
+    boolean isUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,13 +69,21 @@ public class Login extends AppCompatActivity {
                                                 Log.e(TAG,"사용자 정보 요청 실패",error3);
                                             }else if(user != null){
                                                 Log.i(TAG,"사용자 정보 요청 성공" + "\n회원번호 : " + user.getId() + "\n닉네임 : " + user.getKakaoAccount().getProfile().getNickname());
-                                                userInfo.put("name",user.getKakaoAccount().getProfile().getNickname());
-                                                userInfo.put("id",user.getId());
-                                                userInfo.put("storeNum",0);
-                                                db.collection("user")
-                                                        .document(String.valueOf(user.getId()))
-                                                        .set(userInfo);
                                                 myId = String.valueOf(user.getId());
+                                                isUser = db.collection("user")
+                                                        .whereEqualTo("id",user.getId())
+                                                        .get()
+                                                        .getResult()
+                                                        .isEmpty();
+                                                if(!isUser){
+                                                    userInfo.put("name",user.getKakaoAccount().getProfile().getNickname());
+                                                    userInfo.put("id",user.getId());
+                                                    userInfo.put("storeNum",0);
+                                                    userInfo.put("favorite",null);
+                                                    db.collection("user")
+                                                            .document(String.valueOf(user.getId()))
+                                                            .set(userInfo);
+                                                }
                                                 editor.putString("myId",myId);
                                                 editor.apply();
                                                 Intent intent = new Intent(getApplicationContext(),MainActivity.class);
