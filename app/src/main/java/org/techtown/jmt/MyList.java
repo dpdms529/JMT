@@ -139,8 +139,6 @@ public class MyList extends Fragment {
                                             DocumentSnapshot document = task.getResult();
                                             mjlist = mjlist + "\n- " + String.valueOf(document.get("name"));
                                             mjlist = mjlist + "\n  (" + String.valueOf(document.get("location")) + ")";
-//                                                    mjlist.concat("\n- " + String.valueOf(document.get("name")));
-//                                                    mjlist.concat("\n  (" + String.valueOf(document.get("location")) + ")");
                                             Log.d(TAG,"mjList: " + mjlist);
                                         }
                                     }

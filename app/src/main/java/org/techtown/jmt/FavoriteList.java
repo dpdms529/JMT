@@ -33,7 +33,6 @@ public class FavoriteList extends Fragment {
     FirebaseFirestore db;
     Fragment frag_other_list;
     RecyclerView recyclerView;
-    ImageButton share_btn;
     String myId;
     SharedPreferences preferences;
 
@@ -90,7 +89,7 @@ public class FavoriteList extends Fragment {
 
         adapter.setOnItemClickListener(new OnFavoriteItemClickListener() {
             @Override
-            public void onItemClcik(FavoriteAdapter.ViewHolder holder, View view, int position) {
+            public void onItemClick(FavoriteAdapter.ViewHolder holder, View view, int position) {
                 UserInfo item = adapter.getItem(position);
                 Bundle bundle = new Bundle();
                 bundle.putString("user_id",item.getUserID());
@@ -99,23 +98,6 @@ public class FavoriteList extends Fragment {
             }
         });
 
-        share_btn = v.findViewById(R.id.share_btn);
-        share_btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent Sharing_intent = new Intent(Intent.ACTION_SEND);
-                Sharing_intent.setType("text/plain");
-
-                String Test_Message = "list for share should be here";
-
-                Sharing_intent.putExtra(Intent.EXTRA_TEXT, Test_Message);
-
-                Intent Sharing = Intent.createChooser(Sharing_intent, "공유하기");
-                startActivity(Sharing);
-            }
-        });
-
-        // Inflate the layout for this fragment
         return v;
     }
 

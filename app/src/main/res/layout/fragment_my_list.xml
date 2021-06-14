@@ -11,8 +11,6 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <!-- 여기보다는 위 액션바에 추가하는 게 좋을 듯. 즐겨찾기는 따로 bottomNavigation으로 뺌 -->
-
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -33,7 +31,6 @@
                     android:src="@drawable/ic_add" />
 
                 <TextView
-                    android:id="@+id/textView2"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
@@ -54,7 +51,6 @@
                     android:src="@drawable/ic_share" />
 
                 <TextView
-                    android:id="@+id/textView3"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"

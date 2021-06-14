@@ -11,36 +11,6 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <!-- 여기보다는 위 액션바에 추가하는 게 좋을 듯. 즐겨찾기는 따로 bottomNavigation으로 뺌 -->
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="5dp"
-            android:orientation="horizontal">
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:orientation="horizontal">
-
-                <ImageButton
-                    android:id="@+id/share_btn"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:layout_marginRight="5dp"
-                    android:src="@drawable/ic_share" />
-
-                <TextView
-                    android:id="@+id/textView3"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:text="리스트 공유하기" />
-            </LinearLayout>
-        </LinearLayout>
-
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/comments_recyclerview"
             android:layout_width="match_parent"
