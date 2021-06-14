@@ -151,7 +151,7 @@ public class MainActivity extends AppCompatActivity {
         switch (item.getItemId()){
             case R.id.logout:
                 // 로그아웃
-
+                
                 break;
             case R.id.leave:
                 // 탈퇴
