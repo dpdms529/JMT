@@ -1,15 +1,18 @@
 package org.techtown.jmt;
 
-import android.graphics.drawable.ColorDrawable;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
@@ -17,8 +20,10 @@ import androidx.fragment.app.FragmentManager;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomnavigation.LabelVisibilityMode;
+import com.kakao.sdk.user.UserApiClient;
 
 public class MainActivity extends AppCompatActivity {
+    private static final String TAG = "TAG";
     Fragment frag_my_list;
     Fragment frag_store_list;
     Fragment frag_user_list;
@@ -39,10 +44,6 @@ public class MainActivity extends AppCompatActivity {
         frag_favorite_list = new FavoriteList();
 
         // 커스텀 액션바 설정
-//        getSupportActionBar().setDisplayShowTitleEnabled(false); // 기본 타이틀 사용 안함
-//        getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM); // 커스텀 사용
-//        getSupportActionBar().setCustomView(R.layout.actionbar_custom); // 커스텀 사용할 파일 위치
-//        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(0xFFFFFFFF));
         Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar_text = findViewById(R.id.toolbar_text);
         setSupportActionBar(toolbar);
@@ -53,7 +54,6 @@ public class MainActivity extends AppCompatActivity {
         // 첫 화면 지정
         getSupportFragmentManager().beginTransaction().replace(R.id.main_layout, frag_my_list).commit();
         toolbar_text.setText("나의 맛집");
-        //setActionbarTitle("나의 맛집"); // 첫 화면에 맞는 타이틀 지정
 
         // 하단바 생성 및 설정
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
@@ -89,7 +89,6 @@ public class MainActivity extends AppCompatActivity {
         }
         getSupportFragmentManager().beginTransaction().replace(R.id.main_layout, fragment).commit();
         toolbar_text.setText(title);
-        //setActionbarTitle(title);
         currentTitle = title;  // 백업을 위한 flag
     }
 
@@ -118,22 +117,18 @@ public class MainActivity extends AppCompatActivity {
             case "나의 맛집":
                 getSupportFragmentManager().beginTransaction().replace(R.id.main_layout, frag_my_list).commit();
                 toolbar_text.setText("나의 맛집");
-                //setActionbarTitle("나의 맛집");
                 break;
             case "모두의 맛집":
                 getSupportFragmentManager().beginTransaction().replace(R.id.main_layout, frag_store_list).commit();
                 toolbar_text.setText("모두의 맛집");
-                //setActionbarTitle("모두의 맛집");
                 break;
             case "맛집 킬러":
                 getSupportFragmentManager().beginTransaction().replace(R.id.main_layout, frag_user_list).commit();
                 toolbar_text.setText("맛집 킬러");
-                //setActionbarTitle("맛집 킬러");
                 break;
             case "즐겨찾는 리스트":
                 getSupportFragmentManager().beginTransaction().replace(R.id.main_layout, frag_favorite_list).commit();
                 toolbar_text.setText("즐겨찾는 리스트");
-                //setActionbarTitle("즐겨찾는 리스트");
                 break;
         }
     }
@@ -151,11 +146,58 @@ public class MainActivity extends AppCompatActivity {
         switch (item.getItemId()){
             case R.id.logout:
                 // 로그아웃
-                
+                new AlertDialog.Builder(this)
+                        .setTitle("로그아웃")
+                        .setMessage("로그아웃하시겠습니까?")
+                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int i) {
+                                UserApiClient.getInstance().logout(error->{
+                                    if(error != null){
+                                        Log.e(TAG,"로그아웃 실패", error);
+                                    }else{
+                                        Log.i(TAG,"로그아웃 성공");
+                                        Intent intent = new Intent(getApplicationContext(),Login.class);
+                                        startActivity(intent);
+                                    }
+                                    return null;
+                                });
+                                Toast.makeText(getApplicationContext(),"로그아웃 완료",Toast.LENGTH_SHORT).show();
+                            }
+                        }).setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                Toast.makeText(getApplicationContext(),"로그아웃 취소",Toast.LENGTH_SHORT).show();
+                            }
+                        }).show();
                 break;
             case R.id.leave:
                 // 탈퇴
-                
+                new AlertDialog.Builder(this)
+                        .setTitle("탈퇴")
+                        .setMessage("탈퇴하시겠습니까?")
+                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int i) {
+                                UserApiClient.getInstance().unlink(error->{
+                                    if(error != null){
+                                        Log.e(TAG,"연결 끊기 실패", error);
+                                    }else{
+                                        Log.i(TAG,"연결 끊기 성공");
+                                        Intent intent = new Intent(getApplicationContext(),Login.class);
+                                        startActivity(intent);
+
+                                    }
+                                    return null;
+                                });
+                                Toast.makeText(getApplicationContext(),"탈퇴 완료",Toast.LENGTH_SHORT).show();
+                            }
+                        }).setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        Toast.makeText(getApplicationContext(),"탈퇴 취소",Toast.LENGTH_SHORT).show();
+                    }
+                }).show();
                 break;
             case android.R.id.home:
                 // 액션바 뒤로가기
