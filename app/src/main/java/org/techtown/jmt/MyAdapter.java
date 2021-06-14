@@ -109,6 +109,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> implem
             comment_textView.setText(item.getComment());
             path = item.getImageUrl();
             if(path != null){
+                picture_imageView.setVisibility(View.VISIBLE);
                 storageReference.child(path).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                     @Override
                     public void onSuccess(Uri uri) {
@@ -122,6 +123,8 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> implem
                         Toast.makeText(context,"실패",Toast.LENGTH_SHORT).show();
                     }
                 });
+            } else {
+                picture_imageView.setVisibility(View.GONE);
             }
 
         }
