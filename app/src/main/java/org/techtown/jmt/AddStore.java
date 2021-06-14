@@ -242,7 +242,7 @@ public class AddStore extends Fragment {
                                         if(doc.exists()){
                                             ref[1] = doc.getReference();
                                             // user field update
-                                            db.collection("user").document(String.valueOf(myId))
+                                            db.collection("user").document(myId)
                                                     .update("store", FieldValue.arrayUnion(ref[1]),
                                                             "storeNum", FieldValue.increment(1));
                                         }

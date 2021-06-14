@@ -72,7 +72,7 @@ public class FavoriteList extends Fragment {
                                                 if(task.isSuccessful()){
                                                     DocumentSnapshot favoriteDoc = task.getResult();
                                                     if(favoriteDoc.exists()){
-                                                        adapter.addItem(new UserInfo(favoriteDoc.getString("name"),String.valueOf(favoriteDoc.get("id")),favoriteDoc.getLong("storeNum")));
+                                                        adapter.addItem(new UserInfo(favoriteDoc.getString("name"),favoriteDoc.getString("id"),favoriteDoc.getLong("storeNum")));
                                                         adapter.notifyDataSetChanged();
                                                     }
                                                 }

@@ -69,9 +69,9 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
     public void setOnItemClickListener(OnFavoriteItemClickListener listener){this.listener = listener;}
 
     @Override
-    public void onItemClcik(ViewHolder holder, View view, int position) {
+    public void onItemClick(ViewHolder holder, View view, int position) {
         if(listener != null){
-            listener.onItemClcik(holder,view,position);
+            listener.onItemClick(holder,view,position);
         }
 
     }
@@ -150,7 +150,7 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
                 public void onClick(View view) {
                     int position = getAdapterPosition();
                     if(listener != null){
-                        listener.onItemClcik(ViewHolder.this,view,position);
+                        listener.onItemClick(ViewHolder.this,view,position);
                     }
                 }
             });

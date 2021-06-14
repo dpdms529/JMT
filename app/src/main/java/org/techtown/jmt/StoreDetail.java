@@ -109,7 +109,7 @@ public class StoreDetail extends Fragment {
                                                     if(task.isSuccessful()) {
                                                         DocumentSnapshot commentDoc = task.getResult();
                                                         if(commentDoc.exists()){
-                                                            db.collection("user").document(String.valueOf(commentDoc.get("user")))
+                                                            db.collection("user").document(commentDoc.getString("user"))
                                                                     .get()
                                                                     .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                                                         @Override
