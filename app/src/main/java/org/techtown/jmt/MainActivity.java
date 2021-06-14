@@ -2,6 +2,8 @@ package org.techtown.jmt;
 
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
@@ -9,7 +11,9 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomnavigation.LabelVisibilityMode;
@@ -20,6 +24,8 @@ public class MainActivity extends AppCompatActivity {
     Fragment frag_user_list;
     Fragment frag_favorite_list;
     String currentTitle = "";
+
+    TextView toolbar_text;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,14 +39,21 @@ public class MainActivity extends AppCompatActivity {
         frag_favorite_list = new FavoriteList();
 
         // 커스텀 액션바 설정
-        getSupportActionBar().setDisplayShowTitleEnabled(false); // 기본 타이틀 사용 안함
-        getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM); // 커스텀 사용
-        getSupportActionBar().setCustomView(R.layout.actionbar_custom); // 커스텀 사용할 파일 위치
-        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(0xFFFFFFFF));
+//        getSupportActionBar().setDisplayShowTitleEnabled(false); // 기본 타이틀 사용 안함
+//        getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM); // 커스텀 사용
+//        getSupportActionBar().setCustomView(R.layout.actionbar_custom); // 커스텀 사용할 파일 위치
+//        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(0xFFFFFFFF));
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        toolbar_text = findViewById(R.id.toolbar_text);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayShowCustomEnabled(true);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         // 첫 화면 지정
         getSupportFragmentManager().beginTransaction().replace(R.id.main_layout, frag_my_list).commit();
-        setActionbarTitle("나의 맛집"); // 첫 화면에 맞는 타이틀 지정
+        toolbar_text.setText("나의 맛집");
+        //setActionbarTitle("나의 맛집"); // 첫 화면에 맞는 타이틀 지정
 
         // 하단바 생성 및 설정
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
@@ -53,16 +66,16 @@ public class MainActivity extends AppCompatActivity {
                         switch (item.getItemId()) {
                             case R.id.tab_my_list:
                                 setFragment(frag_my_list, String.valueOf(item.getTitle()));
-                                break;
+                                return true;
                             case R.id.tab_store_list:
                                 setFragment(frag_store_list, String.valueOf(item.getTitle()));
-                                break;
+                                return true;
                             case R.id.tab_user_list:
                                 setFragment(frag_user_list, String.valueOf(item.getTitle()));
-                                break;
+                                return true;
                             case R.id.tab_favorite_list:
                                 setFragment(frag_favorite_list, String.valueOf(item.getTitle()));
-                                break;
+                                return true;
                         }
                         return false;
                     }
@@ -75,7 +88,8 @@ public class MainActivity extends AppCompatActivity {
             getSupportFragmentManager().popBackStack();
         }
         getSupportFragmentManager().beginTransaction().replace(R.id.main_layout, fragment).commit();
-        setActionbarTitle(title);
+        toolbar_text.setText(title);
+        //setActionbarTitle(title);
         currentTitle = title;  // 백업을 위한 flag
     }
 
@@ -103,20 +117,56 @@ public class MainActivity extends AppCompatActivity {
         switch (backup_str) {
             case "나의 맛집":
                 getSupportFragmentManager().beginTransaction().replace(R.id.main_layout, frag_my_list).commit();
-                setActionbarTitle("나의 맛집");
+                toolbar_text.setText("나의 맛집");
+                //setActionbarTitle("나의 맛집");
                 break;
             case "모두의 맛집":
                 getSupportFragmentManager().beginTransaction().replace(R.id.main_layout, frag_store_list).commit();
-                setActionbarTitle("모두의 맛집");
+                toolbar_text.setText("모두의 맛집");
+                //setActionbarTitle("모두의 맛집");
                 break;
             case "맛집 킬러":
                 getSupportFragmentManager().beginTransaction().replace(R.id.main_layout, frag_user_list).commit();
-                setActionbarTitle("맛집 킬러");
+                toolbar_text.setText("맛집 킬러");
+                //setActionbarTitle("맛집 킬러");
                 break;
             case "즐겨찾는 리스트":
                 getSupportFragmentManager().beginTransaction().replace(R.id.main_layout, frag_favorite_list).commit();
-                setActionbarTitle("즐겨찾는 리스트");
+                toolbar_text.setText("즐겨찾는 리스트");
+                //setActionbarTitle("즐겨찾는 리스트");
                 break;
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.menu_settings, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        FragmentManager fragmentManager = this.getSupportFragmentManager();
+        switch (item.getItemId()){
+            case R.id.logout:
+                // 로그아웃
+
+                break;
+            case R.id.leave:
+                // 탈퇴
+                
+                break;
+            case android.R.id.home:
+                // 액션바 뒤로가기
+                if(fragmentManager.getBackStackEntryCount() > 0) {
+                    fragmentManager.beginTransaction().remove(fragmentManager.getFragments().get(0)).commit();
+                    fragmentManager.popBackStack();
+                } else {
+                    finish();
+                }
+                break;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }
