@@ -19,6 +19,7 @@ public class MainActivity extends AppCompatActivity {
     Fragment frag_store_list;
     Fragment frag_user_list;
     Fragment frag_favorite_list;
+    Fragment frag_logout;
     String currentTitle = "";
 
     @Override
@@ -31,12 +32,20 @@ public class MainActivity extends AppCompatActivity {
         frag_store_list = new StoreList();
         frag_user_list = new UserList();
         frag_favorite_list = new FavoriteList();
+        frag_logout = new Logout();
 
         // 커스텀 액션바 설정
         getSupportActionBar().setDisplayShowTitleEnabled(false); // 기본 타이틀 사용 안함
         getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM); // 커스텀 사용
         getSupportActionBar().setCustomView(R.layout.actionbar_custom); // 커스텀 사용할 파일 위치
         getSupportActionBar().setBackgroundDrawable(new ColorDrawable(0xFFFFFFFF));
+        getSupportActionBar().getCustomView().findViewById(R.id.logout_img_button).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                getSupportFragmentManager().beginTransaction().replace(R.id.main_layout,frag_logout).commit();
+            }
+        });
+
 
         // 첫 화면 지정
         getSupportFragmentManager().beginTransaction().replace(R.id.main_layout, frag_my_list).commit();
