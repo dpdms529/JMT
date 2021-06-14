@@ -169,6 +169,21 @@ public class AddStore extends Fragment {
         register_btn.setOnClickListener(new Button.OnClickListener() {
             @Override
             public void onClick(View view) {
+                // 필수 입력 확인
+                if(mSearchEdit.getText().toString().length() == 0) {
+                    Toast.makeText(mContext, "식당 이름을 입력하고 선택해주세요", Toast.LENGTH_SHORT).show();
+                    mSearchEdit.requestFocus();
+                    return;
+                } else if(menu_edit.getText().toString().length() == 0) {
+                    Toast.makeText(mContext, "메뉴를 입력해주세요", Toast.LENGTH_SHORT).show();
+                    menu_edit.requestFocus();
+                    return;
+                } else if(comment_edit.getText().toString().length() == 0) {
+                    Toast.makeText(mContext, "한줄평을 입력해주세요", Toast.LENGTH_SHORT).show();
+                    comment_edit.requestFocus();
+                    return;
+                }
+
                 // 입력 값 가져오기
                 String store_name = mSearchEdit.getText().toString();
                 String category_selected = category_spinner.getSelectedItem().toString();
