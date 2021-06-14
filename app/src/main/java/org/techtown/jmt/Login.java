@@ -31,7 +31,6 @@ public class Login extends AppCompatActivity {
     SharedPreferences preferences;
     SharedPreferences.Editor editor;
     Map<String,Object> userInfo;
-    boolean isUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,25 +69,32 @@ public class Login extends AppCompatActivity {
                                             }else if(user != null){
                                                 Log.i(TAG,"사용자 정보 요청 성공" + "\n회원번호 : " + user.getId() + "\n닉네임 : " + user.getKakaoAccount().getProfile().getNickname());
                                                 myId = String.valueOf(user.getId());
-                                                isUser = db.collection("user")
+                                                db.collection("user")
                                                         .whereEqualTo("id",user.getId())
                                                         .get()
-                                                        .getResult()
-                                                        .isEmpty();
-                                                if(!isUser){
-                                                    userInfo.put("name",user.getKakaoAccount().getProfile().getNickname());
-                                                    userInfo.put("id",user.getId());
-                                                    userInfo.put("storeNum",0);
-                                                    userInfo.put("favorite",null);
-                                                    db.collection("user")
-                                                            .document(String.valueOf(user.getId()))
-                                                            .set(userInfo);
-                                                }
-                                                editor.putString("myId",myId);
-                                                editor.apply();
-                                                Intent intent = new Intent(getApplicationContext(),MainActivity.class);
-                                                startActivity(intent);
-                                                finish();
+                                                        .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                                            @Override
+                                                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                                if(task.isSuccessful()){
+                                                                   if(task.getResult().isEmpty()){
+                                                                       userInfo.put("name",user.getKakaoAccount().getProfile().getNickname());
+                                                                       userInfo.put("id",String.valueOf(user.getId()));
+                                                                       userInfo.put("storeNum",0);
+                                                                       userInfo.put("favorite",null);
+                                                                       db.collection("user")
+                                                                               .document(String.valueOf(user.getId()))
+                                                                               .set(userInfo);
+
+                                                                   }
+                                                                    editor.putString("myId",myId);
+                                                                    editor.apply();
+                                                                    Intent intent = new Intent(getApplicationContext(),MainActivity.class);
+                                                                    startActivity(intent);
+                                                                    finish();
+
+                                                                }
+                                                            }
+                                                        });
                                             }
                                             return null;
                                         });

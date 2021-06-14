@@ -57,7 +57,7 @@ public class UserList extends Fragment {    // 어댑터가 storeAdapter랑 유�
                         if(task.isSuccessful()){
                             for(QueryDocumentSnapshot document : task.getResult()){
                                 Log.d(TAG,"회원 정보" + document.getData());
-                                adapter.addItem(new UserInfo(document.getString("name"), String.valueOf(document.get("id")), document.getLong("storeNum")));
+                                adapter.addItem(new UserInfo(document.getString("name"), document.getString("id"), document.getLong("storeNum")));
                                 adapter.notifyDataSetChanged();
                             }
                         }

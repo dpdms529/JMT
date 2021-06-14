@@ -185,7 +185,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> im
                                                     if(task.isSuccessful()){
                                                         DocumentSnapshot favoriteDoc = task.getResult();
                                                         if(favoriteDoc.exists()){
-                                                            if(String.valueOf(favoriteDoc.get("id")).equals(item.getUserID())){
+                                                            if(favoriteDoc.getString("id").equals(item.getUserID())){
                                                                 star.setSelected(true);
                                                             }
                                                         }
