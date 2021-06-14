@@ -277,7 +277,7 @@ public class AddStore extends Fragment {
                             for(QueryDocumentSnapshot document : temp.getResult()) {
                                 storeDocName = document.getId();
                                 db.collection("comment")
-                                        .whereEqualTo("user", Long.parseLong(myId))
+                                        .whereEqualTo("user", myId)
                                         .whereEqualTo("store", storeDocName)
                                         .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                                     @Override

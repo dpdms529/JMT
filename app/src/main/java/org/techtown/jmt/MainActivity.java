@@ -3,7 +3,9 @@ package org.techtown.jmt;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -18,8 +20,22 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomnavigation.LabelVisibilityMode;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firestore.v1.FirestoreGrpc;
 import com.kakao.sdk.user.UserApiClient;
 
 public class MainActivity extends AppCompatActivity {
@@ -32,10 +48,24 @@ public class MainActivity extends AppCompatActivity {
 
     TextView toolbar_text;
 
+    FirebaseFirestore db;
+    FirebaseStorage storage;
+    StorageReference storageRF;
+
+    SharedPreferences preferences;
+    String myId;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        db = FirebaseFirestore.getInstance();
+        storage = FirebaseStorage.getInstance();
+        storageRF = storage.getReference();
+
+        preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        myId = preferences.getString("myId","noId");
 
         // 프래그먼트 생성
         frag_my_list = new MyList();
@@ -184,6 +214,88 @@ public class MainActivity extends AppCompatActivity {
                                         Log.e(TAG,"연결 끊기 실패", error);
                                     }else{
                                         Log.i(TAG,"연결 끊기 성공");
+                                        db.collection("comment")
+                                                .whereEqualTo("user",myId)
+                                                .get()
+                                                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                                    @Override
+                                                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                        if(task.isSuccessful()){
+                                                            for(QueryDocumentSnapshot commentDoc : task.getResult()){
+                                                                DocumentReference commentDR = commentDoc.getReference();
+                                                                String store = commentDoc.getString("store");
+                                                                Log.d(TAG,"store id  : " + store);
+                                                                db.collection("store")
+                                                                        .document(store)
+                                                                        .get()
+                                                                        .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                                                            @Override
+                                                                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                                                                if(task.isSuccessful()){
+                                                                                    DocumentSnapshot storeDoc = task.getResult();
+                                                                                    if(storeDoc.exists()){
+                                                                                        Log.d(TAG,"storeDoc  : " + storeDoc.getData());
+                                                                                        DocumentReference storeDR = storeDoc.getReference();
+                                                                                        if(storeDoc.getLong("lover")==1){
+                                                                                            storeDR.collection("menu")
+                                                                                                    .get()
+                                                                                                    .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                                                                                        @Override
+                                                                                                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                                                                            if(task.isSuccessful()){
+                                                                                                                for(QueryDocumentSnapshot menuDoc : task.getResult()){
+                                                                                                                    Log.d(TAG,"menuDoc lover1 : " + menuDoc.getData());
+                                                                                                                    DocumentReference menuDR = menuDoc.getReference();
+                                                                                                                    menuDR.delete();
+                                                                                                                }
+                                                                                                            }
+                                                                                                        }
+                                                                                                    });
+                                                                                            storeDR.delete();
+                                                                                        }else{
+                                                                                            storeDR.update("comment", FieldValue.arrayRemove(commentDR)
+                                                                                            ,"lover", FieldValue.increment(-1));
+                                                                                            storeDR.collection("menu")
+                                                                                                    .whereEqualTo("menu_name",commentDoc.get("menu"))
+                                                                                                    .get()
+                                                                                                    .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                                                                                        @Override
+                                                                                                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                                                                            if(task.isSuccessful()){
+                                                                                                                for(QueryDocumentSnapshot menuDoc : task.getResult()){
+                                                                                                                    DocumentReference menuDR = menuDoc.getReference();
+                                                                                                                    if(menuDoc.getLong("lover") ==  1){
+                                                                                                                        Log.d(TAG,"menuDoc menuLover1 : " + menuDoc.getData());
+                                                                                                                        menuDR.delete();
+                                                                                                                    }else{
+                                                                                                                        Log.d(TAG,"menuDoc menuLoverMore : " + menuDoc.getData());
+                                                                                                                        menuDR.update("lover",FieldValue.increment(-1));
+                                                                                                                    }
+                                                                                                                }
+                                                                                                            }
+                                                                                                        }
+                                                                                                    });
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                        });
+                                                                if(commentDoc.get("photo") != null){
+                                                                    StorageReference desertRF = storageRF.child(commentDoc.getString("photo"));
+                                                                    Log.d(TAG,"storage : " + desertRF.getName());
+                                                                    desertRF.delete();
+
+                                                                }
+                                                                commentDR.delete();
+                                                                Log.d(TAG,"comment deleted ");
+                                                            }
+                                                        }
+                                                    }
+                                                });
+                                        db.collection("user")
+                                                .document(myId)
+                                                .delete();
+                                        Log.d(TAG,"user deleted ");
                                         Intent intent = new Intent(getApplicationContext(),Login.class);
                                         startActivity(intent);
 
