@@ -201,7 +201,6 @@ public class AddStore extends Fragment {
                 String[] location_array = location.split(" ");
                 String do_location = location_array[0];
                 String si_location = location_array[1];
-                StorageReference storageRef = storage.getReference();
 
                 // 사용자 확인 및 데이터 전송
                 Map<String, Object> commentData = new HashMap<>();
@@ -221,25 +220,6 @@ public class AddStore extends Fragment {
                 storeData.put("name", store_name);
                 menuData.put("menu_name", menu_name);
                 menuData.put("lover", 1);
-                if(file != null){
-                    StorageReference riversRef = storageRef.child(storeDocName + "/" + myId + ".png");
-                    Log.d(TAG,"사진 : " + riversRef.getPath());
-                    commentData.put("photo", riversRef.getPath());
-
-                    UploadTask uploadTask = riversRef.putFile(file);
-                    uploadTask.addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Toast.makeText(mContext,"사진이 정상적으로 업로드 되지 않음", Toast.LENGTH_SHORT).show();
-                        }
-                    }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                        @Override
-                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                            Toast.makeText(mContext,"사진이 정상적으로 업로드 됨",Toast.LENGTH_SHORT).show();
-                        }
-                    });
-
-                }
 
                 CollectionReference storeColRef = db.collection("store");
                 Task<QuerySnapshot> temp;
@@ -248,6 +228,10 @@ public class AddStore extends Fragment {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (temp.getResult().isEmpty()){    // 등록된 적 없는 식당
+                            if(file != null){   // 사진 업로드
+                                commentData.put("photo", uploadPicture());
+                            }
+
                             storeColRef.document(storeDocName).set(storeData);
                             storeColRef.document(storeDocName).collection("menu").add(menuData);
                             storeColRef.document(storeDocName).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -292,49 +276,68 @@ public class AddStore extends Fragment {
                         } else {    // 이미 등록된 식당 -> comment, lover 필드 update
                             for(QueryDocumentSnapshot document : temp.getResult()) {
                                 storeDocName = document.getId();
-
-                                commentData.put("user", myId);
-                                commentData.put("content", comment_content);
-                                commentData.put("store", storeDocName);
-                                commentData.put("menu", menu_name);
-
-                                // add comment document
-                                db.collection("comment").document(commentDocName)
-                                        .set(commentData);
-                                db.collection("comment").document(commentDocName).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                db.collection("comment")
+                                        .whereEqualTo("user", Long.parseLong(myId))
+                                        .whereEqualTo("store", storeDocName)
+                                        .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                                     @Override
-                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                        if(task.isSuccessful()){
-                                            DocumentSnapshot doc = task.getResult();
-                                            if(doc.exists()){
-                                                ref[0] = doc.getReference();
-                                                storeColRef.document(storeDocName)
-                                                        .update("comment", FieldValue.arrayUnion(ref[0]),
-                                                                "lover", FieldValue.increment(1));
-                                                Task<QuerySnapshot> temp;
-                                                temp = storeColRef.document(storeDocName).collection("menu")
-                                                        .whereEqualTo("menu_name", menu_name).get();    // 하위 콜렉션 menu에 같은 메뉴 입력된 적 있는지 확인
-                                                temp.addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                                   @Override
-                                                   public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                                       if (temp.getResult().isEmpty()){ // 같은 메뉴 없다면 새로 입력
-                                                           storeColRef.document(storeDocName).collection("menu").add(menuData);
-                                                       } else { // 이미 입력된 메뉴라면, 카운트 값만 추가
-                                                           for(QueryDocumentSnapshot document : temp.getResult()){
-                                                               storeColRef.document(storeDocName).collection("menu").document(document.getId())
-                                                                       .update("lover", FieldValue.increment(1));
-                                                           }
-                                                       }
-                                                   }
+                                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                        if(task.isSuccessful()){// 본인이 올린 적 있는 곳 - 등록 불가
+                                            QuerySnapshot doc = task.getResult();
+                                            if(!doc.isEmpty()){
+                                                Toast.makeText(mContext,"이미 리스트에 존재하는 식당입니다.",Toast.LENGTH_SHORT).show();
+                                                return;
+                                            } else {
+                                                if(file != null){   // 사진 업로드
+                                                    commentData.put("photo", uploadPicture());
+                                                }
+
+                                                commentData.put("user", myId);
+                                                commentData.put("content", comment_content);
+                                                commentData.put("store", storeDocName);
+                                                commentData.put("menu", menu_name);
+
+                                                // add comment document
+                                                db.collection("comment").document(commentDocName)
+                                                        .set(commentData);
+                                                db.collection("comment").document(commentDocName).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                                    @Override
+                                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                                        if(task.isSuccessful()){
+                                                            DocumentSnapshot doc = task.getResult();
+                                                            if(doc.exists()){
+                                                                ref[0] = doc.getReference();
+                                                                storeColRef.document(storeDocName)
+                                                                        .update("comment", FieldValue.arrayUnion(ref[0]),
+                                                                                "lover", FieldValue.increment(1));
+                                                                Task<QuerySnapshot> temp;
+                                                                temp = storeColRef.document(storeDocName).collection("menu")
+                                                                        .whereEqualTo("menu_name", menu_name).get();    // 하위 콜렉션 menu에 같은 메뉴 입력된 적 있는지 확인
+                                                                temp.addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                                                    @Override
+                                                                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                                        if (temp.getResult().isEmpty()){ // 같은 메뉴 없다면 새로 입력
+                                                                            storeColRef.document(storeDocName).collection("menu").add(menuData);
+                                                                        } else { // 이미 입력된 메뉴라면, 카운트 값만 추가
+                                                                            for(QueryDocumentSnapshot document : temp.getResult()){
+                                                                                storeColRef.document(storeDocName).collection("menu").document(document.getId())
+                                                                                        .update("lover", FieldValue.increment(1));
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                });
+                                                            }
+                                                        }
+                                                    }
                                                 });
+                                                // user field update
+                                                db.collection("user").document(myId)
+                                                        .update("store", FieldValue.arrayUnion(document.getReference()),
+                                                                "storeNum", FieldValue.increment(1));
                                             }
                                         }
                                     }
                                 });
-                                // user field update
-                                db.collection("user").document(myId)
-                                        .update("store", FieldValue.arrayUnion(document.getReference()),
-                                                "storeNum", FieldValue.increment(1));
                             }
                         }
                     }
@@ -352,6 +355,26 @@ public class AddStore extends Fragment {
             }
         });
         return v;
+    }
+
+    public String uploadPicture() {
+        StorageReference storageRef = storage.getReference();
+        StorageReference riversRef = storageRef.child(storeDocName + "/" + myId + ".png");
+        Log.d(TAG,"사진 : " + riversRef.getPath());
+
+        UploadTask uploadTask = riversRef.putFile(file);
+        uploadTask.addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(mContext,"사진이 정상적으로 업로드 되지 않음", Toast.LENGTH_SHORT).show();
+            }
+        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                Toast.makeText(mContext,"사진이 정상적으로 업로드 됨",Toast.LENGTH_SHORT).show();
+            }
+        });
+        return riversRef.getPath();
     }
 
     @Override
