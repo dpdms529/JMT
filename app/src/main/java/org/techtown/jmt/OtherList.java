@@ -16,6 +16,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -43,10 +44,14 @@ public class OtherList extends Fragment {
     String userName;
     Map<Integer,PersonalComment> adapterData;
 
+    TextView toolbar;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_other_list, container, false);
+
+        toolbar = getActivity().findViewById(R.id.toolbar_text);
 
         frag_store_detail = new StoreDetail();
 
@@ -73,6 +78,7 @@ public class OtherList extends Fragment {
                                 DocumentSnapshot userDoc = task.getResult();
                                 if(userDoc.exists()){
                                     userName = String.valueOf(userDoc.get("name"));
+                                    toolbar.setText(userName + "님의 맛집 리스트");
                                     mjlist = "<" + userName + "님의 맛집 리스트>";
                                     ArrayList storeArr = (ArrayList)userDoc.get("store");
                                     for(int i = 0;i<storeArr.size();i++){
