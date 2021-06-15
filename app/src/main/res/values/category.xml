@@ -4,19 +4,27 @@
         <item>한식</item>
         <item>중식</item>
         <item>일식</item>
+        <item>치킨</item>
+        <item>피자</item>
         <item>아시안, 양식</item>
         <item>분식</item>
+        <item>족발, 보쌈</item>
         <item>카페, 디저트</item>
         <item>패스트푸드</item>
+        <item>도시락, 샐러드</item>
     </string-array>
     <string-array name="categories_all">
         <item>모두</item>
         <item>한식</item>
         <item>중식</item>
         <item>일식</item>
+        <item>치킨</item>
+        <item>피자</item>
         <item>아시안, 양식</item>
         <item>분식</item>
+        <item>족발, 보쌈</item>
         <item>카페, 디저트</item>
         <item>패스트푸드</item>
+        <item>도시락, 샐러드</item>
     </string-array>
 </resources>

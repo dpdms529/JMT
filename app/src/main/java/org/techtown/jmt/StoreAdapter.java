@@ -64,6 +64,8 @@ public class StoreAdapter extends RecyclerView.Adapter<StoreAdapter.ViewHolder> 
         this.listener = listener;
     }
 
+    public void clear() { items.clear(); }
+
     @Override
     public void onItemClick(StoreAdapter.ViewHolder holder, View view, int position) {
         if(listener != null){
@@ -91,7 +93,11 @@ public class StoreAdapter extends RecyclerView.Adapter<StoreAdapter.ViewHolder> 
         }
         public void setItem(StoreInfo item) {
             title_textView.setText(item.getStoreName());
-            lover_textView.setText(String.valueOf(item.getLover()) + "명의 유저가 좋아합니다");
+            if(item.getLover() == 0) {
+                lover_textView.setText("");
+            } else {
+                lover_textView.setText(String.valueOf(item.getLover()) + "명의 유저가 좋아합니다");
+            }
         }
     }
 }
