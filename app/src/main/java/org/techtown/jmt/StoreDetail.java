@@ -228,12 +228,13 @@ public class StoreDetail extends Fragment {
                                 }
                             });
                 }
-
-
-
                 recyclerView.setAdapter(adapter);
+                Bundle bundle = new Bundle();
+                bundle.putString("user_id",userId);
+                getParentFragmentManager().setFragmentResult("otherList",bundle);
             }
         });
+
 
         return v;
     }
