@@ -101,6 +101,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> im
             title_textView = itemView.findViewById(R.id.name);
             num_of_comment = itemView.findViewById(R.id.num_of_comment);
             star = itemView.findViewById(R.id.star);
+            star.setVisibility(View.VISIBLE);
             star.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {

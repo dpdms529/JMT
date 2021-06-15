@@ -97,6 +97,7 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
             title_textView = itemView.findViewById(R.id.name);
             num_of_comment = itemView.findViewById(R.id.num_of_comment);
             star = itemView.findViewById(R.id.star);
+            star.setVisibility(View.VISIBLE);
             star.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
