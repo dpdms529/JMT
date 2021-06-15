@@ -62,7 +62,7 @@ public class MyList extends Fragment {
         View v = inflater.inflate(R.layout.fragment_my_list, container, false);
 
         toolbar_text = getActivity().findViewById(R.id.toolbar_text);
-        toolbar_text.setText("나의 맛집");
+        toolbar_text.setText("나의 맛집 리스트");
 
         preferences = PreferenceManager.getDefaultSharedPreferences(this.getContext());
 

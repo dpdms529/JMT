@@ -22,5 +22,5 @@
         android:id="@+id/tab_favorite_list"
         android:enabled="true"
         android:icon="@drawable/ic_star"
-        android:title="즐겨찾는 리스트"/>
+        android:title="즐겨찾기"/>
 </menu>
