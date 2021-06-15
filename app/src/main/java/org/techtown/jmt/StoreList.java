@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -45,11 +46,15 @@ public class StoreList extends Fragment {
     private ArrayAdapter locationAdapter;
     RecyclerView recyclerView;
     Fragment frag_store_detail;
+    TextView toolbar_text;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_store_list, container, false);
+
+        toolbar_text = getActivity().findViewById(R.id.toolbar_text);
+        toolbar_text.setText("모두의 맛집");
 
         frag_store_detail = new StoreDetail();
 

@@ -77,7 +77,7 @@ public class OtherList extends Fragment {
                             if(task.isSuccessful()){
                                 DocumentSnapshot userDoc = task.getResult();
                                 if(userDoc.exists()){
-                                    userName = String.valueOf(userDoc.get("name"));
+                                    userName = userDoc.getString("name");
                                     toolbar.setText(userName + "님의 맛집 리스트");
                                     mjlist = "<" + userName + "님의 맛집 리스트>";
                                     ArrayList storeArr = (ArrayList)userDoc.get("store");
@@ -102,7 +102,7 @@ public class OtherList extends Fragment {
                                                                         if(commentDoc.exists()){
                                                                             if(commentDoc.getString("user").equals(userId)){
                                                                                 Log.d(TAG, "comment info is " + commentDoc.getData());
-                                                                                adapterData.put(finalI,new PersonalComment(storeDoc.getString("name"), commentDoc.getString("content"), commentDoc.getString("photo")));
+                                                                                adapterData.put(finalI,new PersonalComment(storeDoc.getString("name"), commentDoc.getString("content"), commentDoc.getString("photo"), storeDoc.getString("location")));
                                                                                 if(adapterData.size() == storeArr.size()){
                                                                                     Log.d(TAG,"data size is " + adapterData.size());
                                                                                     for(int i = 0;i<adapterData.size();i++){
@@ -133,9 +133,10 @@ public class OtherList extends Fragment {
                     public void onItemClick(MyAdapter.ViewHolder holder, View view, int position) {
                         PersonalComment item = adapter.getItem(position);
                         Bundle bundle = new Bundle();
-                        bundle.putInt("position",position);
-                        bundle.putString("userId",userId);
+                        //bundle.putInt("position",position);
+                        bundle.putString("user_id",userId);
                         bundle.putString("store_name",item.getStoreName());
+                        bundle.putString("location", item.getLocation());
                         getParentFragmentManager().setFragmentResult("requestKey",bundle);
                         getParentFragmentManager().beginTransaction().replace(R.id.main_layout,frag_store_detail).addToBackStack(null).commit();
                     }

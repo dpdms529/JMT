@@ -4,11 +4,13 @@ public class PersonalComment {
     private String store_name;
     private String comment;
     private String image_url;
+    private String location;
 
-    public PersonalComment(String store_name, String comment, String image_url) {
+    public PersonalComment(String store_name, String comment, String image_url, String location) {
         this.store_name = store_name;
         this.comment = comment;
         this.image_url = image_url;
+        this.location = location;
     }
 
     public String getStoreName() { return store_name; }
@@ -22,4 +24,12 @@ public class PersonalComment {
     public String getImageUrl() { return image_url; }
 
     public void setImageUrl(String image_url) { this.image_url = image_url; }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
 }

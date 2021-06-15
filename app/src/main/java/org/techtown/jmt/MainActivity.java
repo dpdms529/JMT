@@ -10,7 +10,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -21,12 +20,9 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomnavigation.LabelVisibilityMode;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
@@ -35,7 +31,6 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.google.firestore.v1.FirestoreGrpc;
 import com.kakao.sdk.user.UserApiClient;
 
 import java.util.ArrayList;
@@ -85,7 +80,6 @@ public class MainActivity extends AppCompatActivity {
 
         // 첫 화면 지정
         getSupportFragmentManager().beginTransaction().replace(R.id.main_layout, frag_my_list).commit();
-        toolbar_text.setText("나의 맛집");
 
         // 하단바 생성 및 설정
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
@@ -120,7 +114,6 @@ public class MainActivity extends AppCompatActivity {
             getSupportFragmentManager().popBackStack();
         }
         getSupportFragmentManager().beginTransaction().replace(R.id.main_layout, fragment).commit();
-        toolbar_text.setText(title);
         currentTitle = title;  // 백업을 위한 flag
     }
 
@@ -141,19 +134,15 @@ public class MainActivity extends AppCompatActivity {
         switch (backup_str) {
             case "나의 맛집":
                 getSupportFragmentManager().beginTransaction().replace(R.id.main_layout, frag_my_list).commit();
-                toolbar_text.setText("나의 맛집");
                 break;
             case "모두의 맛집":
                 getSupportFragmentManager().beginTransaction().replace(R.id.main_layout, frag_store_list).commit();
-                toolbar_text.setText("모두의 맛집");
                 break;
             case "맛집 킬러":
                 getSupportFragmentManager().beginTransaction().replace(R.id.main_layout, frag_user_list).commit();
-                toolbar_text.setText("맛집 킬러");
                 break;
             case "즐겨찾는 리스트":
                 getSupportFragmentManager().beginTransaction().replace(R.id.main_layout, frag_favorite_list).commit();
-                toolbar_text.setText("즐겨찾는 리스트");
                 break;
         }
     }

@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -35,11 +36,15 @@ public class FavoriteList extends Fragment {
     RecyclerView recyclerView;
     String myId;
     SharedPreferences preferences;
+    TextView toolbar_text;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_favorite_list, container, false);
+
+        toolbar_text = getActivity().findViewById(R.id.toolbar_text);
+        toolbar_text.setText("즐겨찾는 리스트");
 
         frag_other_list = new OtherList();
 

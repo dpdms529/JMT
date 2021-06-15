@@ -32,11 +32,15 @@ public class UserList extends Fragment {    // 어댑터가 storeAdapter랑 유�
     Fragment frag_other_list;
     RecyclerView recyclerView;
     UserAdapter adapter;
+    TextView toolbar_text;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_user_list, container, false);
+
+        toolbar_text = getActivity().findViewById(R.id.toolbar_text);
+        toolbar_text.setText("맛집 킬러");
 
         frag_other_list = new OtherList();
 

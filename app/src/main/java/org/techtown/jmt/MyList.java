@@ -11,6 +11,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -53,11 +54,15 @@ public class MyList extends Fragment {
     private SharedPreferences preferences;
     String mjlist;
     Map<Integer,PersonalComment> adapterData;
+    TextView toolbar_text;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_my_list, container, false);
+
+        toolbar_text = getActivity().findViewById(R.id.toolbar_text);
+        toolbar_text.setText("나의 맛집");
 
         preferences = PreferenceManager.getDefaultSharedPreferences(this.getContext());
 
@@ -109,7 +114,7 @@ public class MyList extends Fragment {
                                                                             Log.d(TAG, "댓글 정보 : " + commentDoc.getData());
                                                                             if (commentDoc.getString("user").equals(myId)) {
                                                                                 Log.d(TAG, storeDoc.getString("name") + commentDoc.getString("photo"));
-                                                                                adapterData.put(finalI,new PersonalComment(storeDoc.getString("name"), commentDoc.getString("content"), commentDoc.getString("photo")));
+                                                                                adapterData.put(finalI,new PersonalComment(storeDoc.getString("name"), commentDoc.getString("content"), commentDoc.getString("photo"), storeDoc.getString("location")));
                                                                                 if(adapterData.size() == storeArr.size()){
                                                                                     Log.d(TAG,"data size is " + adapterData.size());
                                                                                     for(int i = 0;i<adapterData.size();i++){
@@ -138,7 +143,6 @@ public class MyList extends Fragment {
                     }
                 });
 
-
         recyclerView.setAdapter(adapter);
 
         db.collection("user").document(myId).get()
@@ -156,7 +160,6 @@ public class MyList extends Fragment {
                                             DocumentSnapshot document = task.getResult();
                                             mjlist = mjlist + "\n- " + String.valueOf(document.get("name"));
                                             mjlist = mjlist + "\n  (" + String.valueOf(document.get("location")) + ")";
-                                            Log.d(TAG,"mjList: " + mjlist);
                                         }
                                     }
                                 });

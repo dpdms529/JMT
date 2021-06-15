@@ -84,6 +84,7 @@ public class StoreDetail extends Fragment {
             public void onFragmentResult(@NonNull String requestKey, @NonNull Bundle result) {
                 storeName = result.getString("store_name");
                 location = result.getString("location");
+                userId = result.getString("user_id");
 
                 store_name.setText(storeName);
                 store_address.setText(location);
