@@ -16,6 +16,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -37,7 +38,7 @@ public class OtherList extends Fragment {
 
     private String userId;
 
-    ImageButton share_btn;
+    ImageView share_btn;
     MyAdapter adapter;
     Fragment frag_store_detail;
     String mjlist;
@@ -168,7 +169,8 @@ public class OtherList extends Fragment {
             }
         });
 
-        share_btn = v.findViewById(R.id.share_btn);
+        share_btn = getActivity().findViewById(R.id.share_tool_btn);
+        share_btn.setVisibility(View.VISIBLE);
         share_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

@@ -11,16 +11,19 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -44,8 +47,6 @@ public class MyList extends Fragment {
     private Context mContext;
     Fragment frag_add_store;
     Fragment frag_my_detail;
-    ImageButton add_btn;
-    ImageButton share_btn;
     RecyclerView recyclerView;
     MyAdapter adapter;
     FirebaseFirestore db;
@@ -55,6 +56,8 @@ public class MyList extends Fragment {
     String mjlist;
     Map<Integer,PersonalComment> adapterData;
     TextView toolbar_text;
+    FloatingActionButton add_btn;
+    ImageView share_btn;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -70,6 +73,7 @@ public class MyList extends Fragment {
         frag_my_detail = new MyDetail();
 
         recyclerView = v.findViewById(R.id.comments_recyclerview);
+        recyclerView.addItemDecoration(new DividerItemDecoration(mContext, DividerItemDecoration.VERTICAL));
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(mContext, LinearLayoutManager.VERTICAL, false);
         recyclerView.setLayoutManager(layoutManager);
@@ -122,8 +126,6 @@ public class MyList extends Fragment {
                                                                                         adapter.notifyDataSetChanged();
                                                                                     }
                                                                                 }
-//                                                                                adapter.addItem(new PersonalComment(storeDoc.getString("name"), commentDoc.getString("content"), commentDoc.getString("photo")));
-//                                                                                adapter.notifyDataSetChanged();
                                                                             }
                                                                         }
                                                                     }
@@ -180,7 +182,7 @@ public class MyList extends Fragment {
             }
         });
 
-        add_btn = v.findViewById(R.id.add_btn);
+        add_btn = v.findViewById(R.id.add_floating_btn);
         add_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -188,7 +190,8 @@ public class MyList extends Fragment {
             }
         });
 
-        share_btn = v.findViewById(R.id.share_btn);
+        share_btn = getActivity().findViewById(R.id.share_tool_btn);
+        share_btn.setVisibility(View.VISIBLE);
         share_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -211,5 +214,10 @@ public class MyList extends Fragment {
         mContext = context;
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        share_btn.setVisibility(View.GONE);
+    }
 }
 

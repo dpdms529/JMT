@@ -15,4 +15,13 @@
         android:text="title"
         android:textSize="20sp" />
 
+    <ImageView
+        android:id="@+id/share_tool_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_share"
+        android:layout_gravity="right"
+        android:layout_marginRight="18dp"
+        android:visibility="gone"/>
+
 </androidx.appcompat.widget.Toolbar>
