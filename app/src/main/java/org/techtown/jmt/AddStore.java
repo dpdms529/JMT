@@ -339,11 +339,11 @@ public class AddStore extends Fragment {
                                         });
                                     }
                                 }
+                                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                                fragmentManager.beginTransaction().remove(AddStore.this).commit();
+                                fragmentManager.popBackStack();
                             }
                         });
-                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-                fragmentManager.beginTransaction().remove(AddStore.this).commit();
-                fragmentManager.popBackStack();
             }
         });
 

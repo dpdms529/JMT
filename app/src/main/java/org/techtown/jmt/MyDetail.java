@@ -242,6 +242,10 @@ public class MyDetail extends Fragment {
                                                                                         }
                                                                                     });
                                                                                 }
+                                                                                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                                                                                fragmentManager.beginTransaction().remove(MyDetail.this).commit();
+                                                                                fragmentManager.popBackStack();
+                                                                                getParentFragmentManager().beginTransaction().replace(R.id.main_layout, frag_my_list).addToBackStack(null).commit();
                                                                             }
                                                                         }
                                                                     }
@@ -256,10 +260,6 @@ public class MyDetail extends Fragment {
                                 }
                             }
                         });
-                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-                fragmentManager.beginTransaction().remove(MyDetail.this).commit();
-                fragmentManager.popBackStack();
-                getParentFragmentManager().beginTransaction().replace(R.id.main_layout, frag_my_list).addToBackStack(null).commit();
             }
         });
 
