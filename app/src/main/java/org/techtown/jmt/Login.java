@@ -13,6 +13,7 @@ import android.widget.ImageButton;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -20,6 +21,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.protobuf.StringValue;
 import com.kakao.sdk.user.UserApiClient;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -80,7 +82,8 @@ public class Login extends AppCompatActivity {
                                                                        userInfo.put("name",user.getKakaoAccount().getProfile().getNickname());
                                                                        userInfo.put("id",String.valueOf(user.getId()));
                                                                        userInfo.put("storeNum",0);
-                                                                       userInfo.put("favorite",null);
+                                                                       userInfo.put("store",new ArrayList<DocumentReference>());
+                                                                       userInfo.put("favorite",new ArrayList<DocumentReference>());
                                                                        db.collection("user")
                                                                                .document(String.valueOf(user.getId()))
                                                                                .set(userInfo);

@@ -24,6 +24,8 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class OtherList extends Fragment {
@@ -39,6 +41,7 @@ public class OtherList extends Fragment {
     Fragment frag_store_detail;
     String mjlist;
     String userName;
+    Map<Integer,PersonalComment> adapterData;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -52,6 +55,7 @@ public class OtherList extends Fragment {
         LinearLayoutManager layoutManager = new LinearLayoutManager(mContext,LinearLayoutManager.VERTICAL,false);
         recyclerView.setLayoutManager(layoutManager);
         adapter = new MyAdapter(mContext);
+        adapterData = new HashMap<>();
         db = FirebaseFirestore.getInstance();
 
         getParentFragmentManager().setFragmentResultListener("otherList", this, new FragmentResultListener() {
@@ -73,6 +77,7 @@ public class OtherList extends Fragment {
                                     ArrayList storeArr = (ArrayList)userDoc.get("store");
                                     for(int i = 0;i<storeArr.size();i++){
                                         DocumentReference sdr = (DocumentReference)storeArr.get(i);
+                                        int finalI = i;
                                         sdr.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                             @Override
                                             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -89,10 +94,18 @@ public class OtherList extends Fragment {
                                                                     if(task.isSuccessful()){
                                                                         DocumentSnapshot commentDoc = task.getResult();
                                                                         if(commentDoc.exists()){
-                                                                            if(String.valueOf(commentDoc.get("user")).equals(userId)){
+                                                                            if(commentDoc.getString("user").equals(userId)){
                                                                                 Log.d(TAG, "comment info is " + commentDoc.getData());
-                                                                                adapter.addItem(new PersonalComment(storeDoc.getString("name"),commentDoc.getString("content"),commentDoc.getString("photo")) );
-                                                                                adapter.notifyDataSetChanged();
+                                                                                adapterData.put(finalI,new PersonalComment(storeDoc.getString("name"), commentDoc.getString("content"), commentDoc.getString("photo")));
+                                                                                if(adapterData.size() == storeArr.size()){
+                                                                                    Log.d(TAG,"data size is " + adapterData.size());
+                                                                                    for(int i = 0;i<adapterData.size();i++){
+                                                                                        adapter.addItem(adapterData.get(i));
+                                                                                        adapter.notifyDataSetChanged();
+                                                                                    }
+                                                                                }
+//                                                                                adapter.addItem(new PersonalComment(storeDoc.getString("name"),commentDoc.getString("content"),commentDoc.getString("photo")) );
+//                                                                                adapter.notifyDataSetChanged();
                                                                             }
                                                                         }
                                                                     }
@@ -114,6 +127,8 @@ public class OtherList extends Fragment {
                     public void onItemClick(MyAdapter.ViewHolder holder, View view, int position) {
                         PersonalComment item = adapter.getItem(position);
                         Bundle bundle = new Bundle();
+                        bundle.putInt("position",position);
+                        bundle.putString("userId",userId);
                         bundle.putString("store_name",item.getStoreName());
                         getParentFragmentManager().setFragmentResult("requestKey",bundle);
                         getParentFragmentManager().beginTransaction().replace(R.id.main_layout,frag_store_detail).addToBackStack(null).commit();

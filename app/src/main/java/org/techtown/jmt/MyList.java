@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -34,6 +35,7 @@ import com.kakao.sdk.user.model.User;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 
 public class MyList extends Fragment {
@@ -50,6 +52,7 @@ public class MyList extends Fragment {
     String userName;
     private SharedPreferences preferences;
     String mjlist;
+    Map<Integer,PersonalComment> adapterData;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -66,6 +69,7 @@ public class MyList extends Fragment {
         LinearLayoutManager layoutManager = new LinearLayoutManager(mContext, LinearLayoutManager.VERTICAL, false);
         recyclerView.setLayoutManager(layoutManager);
         adapter = new MyAdapter(mContext);
+        adapterData = new HashMap<>();
 
         db = FirebaseFirestore.getInstance();
         myId = preferences.getString("myId","noId");
@@ -76,35 +80,45 @@ public class MyList extends Fragment {
                 .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if(task.isSuccessful()){
+                        if (task.isSuccessful()) {
                             DocumentSnapshot userDoc = task.getResult();
-                            if(userDoc.exists()){
+                            if (userDoc.exists()) {
                                 userName = String.valueOf(userDoc.get("name"));
                                 mjlist = "<" + userName + "님의 맛집 리스트>";
-                                Log.d(TAG,"사용자 정보 : " + userDoc.get("store"));
-                                if(userDoc.get("store")!=null){
-                                    ArrayList<DocumentReference> storeArr = (ArrayList)userDoc.get("store");
-                                    for(DocumentReference sdr : storeArr){
+                                Log.d(TAG, "사용자 정보 : " + userDoc.get("store"));
+                                if (userDoc.get("store") != null) {
+                                    ArrayList<DocumentReference> storeArr = (ArrayList) userDoc.get("store");
+                                    int i = 0;
+                                    for (DocumentReference sdr : storeArr) {
+                                        int finalI = i;
                                         sdr.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                             @Override
                                             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                                if(task.isSuccessful()){
+                                                if (task.isSuccessful()) {
                                                     DocumentSnapshot storeDoc = task.getResult();
-                                                    if(storeDoc.exists()){
-                                                        Log.d(TAG,"가게 정보 : " + storeDoc.getData());
-                                                        ArrayList<DocumentReference> commentArr = (ArrayList)storeDoc.get("comment");
-                                                        for(DocumentReference cdr : commentArr){
+                                                    if (storeDoc.exists()) {
+                                                        Log.d(TAG, "가게 정보 : " + storeDoc.getData());
+                                                        ArrayList<DocumentReference> commentArr = (ArrayList) storeDoc.get("comment");
+                                                        for (DocumentReference cdr : commentArr) {
                                                             cdr.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                                                 @Override
                                                                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                                                    if(task.isSuccessful()){
+                                                                    if (task.isSuccessful()) {
                                                                         DocumentSnapshot commentDoc = task.getResult();
-                                                                        if(commentDoc.exists()){
-                                                                            Log.d(TAG,"댓글 정보 : " + commentDoc.getData());
-                                                                            if(String.valueOf(commentDoc.get("user")).equals(myId)){
-                                                                                Log.d(TAG,storeDoc.getString("name") + commentDoc.getString("photo"));
-                                                                                adapter.addItem(new PersonalComment(storeDoc.getString("name"),commentDoc.getString("content"),commentDoc.getString("photo")));
-                                                                                adapter.notifyDataSetChanged();
+                                                                        if (commentDoc.exists()) {
+                                                                            Log.d(TAG, "댓글 정보 : " + commentDoc.getData());
+                                                                            if (commentDoc.getString("user").equals(myId)) {
+                                                                                Log.d(TAG, storeDoc.getString("name") + commentDoc.getString("photo"));
+                                                                                adapterData.put(finalI,new PersonalComment(storeDoc.getString("name"), commentDoc.getString("content"), commentDoc.getString("photo")));
+                                                                                if(adapterData.size() == storeArr.size()){
+                                                                                    Log.d(TAG,"data size is " + adapterData.size());
+                                                                                    for(int i = 0;i<adapterData.size();i++){
+                                                                                        adapter.addItem(adapterData.get(i));
+                                                                                        adapter.notifyDataSetChanged();
+                                                                                    }
+                                                                                }
+//                                                                                adapter.addItem(new PersonalComment(storeDoc.getString("name"), commentDoc.getString("content"), commentDoc.getString("photo")));
+//                                                                                adapter.notifyDataSetChanged();
                                                                             }
                                                                         }
                                                                     }
@@ -115,13 +129,16 @@ public class MyList extends Fragment {
                                                 }
                                             }
                                         });
+                                        i++;
                                     }
-
+                                    
                                 }
                             }
                         }
                     }
                 });
+
+
         recyclerView.setAdapter(adapter);
 
         db.collection("user").document(myId).get()
@@ -153,7 +170,7 @@ public class MyList extends Fragment {
             public void onItemClick(MyAdapter.ViewHolder holder, View view, int position) {
                 PersonalComment item = adapter.getItem(position);
                 Bundle bundle = new Bundle();
-                bundle.putString("store_name", item.getStoreName());
+                bundle.putInt("position",position);
                 Log.d(TAG,"send store_name is " + bundle.getString("store_name"));
                 getParentFragmentManager().setFragmentResult("requestKey",bundle);
                 getParentFragmentManager().beginTransaction().replace(R.id.main_layout, frag_my_detail).addToBackStack(null).commit();

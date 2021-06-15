@@ -38,6 +38,8 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firestore.v1.FirestoreGrpc;
 import com.kakao.sdk.user.UserApiClient;
 
+import java.util.ArrayList;
+
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "TAG";
     Fragment frag_my_list;
@@ -122,13 +124,6 @@ public class MainActivity extends AppCompatActivity {
         currentTitle = title;  // 백업을 위한 flag
     }
 
-    // 액션바 타이틀 변경 메소드
-    private void setActionbarTitle(String title)
-    {
-        View v = getSupportActionBar().getCustomView();
-        TextView titleView = (TextView) v.findViewById(R.id.actionbar_custom);
-        titleView.setText(title);
-    }
 
     // 단말 방향 전환 처리
     @Override
@@ -292,10 +287,33 @@ public class MainActivity extends AppCompatActivity {
                                                         }
                                                     }
                                                 });
+                                        DocumentReference userDR = db.collection("user").document(myId);
                                         db.collection("user")
-                                                .document(myId)
-                                                .delete();
-                                        Log.d(TAG,"user deleted ");
+                                                .whereNotEqualTo("id",myId)
+                                                .get()
+                                                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                                    @Override
+                                                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                        if(task.isSuccessful()){
+                                                            for(QueryDocumentSnapshot userDoc : task.getResult()){
+                                                                if(userDoc.exists()){
+                                                                    ArrayList<DocumentReference> favoriteArr = (ArrayList<DocumentReference>)userDoc.get("favorite");
+                                                                    if(favoriteArr.size()!=0){
+                                                                        for(DocumentReference favoriteDR : favoriteArr){
+                                                                            if(favoriteDR.equals(userDR)){
+                                                                                userDoc.getReference().update("favorite",FieldValue.arrayRemove(favoriteDR));
+                                                                            }
+                                                                        }
+
+                                                                    }
+
+                                                                }
+                                                            }
+                                                            userDR.delete();
+                                                            Log.d(TAG,"user deleted ");
+                                                        }
+                                                    }
+                                                });
                                         Intent intent = new Intent(getApplicationContext(),Login.class);
                                         startActivity(intent);
 

@@ -14,11 +14,11 @@
             android:id="@+id/store_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            android:textSize="30sp"
-            android:textStyle="bold"
             android:layout_marginBottom="10dp"
-            android:text="히유히유" />
+            android:gravity="center"
+            android:text="title"
+            android:textSize="30sp"
+            android:textStyle="bold" />
 
         <com.google.android.material.chip.ChipGroup
             android:id="@+id/chip_group"
@@ -38,10 +38,10 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textStyle="bold"
                 android:layout_marginRight="10dp"
                 android:text="위치"
-                android:textSize="17sp"/>
+                android:textSize="17sp"
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/store_address"
@@ -53,10 +53,10 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textStyle="bold"
             android:layout_marginTop="10dp"
             android:text="한줄평 &amp; 사진"
-            android:textSize="17sp"/>
+            android:textSize="17sp"
+            android:textStyle="bold" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/comments_recyclerview"

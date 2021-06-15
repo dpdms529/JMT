@@ -91,6 +91,7 @@ public class MyDetail extends Fragment {
     private Uri file;
 
     private String storeName;
+    private int position;
     private String myId;
     private SharedPreferences preferences;
 
@@ -117,7 +118,7 @@ public class MyDetail extends Fragment {
         getParentFragmentManager().setFragmentResultListener("requestKey", this, new FragmentResultListener() {
             @Override
             public void onFragmentResult(@NonNull String requestKey, @NonNull Bundle result) {
-                storeName = result.getString("store_name");
+                position = result.getInt("position");
                 Log.d(TAG, "storeName is " + storeName);
                 db.collection("user")
                         .document(myId)
@@ -129,56 +130,48 @@ public class MyDetail extends Fragment {
                                     DocumentSnapshot userDoc = task.getResult();
                                     if (userDoc.exists()) {
                                         Log.d(TAG, "사용자 정보 : " + userDoc.get("store"));
-                                        ArrayList storeArr = (ArrayList) userDoc.get("store");
-                                        for (int i = 0; i < storeArr.size(); i++) {
-                                            DocumentReference sdr = (DocumentReference) storeArr.get(i);
-                                            sdr.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                                @Override
-                                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                                    if(task.isSuccessful()) {
-                                                        DocumentSnapshot storeDoc = task.getResult();
-                                                        Log.d(TAG, "StoreName is " + storeName);
-                                                        if(storeDoc.exists() && storeDoc.getString("name").equals(storeName)){
-                                                            Log.d(TAG, "가게 정보 : " + storeDoc.getData());
-                                                            store_name.setText(storeDoc.getString("name"));
-                                                            store_address.setText(storeDoc.getString("location"));
-                                                            category.setText(storeDoc.getString("category"));
-                                                            ArrayList commentArr = (ArrayList) storeDoc.get("comment");
-                                                            for (int j = 0; j < commentArr.size(); j++) {
-                                                                DocumentReference cdr = (DocumentReference) commentArr.get(j);
-                                                                cdr.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                                                    @Override
-                                                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                                                        if (task.isSuccessful()) {
-                                                                            DocumentSnapshot commentDoc = task.getResult();
-                                                                            if (commentDoc.exists()) {
-                                                                                Log.d(TAG, "댓글 정보 : " + commentDoc.getData());
-                                                                                if (String.valueOf(commentDoc.get("user")).equals(myId)) {
-                                                                                    menu_edit.setText(commentDoc.getString("menu"));
-                                                                                    comment_edit.setText(commentDoc.getString("content"));
-                                                                                    if(commentDoc.getString("photo")!=null){
-                                                                                        storageReference.child(commentDoc.getString("photo")).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                                                                            @Override
-                                                                                            public void onSuccess(Uri uri) {
-                                                                                                Glide.with(getContext())
-                                                                                                        .load(uri)
-                                                                                                        .into(food_image);
-                                                                                            }
-                                                                                        });
-
-                                                                                    }
-
+                                        ArrayList<DocumentReference> storeArr = (ArrayList) userDoc.get("store");
+                                        DocumentReference storeDR = storeArr.get(position);
+                                        storeDR.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                                if(task.isSuccessful()){
+                                                    DocumentSnapshot storeDoc = task.getResult();
+                                                    if(storeDoc.exists()){
+                                                        store_name.setText(storeDoc.getString("name"));
+                                                        store_address.setText(storeDoc.getString("location"));
+                                                        category.setText(storeDoc.getString("category"));
+                                                        ArrayList<DocumentReference> commentArr = (ArrayList) storeDoc.get("comment");
+                                                        for(DocumentReference commentDR : commentArr){
+                                                            commentDR.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                                                @Override
+                                                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                                                    if(task.isSuccessful()){
+                                                                        DocumentSnapshot commentDoc = task.getResult();
+                                                                        if(commentDoc.exists()){
+                                                                            if(commentDoc.getString("user").equals(myId)){
+                                                                                menu_edit.setText(commentDoc.getString("menu"));
+                                                                                comment_edit.setText(commentDoc.getString("content"));
+                                                                                if(commentDoc.getString("photo")!=null){
+                                                                                    storageReference.child(commentDoc.getString("photo")).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                                                                        @Override
+                                                                                        public void onSuccess(Uri uri) {
+                                                                                            Glide.with(getContext())
+                                                                                                    .load(uri)
+                                                                                                    .into(food_image);
+                                                                                        }
+                                                                                    });
                                                                                 }
                                                                             }
                                                                         }
                                                                     }
-                                                                });
-                                                            }
+                                                                }
+                                                            });
                                                         }
                                                     }
                                                 }
-                                            });
-                                        }
+                                            }
+                                        });
                                     }
                                 }
                             }
@@ -209,61 +202,56 @@ public class MyDetail extends Fragment {
                                     DocumentSnapshot userDoc = task.getResult();
                                     if (userDoc.exists()) {
                                         Log.d(TAG, "사용자 정보 : " + userDoc.get("store"));
-                                        ArrayList storeArr = (ArrayList) userDoc.get("store");
-                                        for (int i = 0; i < storeArr.size(); i++) {
-                                            DocumentReference sdr = (DocumentReference) storeArr.get(i);
-                                            sdr.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                                @Override
-                                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                                    if(task.isSuccessful()) {
-                                                        DocumentSnapshot storeDoc = task.getResult();
-                                                        Log.d(TAG, "StoreName is " + storeName);
-                                                        if(storeDoc.exists() && storeDoc.getString("name").equals(storeName)){
-                                                            Log.d(TAG, "가게 정보 : " + storeDoc.getData());
-                                                            ArrayList commentArr = (ArrayList) storeDoc.get("comment");
-                                                            for (int j = 0; j < commentArr.size(); j++) {
-                                                                DocumentReference cdr = (DocumentReference) commentArr.get(j);
-                                                                cdr.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                                                    @Override
-                                                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                                                        if (task.isSuccessful()) {
-                                                                            DocumentSnapshot commentDoc = task.getResult();
-                                                                            if (commentDoc.exists()) {
-                                                                                Log.d(TAG, "댓글 정보 : " + commentDoc.getData());
-                                                                                if (commentDoc.get("user").equals(myId)) {
+                                        ArrayList<DocumentReference> storeArr = (ArrayList) userDoc.get("store");
+                                        DocumentReference storeDR = storeArr.get(position);
+                                        storeDR.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                                if(task.isSuccessful()){
+                                                    DocumentSnapshot storeDoc = task.getResult();
+                                                    if(storeDoc.exists()){
+                                                        ArrayList<DocumentReference> commentArr = (ArrayList)storeDoc.get("comment");
+                                                        for(DocumentReference commentDR : commentArr){
+                                                            commentDR.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                                                @Override
+                                                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                                                    if (task.isSuccessful()) {
+                                                                        DocumentSnapshot commentDoc = task.getResult();
+                                                                        if (commentDoc.exists()) {
+                                                                            Log.d(TAG, "댓글 정보 : " + commentDoc.getData());
+                                                                            if (commentDoc.getString("user").equals(myId)) {
+                                                                                db.collection("comment").document(commentDoc.getId())
+                                                                                        .update("content", comment_edit.getText().toString(),
+                                                                                                "menu", menu_edit.getText().toString());
+                                                                                if(file != null){   // 추가 또는 수정한 사진이 있다면 넣는다.
+                                                                                    StorageReference riversRef = storageRef.child(storeDoc.getId() + "/" + myId + ".png");
+                                                                                    Log.d(TAG,"사진 : " + riversRef.getPath());
                                                                                     db.collection("comment").document(commentDoc.getId())
-                                                                                            .update("content", comment_edit.getText().toString(),
-                                                                                                    "menu", menu_edit.getText().toString());
-                                                                                    if(file != null){   // 추가 또는 수정한 사진이 있다면 넣는다.
-                                                                                        StorageReference riversRef = storageRef.child(storeDoc.getId() + "/" + myId + ".png");
-                                                                                        Log.d(TAG,"사진 : " + riversRef.getPath());
-                                                                                        db.collection("comment").document(commentDoc.getId())
-                                                                                                .update("photo", riversRef.getPath());
+                                                                                            .update("photo", riversRef.getPath());
 
-                                                                                        UploadTask uploadTask = riversRef.putFile(file);
-                                                                                        uploadTask.addOnFailureListener(new OnFailureListener() {
-                                                                                            @Override
-                                                                                            public void onFailure(@NonNull Exception e) {
-                                                                                                Toast.makeText(mContext,"사진이 정상적으로 업로드 되지 않음", Toast.LENGTH_SHORT).show();
-                                                                                            }
-                                                                                        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                                                                                            @Override
-                                                                                            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                                                                                                Toast.makeText(mContext,"사진이 정상적으로 업로드 됨",Toast.LENGTH_SHORT).show();
-                                                                                            }
-                                                                                        });
-                                                                                    }
+                                                                                    UploadTask uploadTask = riversRef.putFile(file);
+                                                                                    uploadTask.addOnFailureListener(new OnFailureListener() {
+                                                                                        @Override
+                                                                                        public void onFailure(@NonNull Exception e) {
+                                                                                            Toast.makeText(mContext,"사진이 정상적으로 업로드 되지 않음", Toast.LENGTH_SHORT).show();
+                                                                                        }
+                                                                                    }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                                                                                        @Override
+                                                                                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                                                                                            Toast.makeText(mContext,"사진이 정상적으로 업로드 됨",Toast.LENGTH_SHORT).show();
+                                                                                        }
+                                                                                    });
                                                                                 }
                                                                             }
                                                                         }
                                                                     }
-                                                                });
-                                                            }
+                                                                }
+                                                            });
                                                         }
                                                     }
                                                 }
-                                            });
-                                        }
+                                            }
+                                        });
                                     }
                                 }
                             }
@@ -293,96 +281,91 @@ public class MyDetail extends Fragment {
                                             DocumentSnapshot userDoc = task.getResult();
                                             if (userDoc.exists()) {
                                                 Log.d(TAG, "사용자 정보 : " + userDoc.get("store"));
-                                                ArrayList storeArr = (ArrayList) userDoc.get("store");
-                                                for (int i = 0; i < storeArr.size(); i++) {
-                                                    DocumentReference sdr = (DocumentReference) storeArr.get(i);
-                                                    sdr.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                                        @Override
-                                                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                                            if(task.isSuccessful()) {
-                                                                DocumentSnapshot storeDoc = task.getResult();
-                                                                Log.d(TAG, "StoreName is " + storeName);
-                                                                if(storeDoc.exists() && storeDoc.getString("name").equals(storeName)) {
-                                                                    Log.d(TAG, "가게 정보 : " + storeDoc.getData());
-                                                                    ArrayList commentArr = (ArrayList) storeDoc.get("comment");
-                                                                    for (int j = 0; j < commentArr.size(); j++) {
-                                                                        DocumentReference cdr = (DocumentReference) commentArr.get(j);
-                                                                        cdr.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                                                            @Override
-                                                                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                                                                if (task.isSuccessful()) {
-                                                                                    DocumentSnapshot commentDoc = task.getResult();
-                                                                                    if (commentDoc.exists()) {
-                                                                                        Log.d(TAG, "댓글 정보 : " + commentDoc.getData());
-                                                                                        if (String.valueOf(commentDoc.get("user")).equals(myId)) {
-                                                                                            // user 문서 - store필드에서 ref제거, storeNum 업데이트
-                                                                                            db.collection("user")
-                                                                                                    .document(String.valueOf(myId))
-                                                                                                    .update("store", FieldValue.arrayRemove(sdr),
-                                                                                                            "storeNum", FieldValue.increment(-1));
-                                                                                            // store 문서 - 해당 가게를 추가한 사람이 한 명이면 문서 삭제,
-                                                                                            // 한 명 이상이면 comment필드에서 ref 제거, lover 업데이트
-                                                                                            if((long) storeDoc.get("lover") == 1) {
-                                                                                                sdr.collection("menu").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                                                                                    @Override
-                                                                                                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                                                                                        for(DocumentSnapshot document : task.getResult()){
-                                                                                                            document.getReference().delete();
-                                                                                                        }
+                                                ArrayList<DocumentReference> storeArr = (ArrayList) userDoc.get("store");
+                                                DocumentReference storeDR = storeArr.get(position);
+                                                storeDR.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                                    @Override
+                                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                                        if(task.isSuccessful()){
+                                                            DocumentSnapshot storeDoc = task.getResult();
+                                                            if(storeDoc.exists()){
+                                                                ArrayList<DocumentReference> commentArr = (ArrayList)storeDoc.get("comment");
+                                                                for(DocumentReference commentDR : commentArr){
+                                                                    commentDR.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                                                        @Override
+                                                                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                                                            if (task.isSuccessful()) {
+                                                                                DocumentSnapshot commentDoc = task.getResult();
+                                                                                if (commentDoc.exists()) {
+                                                                                    Log.d(TAG, "댓글 정보 : " + commentDoc.getData());
+                                                                                    if (String.valueOf(commentDoc.get("user")).equals(myId)) {
+                                                                                        // user 문서 - store필드에서 ref제거, storeNum 업데이트
+                                                                                        db.collection("user")
+                                                                                                .document(String.valueOf(myId))
+                                                                                                .update("store", FieldValue.arrayRemove(storeDR),
+                                                                                                        "storeNum", FieldValue.increment(-1));
+                                                                                        // store 문서 - 해당 가게를 추가한 사람이 한 명이면 문서 삭제,
+                                                                                        // 한 명 이상이면 comment필드에서 ref 제거, lover 업데이트
+                                                                                        if((long) storeDoc.get("lover") == 1) {
+                                                                                            storeDR.collection("menu").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                                                                                @Override
+                                                                                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                                                                    for(DocumentSnapshot document : task.getResult()){
+                                                                                                        document.getReference().delete();
                                                                                                     }
-                                                                                                });
-                                                                                                sdr.delete();
-                                                                                            } else if((long) storeDoc.get("lover") > 1) {
-                                                                                                sdr.collection("menu").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                                                                                    @Override
-                                                                                                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                                                                                        for(DocumentSnapshot document : task.getResult()){
-                                                                                                            if(document.get("menu_name").equals(commentDoc.get("menu"))) {
-                                                                                                                if((long) document.get("lover") == 1){
-                                                                                                                    document.getReference().delete();
-                                                                                                                } else if((long) document.get("lover") > 1) {
-                                                                                                                    document.getReference().update("lover", FieldValue.increment(-1));
-                                                                                                                }
+                                                                                                }
+                                                                                            });
+                                                                                            storeDR.delete();
+                                                                                        } else if((long) storeDoc.get("lover") > 1) {
+                                                                                            storeDR.collection("menu").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                                                                                @Override
+                                                                                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                                                                    for(DocumentSnapshot document : task.getResult()){
+                                                                                                        if(document.get("menu_name").equals(commentDoc.get("menu"))) {
+                                                                                                            if((long) document.get("lover") == 1){
+                                                                                                                document.getReference().delete();
+                                                                                                            } else if((long) document.get("lover") > 1) {
+                                                                                                                document.getReference().update("lover", FieldValue.increment(-1));
                                                                                                             }
                                                                                                         }
                                                                                                     }
-                                                                                                });
-                                                                                                sdr.update("comment", FieldValue.arrayRemove(cdr),
-                                                                                                        "lover", FieldValue.increment(-1));
-                                                                                            }
-                                                                                            // 연결된 사진 storage에서 삭제
-                                                                                            if(commentDoc.get("photo") != null){
-                                                                                                StorageReference photoRef = storageReference.child(String.valueOf(commentDoc.get("photo")));
-                                                                                                photoRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                                                                    @Override
-                                                                                                    public void onSuccess(Void aVoid) {
-                                                                                                        Toast.makeText(mContext,"사진이 정상적으로 삭제됨", Toast.LENGTH_SHORT).show();
-                                                                                                    }
-                                                                                                }).addOnFailureListener(new OnFailureListener() {
-                                                                                                    @Override
-                                                                                                    public void onFailure(@NonNull Exception e) {
-                                                                                                        Toast.makeText(mContext,"사진이 정상적으로 삭제되지 않음", Toast.LENGTH_SHORT).show();
-                                                                                                    }
-                                                                                                });
-                                                                                            }
-                                                                                            // comment 콜렉션에서 문서 제거
-                                                                                            cdr.delete();  // comment 콜렉션에서 문서 제거
-
-                                                                                            FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-                                                                                            fragmentManager.beginTransaction().remove(MyDetail.this).commit();
-                                                                                            fragmentManager.popBackStack();
-                                                                                            Toast.makeText(mContext,"정상적으로 삭제되었습니다.",Toast.LENGTH_SHORT).show();
+                                                                                                }
+                                                                                            });
+                                                                                            storeDR.update("comment", FieldValue.arrayRemove(commentDR),
+                                                                                                    "lover", FieldValue.increment(-1));
                                                                                         }
+                                                                                        // 연결된 사진 storage에서 삭제
+                                                                                        if(commentDoc.get("photo") != null){
+                                                                                            StorageReference photoRef = storageReference.child(String.valueOf(commentDoc.get("photo")));
+                                                                                            photoRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                                                                @Override
+                                                                                                public void onSuccess(Void aVoid) {
+                                                                                                    Toast.makeText(mContext,"사진이 정상적으로 삭제됨", Toast.LENGTH_SHORT).show();
+                                                                                                }
+                                                                                            }).addOnFailureListener(new OnFailureListener() {
+                                                                                                @Override
+                                                                                                public void onFailure(@NonNull Exception e) {
+                                                                                                    Toast.makeText(mContext,"사진이 정상적으로 삭제되지 않음", Toast.LENGTH_SHORT).show();
+                                                                                                }
+                                                                                            });
+                                                                                        }
+                                                                                        // comment 콜렉션에서 문서 제거
+                                                                                        commentDR.delete();  // comment 콜렉션에서 문서 제거
+
+                                                                                        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                                                                                        fragmentManager.beginTransaction().remove(MyDetail.this).commit();
+                                                                                        fragmentManager.popBackStack();
+                                                                                        Toast.makeText(mContext,"정상적으로 삭제되었습니다.",Toast.LENGTH_SHORT).show();
                                                                                     }
                                                                                 }
                                                                             }
-                                                                        });
-                                                                    }
+                                                                        }
+                                                                    });
                                                                 }
                                                             }
                                                         }
-                                                    });
-                                                }
+                                                    }
+                                                });
                                             }
                                         }
                                     }

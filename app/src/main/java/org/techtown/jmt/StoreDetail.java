@@ -27,6 +27,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -37,6 +38,8 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.kakao.sdk.user.UserApiClient;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class StoreDetail extends Fragment {
 
@@ -51,7 +54,11 @@ public class StoreDetail extends Fragment {
 
     ChipGroup chipGroup;
 
+    private int position;
+    private String userId;
     private String storeName;
+
+    Map<Integer,StoreComment> adapterData;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -69,60 +76,86 @@ public class StoreDetail extends Fragment {
         db = FirebaseFirestore.getInstance();
 
         adapter = new CommentAdapter(mContext);
+        adapterData = new HashMap<>();
 
         getParentFragmentManager().setFragmentResultListener("requestKey", this, new FragmentResultListener() {
             @Override
             public void onFragmentResult(@NonNull String requestKey, @NonNull Bundle result) {
+                position = result.getInt("position");
+                userId = result.getString("userId");
                 storeName = result.getString("store_name");
 
                 store_name.setText(storeName);
 
-                db.collection("store")
-                        .whereEqualTo("name", storeName)
-                        .get()
-                        .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                            @Override
-                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                if(task.isSuccessful()){
-                                    for(QueryDocumentSnapshot document : task.getResult()){
-                                        Log.d(TAG,"가게 정보" + document.getData());
-                                        ArrayList<String> menu = new ArrayList<String>();
-                                        document.getReference().collection("menu")
-                                                .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                            @Override
-                                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                                if(task.isSuccessful()){
-                                                    for(QueryDocumentSnapshot menuDoc : task.getResult()){
-                                                        menu.add(String.valueOf(menuDoc.get("menu_name")));
-                                                    }
-                                                    setMenuChips(menu);
-                                                }
-                                            }
-                                        });
-                                        store_address.setText(String.valueOf(document.get("location")));
-                                        ArrayList commentArr = (ArrayList) document.get("comment");
-                                        for (int i = 0; i < commentArr.size(); i++) {
-                                            DocumentReference cdr = (DocumentReference) commentArr.get(i);
-                                            cdr.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                if(userId != null){
+                    db.collection("user")
+                            .document(userId)
+                            .get()
+                            .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                    if(task.isSuccessful()){
+                                        DocumentSnapshot userDoc = task.getResult();
+                                        if(userDoc.exists()){
+                                            ArrayList<DocumentReference> storeArr = (ArrayList)userDoc.get("store");
+                                            DocumentReference storeDR = storeArr.get(position);
+                                            ArrayList<String> menu = new ArrayList<>();
+                                            storeDR.collection("menu")
+                                                    .get()
+                                                    .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                                        @Override
+                                                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                            if(task.isSuccessful()){
+                                                                for(QueryDocumentSnapshot menuDoc : task.getResult()){
+                                                                    menu.add(menuDoc.getString("menu_name"));
+                                                                }
+                                                                setMenuChips(menu);
+                                                            }
+                                                        }
+                                                    });
+                                            storeDR.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                                 @Override
                                                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                                    if(task.isSuccessful()) {
-                                                        DocumentSnapshot commentDoc = task.getResult();
-                                                        if(commentDoc.exists()){
-                                                            db.collection("user").document(commentDoc.getString("user"))
-                                                                    .get()
-                                                                    .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                                                        @Override
-                                                                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                                                            if(task.isSuccessful()) {
-                                                                                DocumentSnapshot userDoc = task.getResult();
-                                                                                if(userDoc.exists()){
-                                                                                    adapter.addItem(new StoreComment(userDoc.getString("name"), commentDoc.getString("content"),commentDoc.getString("photo")));
-                                                                                    adapter.notifyDataSetChanged();
-                                                                                }
+                                                    if(task.isSuccessful()){
+                                                        DocumentSnapshot storeDoc = task.getResult();
+                                                        if(storeDoc.exists()){
+                                                            store_address.setText(storeDoc.getString("location"));
+                                                            ArrayList<DocumentReference> commentArr = (ArrayList)storeDoc.get("comment");
+                                                            int i = 0;
+                                                            for(DocumentReference commentDR : commentArr){
+                                                                int FinalI = i;
+                                                                commentDR.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                                                    @Override
+                                                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                                                        if(task.isSuccessful()){
+                                                                            DocumentSnapshot commentDoc = task.getResult();
+                                                                            if(commentDoc.exists()){
+                                                                                db.collection("user")
+                                                                                        .document(commentDoc.getString("user"))
+                                                                                        .get()
+                                                                                        .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                                                                            @Override
+                                                                                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                                                                                if(task.isSuccessful()) {
+                                                                                                    DocumentSnapshot userDoc = task.getResult();
+                                                                                                    if(userDoc.exists()){
+                                                                                                        adapterData.put(FinalI,new StoreComment(userDoc.getString("name"), commentDoc.getString("content"),commentDoc.getString("photo")));
+                                                                                                        if(commentArr.size() == adapterData.size()){
+                                                                                                            for(int i = 0;i<adapterData.size();i++){
+                                                                                                                adapter.addItem(adapterData.get(i));
+                                                                                                                adapter.notifyDataSetChanged();
+                                                                                                            }
+                                                                                                        }
+                                                                                                    }
+                                                                                                }
+                                                                                            }
+                                                                                        });
                                                                             }
                                                                         }
-                                                                    });
+                                                                    }
+                                                                });
+                                                                i++;
+                                                            }
                                                         }
                                                     }
                                                 }
@@ -130,8 +163,73 @@ public class StoreDetail extends Fragment {
                                         }
                                     }
                                 }
-                            }
-                        });
+                            });
+
+                }else{
+                    db.collection("store")
+                            .whereEqualTo("name",storeName)
+                            .get()
+                            .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                    if(task.isSuccessful()){
+                                        for(QueryDocumentSnapshot document : task.getResult()){
+                                            Log.d(TAG,"가게 정보" + document.getData());
+                                            ArrayList<String> menu = new ArrayList<String>();
+                                            document.getReference().collection("menu")
+                                                    .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                                @Override
+                                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                    if(task.isSuccessful()){
+                                                        for(QueryDocumentSnapshot menuDoc : task.getResult()){
+                                                            menu.add(String.valueOf(menuDoc.get("menu_name")));
+                                                        }
+                                                        setMenuChips(menu);
+                                                    }
+                                                }
+                                            });
+                                            store_address.setText(String.valueOf(document.get("location")));
+                                            ArrayList commentArr = (ArrayList) document.get("comment");
+                                            for (int i = 0; i < commentArr.size(); i++) {
+                                                int FinalI = i;
+                                                DocumentReference cdr = (DocumentReference) commentArr.get(i);
+                                                cdr.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                                    @Override
+                                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                                        if(task.isSuccessful()) {
+                                                            DocumentSnapshot commentDoc = task.getResult();
+                                                            if(commentDoc.exists()){
+                                                                db.collection("user").document(commentDoc.getString("user"))
+                                                                        .get()
+                                                                        .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                                                            @Override
+                                                                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                                                                if(task.isSuccessful()) {
+                                                                                    DocumentSnapshot userDoc = task.getResult();
+                                                                                    if(userDoc.exists()){
+                                                                                        adapterData.put(FinalI,new StoreComment(userDoc.getString("name"), commentDoc.getString("content"),commentDoc.getString("photo")));
+                                                                                        if(commentArr.size() == adapterData.size()){
+                                                                                            for(int i = 0;i<adapterData.size();i++){
+                                                                                                adapter.addItem(adapterData.get(i));
+                                                                                                adapter.notifyDataSetChanged();
+                                                                                            }
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                        });
+                                                            }
+                                                        }
+                                                    }
+                                                });
+                                            }
+                                        }
+                                    }
+                                }
+                            });
+                }
+
+
 
                 recyclerView.setAdapter(adapter);
             }
