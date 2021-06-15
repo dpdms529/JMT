@@ -72,7 +72,7 @@ public class Login extends AppCompatActivity {
                                                 Log.i(TAG,"사용자 정보 요청 성공" + "\n회원번호 : " + user.getId() + "\n닉네임 : " + user.getKakaoAccount().getProfile().getNickname());
                                                 myId = String.valueOf(user.getId());
                                                 db.collection("user")
-                                                        .whereEqualTo("id",user.getId())
+                                                        .whereEqualTo("id",String.valueOf(user.getId()))
                                                         .get()
                                                         .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                                                             @Override
