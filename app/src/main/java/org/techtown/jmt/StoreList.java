@@ -108,6 +108,7 @@ public class StoreList extends Fragment {
                         StoreInfo item = adapter.getItem(position);
                         Bundle bundle = new Bundle();
                         bundle.putString("store_name", item.getStoreName());
+                        bundle.putString("location", item.getLocation());
                         Log.d(TAG,"send store_name is " + bundle.getString("store_name"));
                         getParentFragmentManager().setFragmentResult("requestKey",bundle);
                         getParentFragmentManager().beginTransaction().replace(R.id.main_layout, frag_store_detail).addToBackStack(null).commit();
@@ -148,6 +149,7 @@ public class StoreList extends Fragment {
                         StoreInfo item = adapter.getItem(position);
                         Bundle bundle = new Bundle();
                         bundle.putString("store_name", item.getStoreName());
+                        bundle.putString("location", item.getLocation());
                         Log.d(TAG,"send store_name is " + bundle.getString("store_name"));
                         getParentFragmentManager().setFragmentResult("requestKey",bundle);
                         getParentFragmentManager().beginTransaction().replace(R.id.main_layout, frag_store_detail).addToBackStack(null).commit();
@@ -192,6 +194,7 @@ public class StoreList extends Fragment {
                         StoreInfo item = adapter.getItem(position);
                         Bundle bundle = new Bundle();
                         bundle.putString("store_name", item.getStoreName());
+                        bundle.putString("location", item.getLocation());
                         Log.d(TAG,"send store_name is " + bundle.getString("store_name"));
                         getParentFragmentManager().setFragmentResult("requestKey",bundle);
                         getParentFragmentManager().beginTransaction().replace(R.id.main_layout, frag_store_detail).addToBackStack(null).commit();
@@ -291,6 +294,7 @@ public class StoreList extends Fragment {
                         StoreInfo item = adapter.getItem(position);
                         Bundle bundle = new Bundle();
                         bundle.putString("store_name", item.getStoreName());
+                        bundle.putString("location", item.getLocation());
                         Log.d(TAG,"send store_name is " + bundle.getString("store_name"));
                         getParentFragmentManager().setFragmentResult("requestKey",bundle);
                         getParentFragmentManager().beginTransaction().replace(R.id.main_layout, frag_store_detail).addToBackStack(null).commit();
@@ -336,6 +340,7 @@ public class StoreList extends Fragment {
                         StoreInfo item = adapter.getItem(position);
                         Bundle bundle = new Bundle();
                         bundle.putString("store_name", item.getStoreName());
+                        bundle.putString("location", item.getLocation());
                         Log.d(TAG,"send store_name is " + bundle.getString("store_name"));
                         getParentFragmentManager().setFragmentResult("requestKey",bundle);
                         getParentFragmentManager().beginTransaction().replace(R.id.main_layout, frag_store_detail).addToBackStack(null).commit();
@@ -377,6 +382,7 @@ public class StoreList extends Fragment {
                         StoreInfo item = adapter.getItem(position);
                         Bundle bundle = new Bundle();
                         bundle.putString("store_name", item.getStoreName());
+                        bundle.putString("location", item.getLocation());
                         Log.d(TAG,"send store_name is " + bundle.getString("store_name"));
                         getParentFragmentManager().setFragmentResult("requestKey",bundle);
                         getParentFragmentManager().beginTransaction().replace(R.id.main_layout, frag_store_detail).addToBackStack(null).commit();
@@ -402,7 +408,7 @@ public class StoreList extends Fragment {
                         if (task.isSuccessful()) {
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 Log.d(TAG, "가게 정보" + document.getData());
-                                adapter.addItem(new StoreInfo(document.getString("name"), (Long) document.get("lover")));
+                                adapter.addItem(new StoreInfo(document.getString("name"), (Long) document.get("lover"), document.getString("location")));
                                 adapter.notifyDataSetChanged();
                             }
                         }
@@ -423,7 +429,7 @@ public class StoreList extends Fragment {
                         if (task.isSuccessful()) {
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 Log.d(TAG, "가게 정보" + document.getData());
-                                adapter.addItem(new StoreInfo(document.getString("name"), (Long) document.get("lover")));
+                                adapter.addItem(new StoreInfo(document.getString("name"), (Long) document.get("lover"), document.getString("location")));
                                 adapter.notifyDataSetChanged();
                             }
                         }
@@ -444,7 +450,7 @@ public class StoreList extends Fragment {
                         if(task.isSuccessful()){
                             for(QueryDocumentSnapshot document : task.getResult()){
                                 Log.d(TAG,"가게 정보" + document.getData());
-                                adapter.addItem(new StoreInfo(document.getString("name"), (Long) document.get("lover")));
+                                adapter.addItem(new StoreInfo(document.getString("name"), (Long) document.get("lover"), document.getString("location")));
                                 adapter.notifyDataSetChanged();
                             }
                         }
@@ -464,7 +470,7 @@ public class StoreList extends Fragment {
                         if(task.isSuccessful()){
                             for(QueryDocumentSnapshot document : task.getResult()){
                                 Log.d(TAG,"가게 정보" + document.getData());
-                                adapter.addItem(new StoreInfo(document.getString("name"), (Long) document.get("lover")));
+                                adapter.addItem(new StoreInfo(document.getString("name"), (Long) document.get("lover"), document.getString("location")));
                                 adapter.notifyDataSetChanged();
                             }
                         }
@@ -484,7 +490,7 @@ public class StoreList extends Fragment {
                         if(task.isSuccessful()){
                             for(QueryDocumentSnapshot document : task.getResult()){
                                 Log.d(TAG,"가게 정보" + document.getData());
-                                adapter.addItem(new StoreInfo(document.getString("name"), (Long) document.get("lover")));
+                                adapter.addItem(new StoreInfo(document.getString("name"), (Long) document.get("lover"), document.getString("location")));
                                 adapter.notifyDataSetChanged();
                             }
                         }
@@ -503,7 +509,7 @@ public class StoreList extends Fragment {
                         if(task.isSuccessful()){
                             for(QueryDocumentSnapshot document : task.getResult()){
                                 Log.d(TAG,"가게 정보" + document.getData());
-                                adapter.addItem(new StoreInfo(document.getString("name"), (Long) document.get("lover")));
+                                adapter.addItem(new StoreInfo(document.getString("name"), (Long) document.get("lover"), document.getString("location")));
                                 adapter.notifyDataSetChanged();
                             }
                         }
