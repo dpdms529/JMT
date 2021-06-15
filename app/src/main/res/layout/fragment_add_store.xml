@@ -25,6 +25,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_marginRight="5dp"
+                    android:fontFamily="@font/font"
                     android:gravity="center_vertical"
                     android:text="식당 이름" />
 
@@ -33,6 +34,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:drawableRight="@drawable/ic_search"
+                    android:fontFamily="@font/font"
                     android:hint="입력 후, 아래 목록에서 선택" />
 
             </LinearLayout>
@@ -51,12 +53,14 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
+                    android:fontFamily="@font/font"
                     android:text="위치" />
 
                 <TextView
                     android:id="@+id/store_address"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/font" />
 
             </LinearLayout>
 
@@ -69,6 +73,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_marginRight="5dp"
+                    android:fontFamily="@font/font"
                     android:gravity="center_vertical"
                     android:text="카테고리" />
 
@@ -87,6 +92,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_marginRight="5dp"
+                    android:fontFamily="@font/font"
                     android:gravity="center_vertical"
                     android:text="음식 사진" />
 
@@ -106,6 +112,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_marginRight="5dp"
+                    android:fontFamily="@font/font"
                     android:gravity="center_vertical"
                     android:text="먹은 메뉴" />
 
@@ -114,6 +121,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:ems="10"
+                    android:fontFamily="@font/font"
                     android:hint="먹은 메뉴"
                     android:inputType="textPersonName" />
                 <!-- 여러 메뉴 추가할 수 있도록 할 때 사용할 버튼
@@ -133,6 +141,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
+                    android:fontFamily="@font/font"
                     android:text="한줄평" />
 
                 <EditText
@@ -140,6 +149,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:ems="10"
+                    android:fontFamily="@font/font"
                     android:hint="한줄평"
                     android:inputType="textPersonName" />
             </LinearLayout>
@@ -151,6 +161,7 @@
                 android:layout_gravity="center_horizontal"
                 android:layout_margin="10dp"
                 android:background="@drawable/button"
+                android:fontFamily="@font/font"
                 android:text="등록하기"
                 android:textColor="@color/white"
                 android:textSize="20sp" />

@@ -15,6 +15,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="10dp"
+            android:fontFamily="@font/font"
             android:gravity="center"
             android:text="title"
             android:textSize="30sp"
@@ -39,6 +40,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="10dp"
+                android:fontFamily="@font/font"
                 android:text="위치"
                 android:textSize="17sp"
                 android:textStyle="bold" />
@@ -47,13 +49,15 @@
                 android:id="@+id/store_address"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1" />
+                android:layout_weight="1"
+                android:fontFamily="@font/font" />
         </LinearLayout>
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
+            android:fontFamily="@font/font"
             android:text="한줄평 &amp; 사진"
             android:textSize="17sp"
             android:textStyle="bold" />
