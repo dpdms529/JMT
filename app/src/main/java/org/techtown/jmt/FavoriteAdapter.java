@@ -101,7 +101,7 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
             star.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if(view.isSelected()){
+                    if(view.isSelected()){  // 즐겨찾기 해제
                         view.setSelected(false);
                         db.collection("user")
                                 .document(item.getUserID())
@@ -121,7 +121,7 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
                                         }
                                     }
                                 });
-                    }else{
+                    }else{  // 즐겨찾기 추가
                         view.setSelected(true);
                         db.collection("user")
                                 .document(item.getUserID())
@@ -163,7 +163,7 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
             this.item = item;
         }
 
-        public void starState(UserInfo item){
+        public void starState(UserInfo item){   //즐겨찾기 별 상태 지정
             Log.d(TAG,"myId is "+myId);
             db.collection("user")
                     .document(myId)
@@ -183,7 +183,7 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
                                                     if(task.isSuccessful()){
                                                         DocumentSnapshot favoriteDoc = task.getResult();
                                                         if(favoriteDoc.exists()){
-                                                            if(String.valueOf(favoriteDoc.get("id")).equals(item.getUserID())){
+                                                            if(favoriteDoc.get("id").equals(item.getUserID())){
                                                                 star.setSelected(true);
                                                             }
                                                         }

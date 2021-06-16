@@ -101,7 +101,7 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.ViewHold
                 }).addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(context,"실패",Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context,"이미지 불러오기 실패",Toast.LENGTH_SHORT).show();
                     }
                 });
             } else {
