@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
@@ -38,15 +39,21 @@ public class Login extends AppCompatActivity {
         db = FirebaseFirestore.getInstance();
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
         editor = preferences.edit();
-
         userInfo = new HashMap<>();
+
+        setContentView(R.layout.activity_login);
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+            }
+        }, 1500);
 
         UserApiClient.getInstance().accessTokenInfo((accessTokenInfo, error2) -> {
             if (error2 != null) {
                 Log.e(TAG, "토큰 정보 보기 실패", error2);
-                setContentView(R.layout.activity_login);
 
                 login = findViewById(R.id.login);
+                login.setVisibility(View.VISIBLE);
                 login.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
