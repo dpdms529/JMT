@@ -36,6 +36,7 @@ import com.google.firebase.storage.StorageReference;
 import com.kakao.sdk.user.UserApiClient;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "TAG";
@@ -53,6 +54,8 @@ public class MainActivity extends AppCompatActivity {
 
     SharedPreferences preferences;
     String myId;
+
+    private long lastTimeBackPressed;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -322,15 +325,26 @@ public class MainActivity extends AppCompatActivity {
                 }).show();
                 break;
             case android.R.id.home:
-                // 액션바 뒤로가기
-                if(fragmentManager.getBackStackEntryCount() > 0) {
-                    fragmentManager.beginTransaction().remove(fragmentManager.getFragments().get(0)).commit();
-                    fragmentManager.popBackStack();
-                } else {
-                    finish();
-                }
+                onBackPressed();    // 액션바 뒤로가기
                 break;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(getSupportFragmentManager().getBackStackEntryCount() == 0) {
+            //두 번 클릭시 어플 종료
+            if (System.currentTimeMillis() - lastTimeBackPressed < 1500) {
+                finish();
+                return;
+            }
+            lastTimeBackPressed = System.currentTimeMillis();
+            Toast.makeText(this, "'뒤로' 버튼을 한 번 더 누르면 종료됩니다.", Toast.LENGTH_SHORT).show();
+        } else {
+            getSupportFragmentManager().beginTransaction().remove(getSupportFragmentManager().getFragments().get(0)).commit();
+            getSupportFragmentManager().popBackStack();
+        }
+
     }
 }

@@ -1,5 +1,6 @@
 package org.techtown.jmt;
 
+import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -84,6 +85,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> implem
         TextView title_textView;
         TextView comment_textView;
         ImageView picture_imageView;
+        GradientDrawable rounding;
         FirebaseStorage storage;
         StorageReference storageReference;
         String path;
@@ -106,6 +108,9 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> implem
             });
         }
         public void setItem(Context context, PersonalComment item) {
+            rounding = (GradientDrawable) context.getDrawable(R.drawable.backgroud_rounding);
+            picture_imageView.setBackground(rounding);
+            picture_imageView.setClipToOutline(true);
             title_textView.setText(item.getStoreName());
             comment_textView.setText(item.getComment());
             path = item.getImageUrl();
