@@ -266,9 +266,12 @@ public class AddStore extends Fragment {
                                                                     "lover", FieldValue.increment(1));
                                                 }
                                             }
+                                            FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                                            fragmentManager.beginTransaction().remove(AddStore.this).commit();
+                                            fragmentManager.popBackStack();
+                                            Toast.makeText(mContext, "맛집이 등록되었습니다.", Toast.LENGTH_SHORT).show();
                                         }
                                     });
-
                                 } else {    // 이미 등록된 식당 -> comment, lover 필드 update
                                     for (QueryDocumentSnapshot document : task.getResult()) {
                                         storeDocName = document.getId();
@@ -330,16 +333,16 @@ public class AddStore extends Fragment {
                                                         db.collection("user").document(myId)
                                                                 .update("store", FieldValue.arrayUnion(document.getReference()),
                                                                         "storeNum", FieldValue.increment(1));
+                                                        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                                                        fragmentManager.beginTransaction().remove(AddStore.this).commit();
+                                                        fragmentManager.popBackStack();
+                                                        Toast.makeText(mContext, "맛집이 등록되었습니다.", Toast.LENGTH_SHORT).show();
                                                     }
                                                 }
                                             }
                                         });
                                     }
                                 }
-                                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-                                fragmentManager.beginTransaction().remove(AddStore.this).commit();
-                                fragmentManager.popBackStack();
-                                Toast.makeText(mContext, "맛집이 등록되었습니다.", Toast.LENGTH_SHORT).show();
                             }
                         });
             }
