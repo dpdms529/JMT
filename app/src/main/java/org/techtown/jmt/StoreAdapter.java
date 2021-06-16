@@ -1,10 +1,12 @@
 package org.techtown.jmt;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -76,11 +78,13 @@ public class StoreAdapter extends RecyclerView.Adapter<StoreAdapter.ViewHolder> 
     static class ViewHolder extends RecyclerView.ViewHolder {
         TextView title_textView;
         TextView lover_textView;
+        ImageView favorite;
 
         public ViewHolder(View itemView, final OnStoreItemClickListener listener) {
             super(itemView);
             title_textView = itemView.findViewById(R.id.name);
             lover_textView = itemView.findViewById(R.id.num_of_comment);
+            favorite = itemView.findViewById(R.id.favorite);
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -93,10 +97,12 @@ public class StoreAdapter extends RecyclerView.Adapter<StoreAdapter.ViewHolder> 
         }
         public void setItem(StoreInfo item) {
             title_textView.setText(item.getStoreName());
-            if(item.getLover() == 0) {
+            if(item.getLover() > 0){
+                favorite.setVisibility(View.VISIBLE);
+                lover_textView.setText(String.valueOf(item.getLover()));
+            }else{
+                favorite.setVisibility(View.GONE);
                 lover_textView.setText("");
-            } else {
-                lover_textView.setText(String.valueOf(item.getLover()) + "명의 유저가 좋아합니다");
             }
         }
     }

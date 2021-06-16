@@ -1,14 +1,17 @@
 package org.techtown.jmt;
 
 import android.content.Context;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.ColorRes;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -67,6 +70,7 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.ViewHold
         TextView title_textView;
         TextView comment_textView;
         ImageView picture_imageView;
+        LinearLayout layout;
         FirebaseStorage storage;
         StorageReference storageReference;
         String path;
@@ -76,6 +80,8 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.ViewHold
             title_textView = itemView.findViewById(R.id.comment_title);
             comment_textView = itemView.findViewById(R.id.comment_text);
             picture_imageView = itemView.findViewById(R.id.comment_img);
+            layout = itemView.findViewById(R.id.background_layout);
+            layout.setBackgroundResource(R.drawable.comment_border);
             storage = FirebaseStorage.getInstance("gs://android-jmt.appspot.com");
             storageReference = storage.getReference();
         }

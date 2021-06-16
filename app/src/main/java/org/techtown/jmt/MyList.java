@@ -73,7 +73,6 @@ public class MyList extends Fragment {
         frag_my_detail = new MyDetail();
 
         recyclerView = v.findViewById(R.id.comments_recyclerview);
-        recyclerView.addItemDecoration(new DividerItemDecoration(mContext, DividerItemDecoration.VERTICAL));
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(mContext, LinearLayoutManager.VERTICAL, false);
         recyclerView.setLayoutManager(layoutManager);

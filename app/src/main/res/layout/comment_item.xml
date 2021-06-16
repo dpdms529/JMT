@@ -4,45 +4,55 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="15dp">
+    android:orientation="vertical">
 
     <LinearLayout
+        android:id="@+id/background_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:background="@drawable/border"
+        android:layout_margin="5dp">
 
         <LinearLayout
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_marginRight="20dp"
+            android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:layout_gravity="center_vertical"
+            android:layout_margin="5dp">
 
             <TextView
                 android:id="@+id/comment_title"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
+                android:layout_margin="5dp"
                 android:fontFamily="@font/font"
                 android:text="soy-a"
-                android:textSize="20sp"
+                android:textSize="18sp"
                 android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/comment_text"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_margin="8dp"
                 android:fontFamily="@font/font"
-                android:text="연어 덮밥 존맛.\n연어가 살아있다!" />
+                android:textSize="15sp"
+                android:text="연어 덮밥 존맛. 연어가 살아있다!" />
         </LinearLayout>
+
 
         <ImageView
             android:id="@+id/comment_img"
-            android:layout_width="120dp"
-            android:layout_height="120dp"
-            android:layout_weight="0"
-            android:visibility="gone"
-            tools:srcCompat="@tools:sample/avatars" />
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:src="@drawable/no_image_available"
+            android:layout_margin="10dp"
+            android:layout_gravity="center_vertical"
+            android:visibility="visible"/>
+
+
+
     </LinearLayout>
 </LinearLayout>

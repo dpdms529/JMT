@@ -14,6 +14,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -30,7 +31,7 @@ import java.util.ArrayList;
 
 public class FavoriteList extends Fragment {
     private static final String TAG = "TAG";
-    private Context mComtext;
+    private Context mContext;
     FirebaseFirestore db;
     Fragment frag_other_list;
     RecyclerView recyclerView;
@@ -49,11 +50,12 @@ public class FavoriteList extends Fragment {
         frag_other_list = new OtherList();
 
         recyclerView = v.findViewById(R.id.comments_recyclerview);
+        recyclerView.addItemDecoration(new DividerItemDecoration(mContext, DividerItemDecoration.VERTICAL));
 
-        LinearLayoutManager layoutManager = new LinearLayoutManager(mComtext, LinearLayoutManager.VERTICAL, false);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(mContext, LinearLayoutManager.VERTICAL, false);
         recyclerView.setLayoutManager(layoutManager);
 
-        FavoriteAdapter adapter = new FavoriteAdapter(mComtext);
+        FavoriteAdapter adapter = new FavoriteAdapter(mContext);
 
         preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
         myId = preferences.getString("myId","noId");
@@ -109,6 +111,6 @@ public class FavoriteList extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        mComtext = context;
+        mContext = context;
     }
 }

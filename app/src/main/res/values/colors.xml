@@ -10,7 +10,9 @@
     <color name="gray">#8c8c8c</color>
 
     <color name="pink">#F15F5D</color>
+    <color name="light_pink">#FBE9E7</color>
     <color name="orange">#F28841</color>
+    <color name="light_orange">#FFF7E9</color>
     <color name="yellow">#FBAB3F</color>
     <color name="orange_pink">#F15F3C</color>
     <color name="light_green">#DBDBB0</color>

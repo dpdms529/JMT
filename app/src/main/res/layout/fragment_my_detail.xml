@@ -12,27 +12,35 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@drawable/border"
             android:orientation="vertical">
 
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
                 android:orientation="horizontal">
 
                 <TextView
                     android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_marginRight="5dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_margin="5dp"
                     android:fontFamily="@font/font"
-                    android:gravity="center_vertical"
-                    android:text="식당 이름" />
+                    android:text="식당 이름"
+                    android:textColor="@color/pink"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/store_name"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:fontFamily="@font/font" />
+                    android:layout_gravity="center_vertical"
+                    android:layout_margin="5dp"
+                    android:fontFamily="@font/font"
+                    android:textSize="18sp" />
 
             </LinearLayout>
 
@@ -45,59 +53,79 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_margin="5dp"
                 android:orientation="vertical">
 
                 <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
                     android:fontFamily="@font/font"
-                    android:text="위치" />
+                    android:text="위치"
+                    android:textColor="@color/pink"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/store_address"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:fontFamily="@font/font" />
+                    android:layout_margin="8dp"
+                    android:fontFamily="@font/font"
+                    android:textSize="18sp" />
 
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_margin="5dp"
                 android:orientation="horizontal">
 
                 <TextView
                     android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_marginRight="5dp"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
                     android:fontFamily="@font/font"
                     android:gravity="center_vertical"
-                    android:text="카테고리" />
+                    android:text="카테고리"
+                    android:textColor="@color/pink"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/category"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:fontFamily="@font/font" />
+                    android:layout_gravity="center_vertical"
+                    android:layout_margin="5dp"
+                    android:fontFamily="@font/font"
+                    android:textSize="18sp" />
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:layout_margin="5dp"
+                android:orientation="vertical">
 
                 <TextView
                     android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
                     android:layout_marginRight="5dp"
                     android:fontFamily="@font/font"
-                    android:gravity="center_vertical"
-                    android:text="음식 사진" />
+                    android:text="음식 사진"
+                    android:textColor="@color/pink"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
 
                 <ImageView
                     android:id="@+id/food_image"
-                    android:layout_width="wrap_content"
+                    android:layout_width="200dp"
                     android:layout_height="200dp"
+                    android:layout_gravity="center"
+                    android:layout_margin="5dp"
                     android:clickable="true"
                     android:src="@drawable/no_image_available" />
             </LinearLayout>
@@ -105,65 +133,75 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_margin="5dp"
                 android:orientation="horizontal">
 
                 <TextView
                     android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_marginRight="5dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_margin="5dp"
                     android:fontFamily="@font/font"
                     android:gravity="center_vertical"
-                    android:text="먹은 메뉴" />
+                    android:text="먹은 메뉴"
+                    android:textColor="@color/pink"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
 
                 <EditText
                     android:id="@+id/menu"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_margin="5dp"
                     android:ems="10"
                     android:fontFamily="@font/font"
                     android:hint="먹은 메뉴"
-                    android:inputType="textPersonName" />
-                <!-- 여러 메뉴 추가할 수 있도록 할 때 사용할 버튼
-            <ImageButton
-                android:id="@+id/add_menu_btn"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:src="@drawable/ic_add" />
-            !-->
+                    android:inputType="textPersonName"
+                    android:textSize="18sp" />
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_margin="5dp"
                 android:orientation="vertical">
 
                 <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
                     android:fontFamily="@font/font"
-                    android:text="한줄평" />
+                    android:text="한줄평"
+                    android:textColor="@color/pink"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
 
                 <EditText
                     android:id="@+id/comment"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_margin="8dp"
                     android:ems="10"
                     android:fontFamily="@font/font"
                     android:hint="한줄평"
-                    android:inputType="textPersonName" />
+                    android:inputType="textPersonName"
+                    android:textSize="18sp" />
             </LinearLayout>
 
             <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:layout_gravity="center_horizontal"
                 android:orientation="horizontal">
 
                 <Button
                     android:id="@+id/button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
+                    android:layout_gravity="center_vertical"
                     android:layout_margin="10dp"
                     android:background="@drawable/button"
                     android:fontFamily="@font/font"
@@ -175,8 +213,8 @@
                     android:id="@+id/button_delete"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_margin="10dp"
+                    android:layout_gravity="center_vertical"
+                    android:layout_margin="5dp"
                     android:background="@drawable/button"
                     android:fontFamily="@font/font"
                     android:text="삭제하기"

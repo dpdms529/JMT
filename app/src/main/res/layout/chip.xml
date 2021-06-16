@@ -9,4 +9,6 @@
     android:paddingLeft="8dp"
     android:paddingRight="8dp"
     android:textAppearance="?android:attr/textAppearance"
-    app:chipBackgroundColor="@color/gray" />
+    app:chipBackgroundColor="@color/pink"
+    android:textSize="15sp"
+    android:textColor="@color/white"/>
