@@ -26,7 +26,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> implem
     OnMyItemClickListener listener;
     private Context context;
 
-    public MyAdapter(Context context){
+    public MyAdapter(Context context) {
         this.context = context;
     }
 
@@ -34,7 +34,6 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> implem
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(viewGroup.getContext());
-        // if item에 image 있으면, comment_item 사용, image 없으면 comment_nopic_item 사용(gone 사용해야. invisible은 공간 차지함)
         View itemView = inflater.inflate(R.layout.comment_item, viewGroup, false);
         return new ViewHolder(itemView, this);
     }
@@ -42,7 +41,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> implem
     @Override
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, int position) {
         PersonalComment item = items.get(position);
-        viewHolder.setItem(context,item);
+        viewHolder.setItem(context, item);
     }
 
     @Override
@@ -54,7 +53,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> implem
         items.add(item);
     }
 
-    public void setItems(ArrayList<PersonalComment> items){
+    public void setItems(ArrayList<PersonalComment> items) {
         this.items = items;
     }
 
@@ -66,17 +65,16 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> implem
         items.set(position, item);
     }
 
-    public void setOnItemClickListener(OnMyItemClickListener listener){
+    public void setOnItemClickListener(OnMyItemClickListener listener) {
         this.listener = listener;
     }
 
     @Override
     public void onItemClick(ViewHolder holder, View view, int position) {
-        if(listener != null){
-            listener.onItemClick(holder,view,position);
+        if (listener != null) {
+            listener.onItemClick(holder, view, position);
         }
     }
-
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         TextView title_textView;
@@ -98,12 +96,13 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> implem
                 @Override
                 public void onClick(View view) {
                     int position = getAdapterPosition();
-                    if(listener != null){
-                        listener.onItemClick(ViewHolder.this,view,position);
+                    if (listener != null) {
+                        listener.onItemClick(ViewHolder.this, view, position);
                     }
                 }
             });
         }
+
         public void setItem(Context context, PersonalComment item) {
             rounding = (GradientDrawable) context.getDrawable(R.drawable.backgroud_rounding);
             picture_imageView.setBackground(rounding);
@@ -111,7 +110,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> implem
             title_textView.setText(item.getStoreName());
             comment_textView.setText(item.getComment());
             path = item.getImageUrl();
-            if(path != null){
+            if (path != null) {
                 picture_imageView.setVisibility(View.VISIBLE);
                 storageReference.child(path).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                     @Override
@@ -119,11 +118,6 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> implem
                         Glide.with(context)
                                 .load(uri)
                                 .into(picture_imageView);
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(context,"실패",Toast.LENGTH_SHORT).show();
                     }
                 });
             } else {

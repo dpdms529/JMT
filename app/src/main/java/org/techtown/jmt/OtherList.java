@@ -41,7 +41,7 @@ public class OtherList extends Fragment {
     Fragment frag_store_detail;
     String mjlist;
     String userName;
-    Map<Integer,PersonalComment> adapterData;
+    Map<Integer, PersonalComment> adapterData;
 
     TextView toolbar;
 
@@ -56,7 +56,7 @@ public class OtherList extends Fragment {
 
         recyclerView = v.findViewById(R.id.comments_recyclerview);
 
-        LinearLayoutManager layoutManager = new LinearLayoutManager(mContext,LinearLayoutManager.VERTICAL,false);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(mContext, LinearLayoutManager.VERTICAL, false);
         recyclerView.setLayoutManager(layoutManager);
         adapter = new MyAdapter(mContext);
         adapterData = new HashMap<>();
@@ -68,64 +68,62 @@ public class OtherList extends Fragment {
                 userId = bundle.getString("user_id");
                 Log.d(TAG, "userId is " + userId);
                 db.collection("user")
-                    .document(userId)
-                    .get()
-                    .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                            if(task.isSuccessful()){
-                                DocumentSnapshot userDoc = task.getResult();
-                                if(userDoc.exists()){
-                                    userName = userDoc.getString("name");
-                                    toolbar.setText(userName + "님의 맛집 리스트");
-                                    mjlist = "<" + userName + "님의 맛집 리스트>";
-                                    ArrayList storeArr = (ArrayList)userDoc.get("store");
-                                    for(int i = 0;i<storeArr.size();i++){
-                                        DocumentReference sdr = (DocumentReference)storeArr.get(i);
-                                        int finalI = i;
-                                        sdr.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                            @Override
-                                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                                if(task.isSuccessful()){
-                                                    DocumentSnapshot storeDoc = task.getResult();
-                                                    if(storeDoc.exists()){
-                                                        Log.d(TAG, "store info is " + storeDoc.getData());
-                                                        ArrayList commentArr = (ArrayList)storeDoc.get("comment");
-                                                        for(int j = 0;j<commentArr.size();j++){
-                                                            DocumentReference cdr = (DocumentReference)commentArr.get(j);
-                                                            cdr.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                                                @Override
-                                                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                                                    if(task.isSuccessful()){
-                                                                        DocumentSnapshot commentDoc = task.getResult();
-                                                                        if(commentDoc.exists()){
-                                                                            if(commentDoc.getString("user").equals(userId)){
-                                                                                Log.d(TAG, "comment info is " + commentDoc.getData());
-                                                                                adapterData.put(finalI,new PersonalComment(storeDoc.getString("name"), commentDoc.getString("content"), commentDoc.getString("photo"), storeDoc.getString("location")));
-                                                                                if(adapterData.size() == storeArr.size()){
-                                                                                    Log.d(TAG,"data size is " + adapterData.size());
-                                                                                    for(int i = 0;i<adapterData.size();i++){
-                                                                                        adapter.addItem(adapterData.get(i));
-                                                                                        adapter.notifyDataSetChanged();
+                        .document(userId)
+                        .get()
+                        .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                if (task.isSuccessful()) {
+                                    DocumentSnapshot userDoc = task.getResult();
+                                    if (userDoc.exists()) {
+                                        userName = userDoc.getString("name");
+                                        toolbar.setText(userName + "님의 맛집 리스트");
+                                        mjlist = "<" + userName + "님의 맛집 리스트>";
+                                        ArrayList storeArr = (ArrayList) userDoc.get("store");
+                                        for (int i = 0; i < storeArr.size(); i++) {
+                                            DocumentReference sdr = (DocumentReference) storeArr.get(i);
+                                            int finalI = i;
+                                            sdr.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                                @Override
+                                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                                    if (task.isSuccessful()) {
+                                                        DocumentSnapshot storeDoc = task.getResult();
+                                                        if (storeDoc.exists()) {
+                                                            Log.d(TAG, "store info is " + storeDoc.getData());
+                                                            ArrayList commentArr = (ArrayList) storeDoc.get("comment");
+                                                            for (int j = 0; j < commentArr.size(); j++) {
+                                                                DocumentReference cdr = (DocumentReference) commentArr.get(j);
+                                                                cdr.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                                                    @Override
+                                                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                                                        if (task.isSuccessful()) {
+                                                                            DocumentSnapshot commentDoc = task.getResult();
+                                                                            if (commentDoc.exists()) {
+                                                                                if (commentDoc.getString("user").equals(userId)) {
+                                                                                    Log.d(TAG, "comment info is " + commentDoc.getData());
+                                                                                    adapterData.put(finalI, new PersonalComment(storeDoc.getString("name"), commentDoc.getString("content"), commentDoc.getString("photo"), storeDoc.getString("location")));
+                                                                                    if (adapterData.size() == storeArr.size()) {
+                                                                                        Log.d(TAG, "data size is " + adapterData.size());
+                                                                                        for (int i = 0; i < adapterData.size(); i++) {
+                                                                                            adapter.addItem(adapterData.get(i));
+                                                                                            adapter.notifyDataSetChanged();
+                                                                                        }
                                                                                     }
                                                                                 }
-//                                                                                adapter.addItem(new PersonalComment(storeDoc.getString("name"),commentDoc.getString("content"),commentDoc.getString("photo")) );
-//                                                                                adapter.notifyDataSetChanged();
                                                                             }
                                                                         }
                                                                     }
-                                                                }
-                                                            });
+                                                                });
+                                                            }
                                                         }
                                                     }
                                                 }
-                                            }
-                                        });
+                                            });
+                                        }
                                     }
                                 }
                             }
-                        }
-                    });
+                        });
                 recyclerView.setAdapter(adapter);
                 adapter.setOnItemClickListener(new OnMyItemClickListener() {
                     @Override
@@ -133,11 +131,11 @@ public class OtherList extends Fragment {
                         PersonalComment item = adapter.getItem(position);
                         Bundle bundle = new Bundle();
                         //bundle.putInt("position",position);
-                        bundle.putString("user_id",userId);
-                        bundle.putString("store_name",item.getStoreName());
+                        bundle.putString("user_id", userId);
+                        bundle.putString("store_name", item.getStoreName());
                         bundle.putString("location", item.getLocation());
-                        getParentFragmentManager().setFragmentResult("requestKey",bundle);
-                        getParentFragmentManager().beginTransaction().replace(R.id.main_layout,frag_store_detail).addToBackStack(null).commit();
+                        getParentFragmentManager().setFragmentResult("requestKey", bundle);
+                        getParentFragmentManager().beginTransaction().replace(R.id.main_layout, frag_store_detail).addToBackStack(null).commit();
                     }
                 });
 
@@ -145,18 +143,18 @@ public class OtherList extends Fragment {
                         .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                             @Override
                             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                if(task.isSuccessful()){
+                                if (task.isSuccessful()) {
                                     DocumentSnapshot document = task.getResult();
                                     ArrayList<DocumentReference> storeArr = (ArrayList<DocumentReference>) document.get("store");
-                                    for(DocumentReference storeDoc : storeArr){
+                                    for (DocumentReference storeDoc : storeArr) {
                                         storeDoc.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                             @Override
                                             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                                if(task.isSuccessful()){
+                                                if (task.isSuccessful()) {
                                                     DocumentSnapshot document = task.getResult();
                                                     mjlist = mjlist + "\n- " + String.valueOf(document.get("name"));
                                                     mjlist = mjlist + "\n  (" + String.valueOf(document.get("location")) + ")";
-                                                    Log.d(TAG,"mjList: " + mjlist);
+                                                    Log.d(TAG, "mjList: " + mjlist);
                                                 }
                                             }
                                         });

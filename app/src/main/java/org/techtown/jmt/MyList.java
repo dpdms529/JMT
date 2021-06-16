@@ -41,7 +41,7 @@ public class MyList extends Fragment {
     String userName;
     private SharedPreferences preferences;
     String mjlist;
-    Map<Integer,PersonalComment> adapterData;
+    Map<Integer, PersonalComment> adapterData;
     TextView toolbar_text;
     FloatingActionButton add_btn;
     ImageView share_btn;
@@ -67,8 +67,8 @@ public class MyList extends Fragment {
         adapterData = new HashMap<>();
 
         db = FirebaseFirestore.getInstance();
-        myId = preferences.getString("myId","noId");
-        Log.d(TAG,"myId is " + myId);
+        myId = preferences.getString("myId", "noId");
+        Log.d(TAG, "myId is " + myId);
         db.collection("user")
                 .document(myId)
                 .get()
@@ -104,10 +104,10 @@ public class MyList extends Fragment {
                                                                             Log.d(TAG, "댓글 정보 : " + commentDoc.getData());
                                                                             if (commentDoc.getString("user").equals(myId)) {
                                                                                 Log.d(TAG, storeDoc.getString("name") + commentDoc.getString("photo"));
-                                                                                adapterData.put(finalI,new PersonalComment(storeDoc.getString("name"), commentDoc.getString("content"), commentDoc.getString("photo"), storeDoc.getString("location")));
-                                                                                if(adapterData.size() == storeArr.size()){
-                                                                                    Log.d(TAG,"data size is " + adapterData.size());
-                                                                                    for(int i = 0;i<adapterData.size();i++){
+                                                                                adapterData.put(finalI, new PersonalComment(storeDoc.getString("name"), commentDoc.getString("content"), commentDoc.getString("photo"), storeDoc.getString("location")));
+                                                                                if (adapterData.size() == storeArr.size()) {
+                                                                                    Log.d(TAG, "data size is " + adapterData.size());
+                                                                                    for (int i = 0; i < adapterData.size(); i++) {
                                                                                         adapter.addItem(adapterData.get(i));
                                                                                         adapter.notifyDataSetChanged();
                                                                                     }
@@ -124,7 +124,7 @@ public class MyList extends Fragment {
                                         });
                                         i++;
                                     }
-                                    
+
                                 }
                             }
                         }
@@ -137,14 +137,14 @@ public class MyList extends Fragment {
                 .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if(task.isSuccessful()){
+                        if (task.isSuccessful()) {
                             DocumentSnapshot document = task.getResult();
                             ArrayList<DocumentReference> storeArr = (ArrayList<DocumentReference>) document.get("store");
-                            for(DocumentReference storeDoc : storeArr){
+                            for (DocumentReference storeDoc : storeArr) {
                                 storeDoc.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                     @Override
                                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                        if(task.isSuccessful()){
+                                        if (task.isSuccessful()) {
                                             DocumentSnapshot document = task.getResult();
                                             mjlist = mjlist + "\n- " + String.valueOf(document.get("name"));
                                             mjlist = mjlist + "\n  (" + String.valueOf(document.get("location")) + ")";
@@ -161,9 +161,9 @@ public class MyList extends Fragment {
             public void onItemClick(MyAdapter.ViewHolder holder, View view, int position) {
                 PersonalComment item = adapter.getItem(position);
                 Bundle bundle = new Bundle();
-                bundle.putInt("position",position);
-                Log.d(TAG,"send store_name is " + bundle.getString("store_name"));
-                getParentFragmentManager().setFragmentResult("requestKey",bundle);
+                bundle.putInt("position", position);
+                Log.d(TAG, "send store_name is " + bundle.getString("store_name"));
+                getParentFragmentManager().setFragmentResult("requestKey", bundle);
                 getParentFragmentManager().beginTransaction().replace(R.id.main_layout, frag_my_detail).addToBackStack(null).commit();
             }
         });
@@ -190,7 +190,6 @@ public class MyList extends Fragment {
                 startActivity(Sharing);
             }
         });
-        // Inflate the layout for this fragment
         return v;
     }
 

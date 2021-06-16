@@ -22,12 +22,12 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 
-public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHolder> implements OnFavoriteItemClickListener{
+public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHolder> implements OnFavoriteItemClickListener {
     ArrayList<UserInfo> items = new ArrayList<UserInfo>();
     OnFavoriteItemClickListener listener;
     private Context context;
 
-    public FavoriteAdapter(Context context){
+    public FavoriteAdapter(Context context) {
         this.context = context;
     }
 
@@ -36,7 +36,7 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
     public FavoriteAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(viewGroup.getContext());
         View itemView = inflater.inflate(R.layout.my_item, viewGroup, false);
-        return new FavoriteAdapter.ViewHolder(context, itemView,this);
+        return new FavoriteAdapter.ViewHolder(context, itemView, this);
     }
 
     @Override
@@ -54,7 +54,7 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
         items.add(item);
     }
 
-    public void setItems(ArrayList<UserInfo> items){
+    public void setItems(ArrayList<UserInfo> items) {
         this.items = items;
     }
 
@@ -66,14 +66,15 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
         items.set(position, item);
     }
 
-    public void setOnItemClickListener(OnFavoriteItemClickListener listener){this.listener = listener;}
+    public void setOnItemClickListener(OnFavoriteItemClickListener listener) {
+        this.listener = listener;
+    }
 
     @Override
     public void onItemClick(ViewHolder holder, View view, int position) {
-        if(listener != null){
-            listener.onItemClick(holder,view,position);
+        if (listener != null) {
+            listener.onItemClick(holder, view, position);
         }
-
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
@@ -89,7 +90,7 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
         public ViewHolder(Context context, View itemView, final OnFavoriteItemClickListener listener) {
             super(itemView);
             preferences = PreferenceManager.getDefaultSharedPreferences(context);
-            myId = preferences.getString("myId","noId");
+            myId = preferences.getString("myId", "noId");
 
             db = FirebaseFirestore.getInstance();
             final DocumentReference[] ref = new DocumentReference[1];
@@ -101,7 +102,7 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
             star.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if(view.isSelected()){  // 즐겨찾기 해제
+                    if (view.isSelected()) {  // 즐겨찾기 해제
                         view.setSelected(false);
                         db.collection("user")
                                 .document(item.getUserID())
@@ -109,19 +110,18 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
                                 .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                     @Override
                                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                        if(task.isSuccessful()){
+                                        if (task.isSuccessful()) {
                                             DocumentSnapshot userDoc = task.getResult();
-                                            if(userDoc.exists()){
+                                            if (userDoc.exists()) {
                                                 ref[0] = userDoc.getReference();
                                                 db.collection("user")
                                                         .document(myId)
                                                         .update("favorite", FieldValue.arrayRemove(ref[0]));
-
                                             }
                                         }
                                     }
                                 });
-                    }else{  // 즐겨찾기 추가
+                    } else {  // 즐겨찾기 추가
                         view.setSelected(true);
                         db.collection("user")
                                 .document(item.getUserID())
@@ -129,19 +129,17 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
                                 .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                     @Override
                                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                        if(task.isSuccessful()){
+                                        if (task.isSuccessful()) {
                                             DocumentSnapshot userDoc = task.getResult();
-                                            if(userDoc.exists()){
+                                            if (userDoc.exists()) {
                                                 ref[0] = userDoc.getReference();
                                                 db.collection("user")
                                                         .document(myId)
                                                         .update("favorite", FieldValue.arrayUnion(ref[0]));
-
                                             }
                                         }
                                     }
                                 });
-
                     }
                 }
             });
@@ -150,12 +148,13 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
                 @Override
                 public void onClick(View view) {
                     int position = getAdapterPosition();
-                    if(listener != null){
-                        listener.onItemClick(ViewHolder.this,view,position);
+                    if (listener != null) {
+                        listener.onItemClick(ViewHolder.this, view, position);
                     }
                 }
             });
         }
+
         public void setItem(UserInfo item) {
             title_textView.setText(item.getUserName());
             num_of_comment.setText("총 " + String.valueOf(item.getNumOfComment()) + " 개의 맛집");
@@ -163,27 +162,27 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
             this.item = item;
         }
 
-        public void starState(UserInfo item){   //즐겨찾기 별 상태 지정
-            Log.d(TAG,"myId is "+myId);
+        public void starState(UserInfo item) {   //즐겨찾기 별 상태 지정
+            Log.d(TAG, "myId is " + myId);
             db.collection("user")
                     .document(myId)
                     .get()
                     .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                         @Override
                         public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                            if(task.isSuccessful()){
+                            if (task.isSuccessful()) {
                                 DocumentSnapshot userDoc = task.getResult();
-                                if(userDoc.exists()){
-                                    if(userDoc.get("favorite") != null){
-                                        ArrayList<DocumentReference> favoriteArr = (ArrayList)userDoc.get("favorite");
-                                        for(DocumentReference fdr : favoriteArr){
+                                if (userDoc.exists()) {
+                                    if (userDoc.get("favorite") != null) {
+                                        ArrayList<DocumentReference> favoriteArr = (ArrayList) userDoc.get("favorite");
+                                        for (DocumentReference fdr : favoriteArr) {
                                             fdr.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                                 @Override
                                                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                                    if(task.isSuccessful()){
+                                                    if (task.isSuccessful()) {
                                                         DocumentSnapshot favoriteDoc = task.getResult();
-                                                        if(favoriteDoc.exists()){
-                                                            if(favoriteDoc.get("id").equals(item.getUserID())){
+                                                        if (favoriteDoc.exists()) {
+                                                            if (favoriteDoc.get("id").equals(item.getUserID())) {
                                                                 star.setSelected(true);
                                                             }
                                                         }
@@ -191,9 +190,7 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
                                                 }
                                             });
                                         }
-
                                     }
-
                                 }
                             }
                         }

@@ -10,10 +10,10 @@ public class GlobalApplication extends Application {
     private static volatile Activity currentActivity = null;
 
     @Override
-    public void onCreate(){
+    public void onCreate() {
         super.onCreate();
         instance = this;
 
-        KakaoSdk.init(this,getResources().getString(R.string.kakao_key));
+        KakaoSdk.init(this, getResources().getString(R.string.kakao_key));
     }
 }

@@ -53,7 +53,7 @@ public class FavoriteList extends Fragment {
         FavoriteAdapter adapter = new FavoriteAdapter(mContext);
 
         preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-        myId = preferences.getString("myId","noId");
+        myId = preferences.getString("myId", "noId");
 
         db = FirebaseFirestore.getInstance();   // 즐겨찾기 등록한 회원 목록 가져오기
         db.collection("user")
@@ -62,19 +62,19 @@ public class FavoriteList extends Fragment {
                 .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if(task.isSuccessful()){
+                        if (task.isSuccessful()) {
                             DocumentSnapshot userDoc = task.getResult();
-                            if(userDoc.exists()){
-                                if(userDoc.get("favorite") != null){
-                                    ArrayList<DocumentReference> favoriteArr = (ArrayList)userDoc.get("favorite");
-                                    for(DocumentReference fdr : favoriteArr){
+                            if (userDoc.exists()) {
+                                if (userDoc.get("favorite") != null) {
+                                    ArrayList<DocumentReference> favoriteArr = (ArrayList) userDoc.get("favorite");
+                                    for (DocumentReference fdr : favoriteArr) {
                                         fdr.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                             @Override
                                             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                                if(task.isSuccessful()){
+                                                if (task.isSuccessful()) {
                                                     DocumentSnapshot favoriteDoc = task.getResult();
-                                                    if(favoriteDoc.exists()){
-                                                        adapter.addItem(new UserInfo(favoriteDoc.getString("name"),favoriteDoc.getString("id"),favoriteDoc.getLong("storeNum")));
+                                                    if (favoriteDoc.exists()) {
+                                                        adapter.addItem(new UserInfo(favoriteDoc.getString("name"), favoriteDoc.getString("id"), favoriteDoc.getLong("storeNum")));
                                                         adapter.notifyDataSetChanged();
                                                     }
                                                 }
@@ -94,9 +94,9 @@ public class FavoriteList extends Fragment {
             public void onItemClick(FavoriteAdapter.ViewHolder holder, View view, int position) {
                 UserInfo item = adapter.getItem(position);
                 Bundle bundle = new Bundle();
-                bundle.putString("user_id",item.getUserID());
-                getParentFragmentManager().setFragmentResult("otherList",bundle);
-                getParentFragmentManager().beginTransaction().replace(R.id.main_layout,frag_other_list).addToBackStack(null).commit();
+                bundle.putString("user_id", item.getUserID());
+                getParentFragmentManager().setFragmentResult("otherList", bundle);
+                getParentFragmentManager().beginTransaction().replace(R.id.main_layout, frag_other_list).addToBackStack(null).commit();
             }
         });
 

@@ -17,7 +17,7 @@ public class StoreAdapter extends RecyclerView.Adapter<StoreAdapter.ViewHolder> 
     OnStoreItemClickListener listener;
     private Context context;
 
-    public StoreAdapter(Context context){
+    public StoreAdapter(Context context) {
         this.context = context;
     }
 
@@ -44,7 +44,7 @@ public class StoreAdapter extends RecyclerView.Adapter<StoreAdapter.ViewHolder> 
         items.add(item);
     }
 
-    public void setItems(ArrayList<StoreInfo> items){
+    public void setItems(ArrayList<StoreInfo> items) {
         this.items = items;
     }
 
@@ -56,16 +56,18 @@ public class StoreAdapter extends RecyclerView.Adapter<StoreAdapter.ViewHolder> 
         items.set(position, item);
     }
 
-    public void setOnItemClickListener(OnStoreItemClickListener listener){
+    public void setOnItemClickListener(OnStoreItemClickListener listener) {
         this.listener = listener;
     }
 
-    public void clear() { items.clear(); }
+    public void clear() {
+        items.clear();
+    }
 
     @Override
     public void onItemClick(StoreAdapter.ViewHolder holder, View view, int position) {
-        if(listener != null){
-            listener.onItemClick(holder,view,position);
+        if (listener != null) {
+            listener.onItemClick(holder, view, position);
         }
     }
 
@@ -83,18 +85,19 @@ public class StoreAdapter extends RecyclerView.Adapter<StoreAdapter.ViewHolder> 
                 @Override
                 public void onClick(View view) {
                     int position = getAdapterPosition();
-                    if(listener != null){
-                        listener.onItemClick(StoreAdapter.ViewHolder.this,view,position);
+                    if (listener != null) {
+                        listener.onItemClick(StoreAdapter.ViewHolder.this, view, position);
                     }
                 }
             });
         }
+
         public void setItem(StoreInfo item) {
             title_textView.setText(item.getStoreName());
-            if(item.getLover() > 0){
+            if (item.getLover() > 0) {
                 favorite.setVisibility(View.VISIBLE);
                 lover_textView.setText(String.valueOf(item.getLover()));
-            }else{
+            } else {
                 favorite.setVisibility(View.GONE);
                 lover_textView.setText("");
             }

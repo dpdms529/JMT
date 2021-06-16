@@ -11,15 +11,27 @@ public class StoreComment {
         this.image_url = image_url;
     }
 
-    public String getUserName() { return user_name; }
+    public String getUserName() {
+        return user_name;
+    }
 
-    public void setUserName(String user_name) { this.user_name = user_name; }
+    public void setUserName(String user_name) {
+        this.user_name = user_name;
+    }
 
-    public String getComment() { return comment; }
+    public String getComment() {
+        return comment;
+    }
 
-    public void setComment(String comment) { this.comment = comment; }
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
 
-    public String getImageUrl() { return image_url; }
+    public String getImageUrl() {
+        return image_url;
+    }
 
-    public void setImageUrl(String image_url) { this.image_url = image_url; }
+    public void setImageUrl(String image_url) {
+        this.image_url = image_url;
+    }
 }

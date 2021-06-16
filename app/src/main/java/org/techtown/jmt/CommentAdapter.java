@@ -24,11 +24,11 @@ import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
 
-public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.ViewHolder>{
+public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.ViewHolder> {
     ArrayList<StoreComment> items = new ArrayList<StoreComment>();
     private Context context;
 
-    public CommentAdapter(Context context){
+    public CommentAdapter(Context context) {
         this.context = context;
     }
 
@@ -44,7 +44,7 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.ViewHold
     @Override
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, int position) {
         StoreComment item = items.get(position);
-        viewHolder.setItem(context,item);
+        viewHolder.setItem(context, item);
     }
 
     public int getItemCount() {
@@ -55,7 +55,7 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.ViewHold
         items.add(item);
     }
 
-    public void setItems(ArrayList<StoreComment> items){
+    public void setItems(ArrayList<StoreComment> items) {
         this.items = items;
     }
 
@@ -87,6 +87,7 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.ViewHold
             storage = FirebaseStorage.getInstance("gs://android-jmt.appspot.com");
             storageReference = storage.getReference();
         }
+
         public void setItem(Context context, StoreComment item) {
             rounding = (GradientDrawable) context.getDrawable(R.drawable.backgroud_rounding);
             picture_imageView.setBackground(rounding);
@@ -94,7 +95,7 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.ViewHold
             title_textView.setText(item.getUserName());
             comment_textView.setText(item.getComment());
             path = item.getImageUrl();
-            if(path != null){
+            if (path != null) {
                 picture_imageView.setVisibility(View.VISIBLE);
                 storageReference.child(path).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                     @Override
@@ -106,7 +107,7 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.ViewHold
                 }).addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(context,"이미지 불러오기 실패",Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context, "이미지 불러오기 실패", Toast.LENGTH_SHORT).show();
                     }
                 });
             } else {

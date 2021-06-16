@@ -31,24 +31,21 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class StoreDetail extends Fragment {
-
     private static final String TAG = "TAG";
     private FirebaseFirestore db;
 
     private Context mContext;
     private TextView store_name;
     private TextView store_address;
-    RecyclerView recyclerView;
-    CommentAdapter adapter;
+    private RecyclerView recyclerView;
+    private CommentAdapter adapter;
+    private ChipGroup chipGroup;
 
-    ChipGroup chipGroup;
-
-    private int position;
     private String userId;
     private String storeName;
     private String location;
 
-    Map<Integer,StoreComment> adapterData;
+    Map<Integer, StoreComment> adapterData;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -79,22 +76,23 @@ public class StoreDetail extends Fragment {
                 store_address.setText(location);
 
                 db.collection("store")
-                        .whereEqualTo("name",storeName)
+                        .whereEqualTo("name", storeName)
                         .whereEqualTo("location", location)
                         .get()
                         .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                             @Override
                             public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                if(task.isSuccessful()){
-                                    for(QueryDocumentSnapshot document : task.getResult()){
-                                        Log.d(TAG,"가게 정보" + document.getData());
+                                if (task.isSuccessful()) {
+                                    for (QueryDocumentSnapshot document : task.getResult()) {
+                                        Log.d(TAG, "가게 정보" + document.getData());
                                         ArrayList<String> menu = new ArrayList<String>();
                                         document.getReference().collection("menu")
+                                                .orderBy("lover")
                                                 .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                                             @Override
                                             public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                                if(task.isSuccessful()){
-                                                    for(QueryDocumentSnapshot menuDoc : task.getResult()){
+                                                if (task.isSuccessful()) {
+                                                    for (QueryDocumentSnapshot menuDoc : task.getResult()) {
                                                         menu.add(String.valueOf(menuDoc.get("menu_name")));
                                                     }
                                                     setMenuChips(menu);
@@ -109,20 +107,20 @@ public class StoreDetail extends Fragment {
                                             cdr.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                                 @Override
                                                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                                    if(task.isSuccessful()) {
+                                                    if (task.isSuccessful()) {
                                                         DocumentSnapshot commentDoc = task.getResult();
-                                                        if(commentDoc.exists()){
+                                                        if (commentDoc.exists()) {
                                                             db.collection("user").document(commentDoc.getString("user"))
                                                                     .get()
                                                                     .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                                                         @Override
                                                                         public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                                                            if(task.isSuccessful()) {
+                                                                            if (task.isSuccessful()) {
                                                                                 DocumentSnapshot userDoc = task.getResult();
-                                                                                if(userDoc.exists()){
-                                                                                    adapterData.put(FinalI,new StoreComment(userDoc.getString("name"), commentDoc.getString("content"),commentDoc.getString("photo")));
-                                                                                    if(commentArr.size() == adapterData.size()){
-                                                                                        for(int i = 0;i<adapterData.size();i++){
+                                                                                if (userDoc.exists()) {
+                                                                                    adapterData.put(FinalI, new StoreComment(userDoc.getString("name"), commentDoc.getString("content"), commentDoc.getString("photo")));
+                                                                                    if (commentArr.size() == adapterData.size()) {
+                                                                                        for (int i = 0; i < adapterData.size(); i++) {
                                                                                             adapter.addItem(adapterData.get(i));
                                                                                             adapter.notifyDataSetChanged();
                                                                                         }
@@ -131,24 +129,21 @@ public class StoreDetail extends Fragment {
                                                                             }
                                                                         }
                                                                     });
-                                                            }
                                                         }
                                                     }
-                                                });
-                                            }
+                                                }
+                                            });
                                         }
                                     }
                                 }
-                            });
-
+                            }
+                        });
                 recyclerView.setAdapter(adapter);
                 Bundle bundle = new Bundle();
-                bundle.putString("user_id",userId);
-                getParentFragmentManager().setFragmentResult("otherList",bundle);
+                bundle.putString("user_id", userId);
+                getParentFragmentManager().setFragmentResult("otherList", bundle);
             }
         });
-
-
         return v;
     }
 

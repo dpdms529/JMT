@@ -29,17 +29,17 @@ import java.util.ArrayList;
 public class StoreList extends Fragment {
     private static final String TAG = "TAG";
     private Context mContext;
-    FirebaseFirestore db;
+    private FirebaseFirestore db;
     private Spinner category_spinner;
     private Spinner do_spinner;
     private Spinner si_spinner;
     private ArrayAdapter categoryAdapter;
     private ArrayAdapter locationAdapter;
-    RecyclerView recyclerView;
-    Fragment frag_store_detail;
-    TextView toolbar_text;
-    StoreAdapter adapter;
-    ArrayList<Integer> si_array;
+    private RecyclerView recyclerView;
+    private Fragment frag_store_detail;
+    private TextView toolbar_text;
+    private StoreAdapter adapter;
+    private ArrayList<Integer> si_array;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -80,16 +80,16 @@ public class StoreList extends Fragment {
         si_array.add(R.array.location_si_jeju);
 
         // 스피너(카테고리) 구현
-        category_spinner = (Spinner)v.findViewById(R.id.category);
+        category_spinner = (Spinner) v.findViewById(R.id.category);
         categoryAdapter = ArrayAdapter.createFromResource(mContext, R.array.categories_all, R.layout.support_simple_spinner_dropdown_item);
         category_spinner.setAdapter(categoryAdapter);
 
         // 스피너(도, 시) 구현
-        do_spinner = (Spinner)v.findViewById(R.id.do_spinner);
+        do_spinner = (Spinner) v.findViewById(R.id.do_spinner);
         locationAdapter = ArrayAdapter.createFromResource(mContext, R.array.location_do, R.layout.support_simple_spinner_dropdown_item);
         do_spinner.setAdapter(locationAdapter);
 
-        si_spinner = (Spinner)v.findViewById(R.id.si_spinner);
+        si_spinner = (Spinner) v.findViewById(R.id.si_spinner);
         locationAdapter = ArrayAdapter.createFromResource(mContext, R.array.nothing, R.layout.support_simple_spinner_dropdown_item);
         si_spinner.setAdapter(locationAdapter);
 
@@ -162,43 +162,43 @@ public class StoreList extends Fragment {
                 .addOnCompleteListener(DBComplete);
     }
 
-    private void setRecyclerView(){
-    //private void setRecyclerView(StoreAdapter adapter){
+    private void setRecyclerView() {
+        //private void setRecyclerView(StoreAdapter adapter){
         String selectedCategory = category_spinner.getSelectedItem().toString();
         String selectedDo = do_spinner.getSelectedItem().toString();
         String selectedSi = si_spinner.getSelectedItem().toString();
 
-        if(selectedCategory.equals("모두") && selectedDo.equals("전체")) {
+        if (selectedCategory.equals("모두") && selectedDo.equals("전체")) {
             // 모든 카테고리, 전체 지역
             DBAdapter_all(adapter);
-        } else if(selectedCategory.equals("모두") && !selectedDo.equals("전체") && selectedSi.equals("전체")) {
+        } else if (selectedCategory.equals("모두") && !selectedDo.equals("전체") && selectedSi.equals("전체")) {
             // 모든 카테고리, 세부 도, 전체 시
             DBAdapter_do(adapter, selectedDo);
-        } else if(selectedCategory.equals("모두") && !selectedDo.equals("전체") && !selectedSi.equals("전체")) {
+        } else if (selectedCategory.equals("모두") && !selectedDo.equals("전체") && !selectedSi.equals("전체")) {
             // 모든 카테고리, 세부 도, 세부 시
             DBAdapter_do_si(adapter, selectedDo, selectedSi);
-        } else if(!selectedCategory.equals("모두") && selectedDo.equals("전체")) {
+        } else if (!selectedCategory.equals("모두") && selectedDo.equals("전체")) {
             // 세부 카테고리, 전체 지역
             DBAdapter_category(adapter, selectedCategory);
-        } else if(!selectedCategory.equals("모두") && !selectedDo.equals("전체") && selectedSi.equals("전체")) {
+        } else if (!selectedCategory.equals("모두") && !selectedDo.equals("전체") && selectedSi.equals("전체")) {
             // 세부 카테고리, 세부 도, 전체 시
             DBAdapter_category_do(adapter, selectedCategory, selectedDo);
-        } else if(!selectedCategory.equals("모두") && !selectedDo.equals("전체") && !selectedSi.equals("전체")) {
+        } else if (!selectedCategory.equals("모두") && !selectedDo.equals("전체") && !selectedSi.equals("전체")) {
             // 세부 카테고리, 세부 도, 세부 시
             DBAdapter_category_do_si(adapter, selectedCategory, selectedDo, selectedSi);
         }
         recyclerView.setAdapter(adapter);
     }
 
-    OnStoreItemClickListener onClick = new OnStoreItemClickListener(){
+    OnStoreItemClickListener onClick = new OnStoreItemClickListener() {
         @Override
         public void onItemClick(StoreAdapter.ViewHolder holder, View view, int position) {
             StoreInfo item = adapter.getItem(position);
             Bundle bundle = new Bundle();
             bundle.putString("store_name", item.getStoreName());
             bundle.putString("location", item.getLocation());
-            Log.d(TAG,"send store_name is " + bundle.getString("store_name"));
-            getParentFragmentManager().setFragmentResult("requestKey",bundle);
+            Log.d(TAG, "send store_name is " + bundle.getString("store_name"));
+            getParentFragmentManager().setFragmentResult("requestKey", bundle);
             getParentFragmentManager().beginTransaction().replace(R.id.main_layout, frag_store_detail).addToBackStack(null).commit();
         }
     };
@@ -217,7 +217,7 @@ public class StoreList extends Fragment {
         }
     };
 
-    private void setLocationAdapter(ArrayList<Integer> si_array, int position){
+    private void setLocationAdapter(ArrayList<Integer> si_array, int position) {
         locationAdapter = ArrayAdapter.createFromResource(mContext, si_array.get(position), R.layout.support_simple_spinner_dropdown_item);
     }
 
@@ -241,14 +241,14 @@ public class StoreList extends Fragment {
     OnCompleteListener<QuerySnapshot> DBComplete = new OnCompleteListener<QuerySnapshot>() {
         @Override
         public void onComplete(@NonNull Task<QuerySnapshot> task) {
-            if(task.isSuccessful()){
+            if (task.isSuccessful()) {
                 adapter.clear();
-                if(task.getResult().isEmpty()){
+                if (task.getResult().isEmpty()) {
                     adapter.addItem(new StoreInfo("등록된 데이터가 없습니다.", 0, ""));
                     adapter.notifyDataSetChanged();
                 } else {
-                    for(QueryDocumentSnapshot document : task.getResult()){
-                        Log.d(TAG,"가게 정보" + document.getData());
+                    for (QueryDocumentSnapshot document : task.getResult()) {
+                        Log.d(TAG, "가게 정보" + document.getData());
                         adapter.addItem(new StoreInfo(document.getString("name"), (Long) document.get("lover"), document.getString("location")));
                         adapter.notifyDataSetChanged();
                     }

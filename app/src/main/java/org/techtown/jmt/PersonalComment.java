@@ -13,17 +13,29 @@ public class PersonalComment {
         this.location = location;
     }
 
-    public String getStoreName() { return store_name; }
+    public String getStoreName() {
+        return store_name;
+    }
 
-    public void setStoreName(String store_name) { this.store_name = store_name; }
+    public void setStoreName(String store_name) {
+        this.store_name = store_name;
+    }
 
-    public String getComment() { return comment; }
+    public String getComment() {
+        return comment;
+    }
 
-    public void setComment(String comment) { this.comment = comment; }
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
 
-    public String getImageUrl() { return image_url; }
+    public String getImageUrl() {
+        return image_url;
+    }
 
-    public void setImageUrl(String image_url) { this.image_url = image_url; }
+    public void setImageUrl(String image_url) {
+        this.image_url = image_url;
+    }
 
     public String getLocation() {
         return location;

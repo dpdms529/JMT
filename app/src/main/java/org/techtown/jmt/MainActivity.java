@@ -66,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
         storageRF = storage.getReference();
 
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        myId = preferences.getString("myId","noId");
+        myId = preferences.getString("myId", "noId");
 
         // 프래그먼트 생성
         frag_my_list = new MyList();
@@ -114,15 +114,14 @@ public class MainActivity extends AppCompatActivity {
         );
     }
 
-    private void setFragment(Fragment fragment, String title){
-        for(int i = 0; i < getSupportFragmentManager().getBackStackEntryCount(); i++){  // 메인 프래그먼트 진입시 백스택의 프래그먼트를 지워줌
+    private void setFragment(Fragment fragment, String title) {
+        for (int i = 0; i < getSupportFragmentManager().getBackStackEntryCount(); i++) {  // 메인 프래그먼트 진입시 백스택의 프래그먼트를 지워줌
             getSupportFragmentManager().popBackStack();
         }
         getSupportFragmentManager().beginTransaction().replace(R.id.main_layout, fragment).commit();
         currentTitle = title;  // 백업을 위한 flag
     }
-
-
+    
     // 단말 방향 전환 처리
     @Override
     public void onSaveInstanceState(Bundle backup) {
@@ -162,7 +161,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         FragmentManager fragmentManager = this.getSupportFragmentManager();
-        switch (item.getItemId()){
+        switch (item.getItemId()) {
             case R.id.logout:
                 // 로그아웃
                 new AlertDialog.Builder(this)
@@ -171,24 +170,24 @@ public class MainActivity extends AppCompatActivity {
                         .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int i) {
-                                UserApiClient.getInstance().logout(error->{
-                                    if(error != null){
-                                        Log.e(TAG,"로그아웃 실패", error);
-                                    }else{
-                                        Log.i(TAG,"로그아웃 성공");
-                                        Intent intent = new Intent(getApplicationContext(),Login.class);
+                                UserApiClient.getInstance().logout(error -> {
+                                    if (error != null) {
+                                        Log.e(TAG, "로그아웃 실패", error);
+                                    } else {
+                                        Log.i(TAG, "로그아웃 성공");
+                                        Intent intent = new Intent(getApplicationContext(), Login.class);
                                         startActivity(intent);
                                     }
                                     return null;
                                 });
-                                Toast.makeText(getApplicationContext(),"로그아웃 완료",Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getApplicationContext(), "로그아웃 완료", Toast.LENGTH_SHORT).show();
                             }
                         }).setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                Toast.makeText(getApplicationContext(),"로그아웃 취소",Toast.LENGTH_SHORT).show();
-                            }
-                        }).show();
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        Toast.makeText(getApplicationContext(), "로그아웃 취소", Toast.LENGTH_SHORT).show();
+                    }
+                }).show();
                 break;
             case R.id.leave:
                 // 탈퇴
@@ -198,42 +197,42 @@ public class MainActivity extends AppCompatActivity {
                         .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int i) {
-                                UserApiClient.getInstance().unlink(error->{
-                                    if(error != null){
-                                        Log.e(TAG,"연결 끊기 실패", error);
-                                    }else{
-                                        Log.i(TAG,"연결 끊기 성공");
+                                UserApiClient.getInstance().unlink(error -> {
+                                    if (error != null) {
+                                        Log.e(TAG, "연결 끊기 실패", error);
+                                    } else {
+                                        Log.i(TAG, "연결 끊기 성공");
                                         db.collection("comment")
-                                                .whereEqualTo("user",myId)
+                                                .whereEqualTo("user", myId)
                                                 .get()
                                                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                                                     @Override
                                                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                                        if(task.isSuccessful()){
-                                                            for(QueryDocumentSnapshot commentDoc : task.getResult()){
+                                                        if (task.isSuccessful()) {
+                                                            for (QueryDocumentSnapshot commentDoc : task.getResult()) {
                                                                 DocumentReference commentDR = commentDoc.getReference();
                                                                 String store = commentDoc.getString("store");
-                                                                Log.d(TAG,"store id  : " + store);
+                                                                Log.d(TAG, "store id  : " + store);
                                                                 db.collection("store")
                                                                         .document(store)
                                                                         .get()
                                                                         .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                                                             @Override
                                                                             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                                                                if(task.isSuccessful()){
+                                                                                if (task.isSuccessful()) {
                                                                                     DocumentSnapshot storeDoc = task.getResult();
-                                                                                    if(storeDoc.exists()){
-                                                                                        Log.d(TAG,"storeDoc  : " + storeDoc.getData());
+                                                                                    if (storeDoc.exists()) {
+                                                                                        Log.d(TAG, "storeDoc  : " + storeDoc.getData());
                                                                                         DocumentReference storeDR = storeDoc.getReference();
-                                                                                        if(storeDoc.getLong("lover")==1){
+                                                                                        if (storeDoc.getLong("lover") == 1) {
                                                                                             storeDR.collection("menu")
                                                                                                     .get()
                                                                                                     .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                                                                                                         @Override
                                                                                                         public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                                                                                            if(task.isSuccessful()){
-                                                                                                                for(QueryDocumentSnapshot menuDoc : task.getResult()){
-                                                                                                                    Log.d(TAG,"menuDoc lover1 : " + menuDoc.getData());
+                                                                                                            if (task.isSuccessful()) {
+                                                                                                                for (QueryDocumentSnapshot menuDoc : task.getResult()) {
+                                                                                                                    Log.d(TAG, "menuDoc lover1 : " + menuDoc.getData());
                                                                                                                     DocumentReference menuDR = menuDoc.getReference();
                                                                                                                     menuDR.delete();
                                                                                                                 }
@@ -241,24 +240,24 @@ public class MainActivity extends AppCompatActivity {
                                                                                                         }
                                                                                                     });
                                                                                             storeDR.delete();
-                                                                                        }else{
+                                                                                        } else {
                                                                                             storeDR.update("comment", FieldValue.arrayRemove(commentDR)
-                                                                                            ,"lover", FieldValue.increment(-1));
+                                                                                                    , "lover", FieldValue.increment(-1));
                                                                                             storeDR.collection("menu")
-                                                                                                    .whereEqualTo("menu_name",commentDoc.get("menu"))
+                                                                                                    .whereEqualTo("menu_name", commentDoc.get("menu"))
                                                                                                     .get()
                                                                                                     .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                                                                                                         @Override
                                                                                                         public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                                                                                            if(task.isSuccessful()){
-                                                                                                                for(QueryDocumentSnapshot menuDoc : task.getResult()){
+                                                                                                            if (task.isSuccessful()) {
+                                                                                                                for (QueryDocumentSnapshot menuDoc : task.getResult()) {
                                                                                                                     DocumentReference menuDR = menuDoc.getReference();
-                                                                                                                    if(menuDoc.getLong("lover") ==  1){
-                                                                                                                        Log.d(TAG,"menuDoc menuLover1 : " + menuDoc.getData());
+                                                                                                                    if (menuDoc.getLong("lover") == 1) {
+                                                                                                                        Log.d(TAG, "menuDoc menuLover1 : " + menuDoc.getData());
                                                                                                                         menuDR.delete();
-                                                                                                                    }else{
-                                                                                                                        Log.d(TAG,"menuDoc menuLoverMore : " + menuDoc.getData());
-                                                                                                                        menuDR.update("lover",FieldValue.increment(-1));
+                                                                                                                    } else {
+                                                                                                                        Log.d(TAG, "menuDoc menuLoverMore : " + menuDoc.getData());
+                                                                                                                        menuDR.update("lover", FieldValue.increment(-1));
                                                                                                                     }
                                                                                                                 }
                                                                                                             }
@@ -269,33 +268,33 @@ public class MainActivity extends AppCompatActivity {
                                                                                 }
                                                                             }
                                                                         });
-                                                                if(commentDoc.get("photo") != null){
+                                                                if (commentDoc.get("photo") != null) {
                                                                     StorageReference desertRF = storageRF.child(commentDoc.getString("photo"));
-                                                                    Log.d(TAG,"storage : " + desertRF.getName());
+                                                                    Log.d(TAG, "storage : " + desertRF.getName());
                                                                     desertRF.delete();
 
                                                                 }
                                                                 commentDR.delete();
-                                                                Log.d(TAG,"comment deleted ");
+                                                                Log.d(TAG, "comment deleted ");
                                                             }
                                                         }
                                                     }
                                                 });
                                         DocumentReference userDR = db.collection("user").document(myId);
                                         db.collection("user")
-                                                .whereNotEqualTo("id",myId)
+                                                .whereNotEqualTo("id", myId)
                                                 .get()
                                                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                                                     @Override
                                                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                                        if(task.isSuccessful()){
-                                                            for(QueryDocumentSnapshot userDoc : task.getResult()){
-                                                                if(userDoc.exists()){
-                                                                    ArrayList<DocumentReference> favoriteArr = (ArrayList<DocumentReference>)userDoc.get("favorite");
-                                                                    if(favoriteArr.size()!=0){
-                                                                        for(DocumentReference favoriteDR : favoriteArr){
-                                                                            if(favoriteDR.equals(userDR)){
-                                                                                userDoc.getReference().update("favorite",FieldValue.arrayRemove(favoriteDR));
+                                                        if (task.isSuccessful()) {
+                                                            for (QueryDocumentSnapshot userDoc : task.getResult()) {
+                                                                if (userDoc.exists()) {
+                                                                    ArrayList<DocumentReference> favoriteArr = (ArrayList<DocumentReference>) userDoc.get("favorite");
+                                                                    if (favoriteArr.size() != 0) {
+                                                                        for (DocumentReference favoriteDR : favoriteArr) {
+                                                                            if (favoriteDR.equals(userDR)) {
+                                                                                userDoc.getReference().update("favorite", FieldValue.arrayRemove(favoriteDR));
                                                                             }
                                                                         }
 
@@ -304,22 +303,22 @@ public class MainActivity extends AppCompatActivity {
                                                                 }
                                                             }
                                                             userDR.delete();
-                                                            Log.d(TAG,"user deleted ");
+                                                            Log.d(TAG, "user deleted ");
                                                         }
                                                     }
                                                 });
-                                        Intent intent = new Intent(getApplicationContext(),Login.class);
+                                        Intent intent = new Intent(getApplicationContext(), Login.class);
                                         startActivity(intent);
 
                                     }
                                     return null;
                                 });
-                                Toast.makeText(getApplicationContext(),"탈퇴 완료",Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getApplicationContext(), "탈퇴 완료", Toast.LENGTH_SHORT).show();
                             }
                         }).setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        Toast.makeText(getApplicationContext(),"탈퇴 취소",Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(), "탈퇴 취소", Toast.LENGTH_SHORT).show();
                     }
                 }).show();
                 break;
@@ -332,7 +331,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        if(getSupportFragmentManager().getBackStackEntryCount() == 0) {
+        if (getSupportFragmentManager().getBackStackEntryCount() == 0) {
             //두 번 클릭시 어플 종료
             if (System.currentTimeMillis() - lastTimeBackPressed < 1500) {
                 finish();

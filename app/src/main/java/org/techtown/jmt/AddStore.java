@@ -97,7 +97,7 @@ public class AddStore extends Fragment {
         View v = inflater.inflate(R.layout.fragment_add_store, container, false);
 
         preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-        myId = preferences.getString("myId","noID");
+        myId = preferences.getString("myId", "noID");
 
         // 맛집 검색
         mSearchEdit = v.findViewById(R.id.search_editText);
@@ -153,7 +153,6 @@ public class AddStore extends Fragment {
 
             @Override
             public void afterTextChanged(Editable editable) {
-                // 입력이 끝났을 때
             }
         });
 
@@ -162,29 +161,29 @@ public class AddStore extends Fragment {
         storage = FirebaseStorage.getInstance();
 
         // 스피너(카테고리) 구현
-        category_spinner = (Spinner)v.findViewById(R.id.category);
+        category_spinner = (Spinner) v.findViewById(R.id.category);
         arrayAdapter = ArrayAdapter.createFromResource(mContext, R.array.categories, R.layout.support_simple_spinner_dropdown_item);
         category_spinner.setAdapter(arrayAdapter);
 
         // 뷰 설정
-        food_image = (ImageView)v.findViewById(R.id.food_image);
-        menu_edit = (EditText)v.findViewById(R.id.menu);
-        comment_edit = (EditText)v.findViewById(R.id.comment);
+        food_image = (ImageView) v.findViewById(R.id.food_image);
+        menu_edit = (EditText) v.findViewById(R.id.menu);
+        comment_edit = (EditText) v.findViewById(R.id.comment);
 
-        register_btn = (Button)v.findViewById(R.id.button);
+        register_btn = (Button) v.findViewById(R.id.button);
         register_btn.setOnClickListener(new Button.OnClickListener() {
             @Override
             public void onClick(View view) {
                 // 필수 입력 확인
-                if(mSearchEdit.getText().toString().length() == 0) {
-                    Toast.makeText(mContext, "식당 이름을 입력하고 선택해주세요", Toast.LENGTH_SHORT).show();
+                if (mSearchEdit.getText().toString().length() == 0) {
+                    Toast.makeText(mContext, "식당 검색 후, 식당을 선택해주세요", Toast.LENGTH_SHORT).show();
                     mSearchEdit.requestFocus();
                     return;
-                } else if(menu_edit.getText().toString().length() == 0) {
+                } else if (menu_edit.getText().toString().length() == 0) {
                     Toast.makeText(mContext, "메뉴를 입력해주세요", Toast.LENGTH_SHORT).show();
                     menu_edit.requestFocus();
                     return;
-                } else if(comment_edit.getText().toString().length() == 0) {
+                } else if (comment_edit.getText().toString().length() == 0) {
                     Toast.makeText(mContext, "한줄평을 입력해주세요", Toast.LENGTH_SHORT).show();
                     comment_edit.requestFocus();
                     return;
@@ -225,8 +224,8 @@ public class AddStore extends Fragment {
                         .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                             @Override
                             public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                if (task.getResult().isEmpty()){    // 등록된 적 없는 식당
-                                    if(file != null){   // 사진 업로드
+                                if (task.getResult().isEmpty()) {    // 등록된 적 없는 식당
+                                    if (file != null) {   // 사진 업로드
                                         commentData.put("photo", uploadPicture());
                                     }
 
@@ -235,9 +234,9 @@ public class AddStore extends Fragment {
                                     storeColRef.document(storeDocName).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                         @Override
                                         public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                            if(task.isSuccessful()){
+                                            if (task.isSuccessful()) {
                                                 DocumentSnapshot doc = task.getResult();
-                                                if(doc.exists()){
+                                                if (doc.exists()) {
                                                     ref[1] = doc.getReference();
                                                     // user field update
                                                     db.collection("user").document(myId)
@@ -258,9 +257,9 @@ public class AddStore extends Fragment {
                                     db.collection("comment").document(commentDocName).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                         @Override
                                         public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                            if(task.isSuccessful()){
+                                            if (task.isSuccessful()) {
                                                 DocumentSnapshot doc = task.getResult();
-                                                if(doc.exists()){
+                                                if (doc.exists()) {
                                                     ref[0] = doc.getReference();
                                                     storeColRef.document(storeDocName)
                                                             .update("comment", FieldValue.arrayUnion(ref[0]),
@@ -271,7 +270,7 @@ public class AddStore extends Fragment {
                                     });
 
                                 } else {    // 이미 등록된 식당 -> comment, lover 필드 update
-                                    for(QueryDocumentSnapshot document : task.getResult()) {
+                                    for (QueryDocumentSnapshot document : task.getResult()) {
                                         storeDocName = document.getId();
                                         db.collection("comment")
                                                 .whereEqualTo("user", myId)
@@ -279,13 +278,13 @@ public class AddStore extends Fragment {
                                                 .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                                             @Override
                                             public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                                if(task.isSuccessful()){// 본인이 올린 적 있는 곳 - 등록 불가
+                                                if (task.isSuccessful()) {// 본인이 올린 적 있는 곳 - 등록 불가
                                                     QuerySnapshot doc = task.getResult();
-                                                    if(!doc.isEmpty()){
-                                                        Toast.makeText(mContext,"이미 리스트에 존재하는 식당입니다.",Toast.LENGTH_SHORT).show();
+                                                    if (!doc.isEmpty()) {
+                                                        Toast.makeText(mContext, "이미 리스트에 존재하는 식당입니다.", Toast.LENGTH_SHORT).show();
                                                         return;
                                                     } else {
-                                                        if(file != null){   // 사진 업로드
+                                                        if (file != null) {   // 사진 업로드
                                                             commentData.put("photo", uploadPicture());
                                                         }
 
@@ -300,9 +299,9 @@ public class AddStore extends Fragment {
                                                         db.collection("comment").document(commentDocName).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                                             @Override
                                                             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                                                if(task.isSuccessful()){
+                                                                if (task.isSuccessful()) {
                                                                     DocumentSnapshot doc = task.getResult();
-                                                                    if(doc.exists()){
+                                                                    if (doc.exists()) {
                                                                         ref[0] = doc.getReference();
                                                                         storeColRef.document(storeDocName)
                                                                                 .update("comment", FieldValue.arrayUnion(ref[0]),
@@ -313,10 +312,10 @@ public class AddStore extends Fragment {
                                                                         temp.addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                                                                             @Override
                                                                             public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                                                                if (temp.getResult().isEmpty()){ // 같은 메뉴 없다면 새로 입력
+                                                                                if (temp.getResult().isEmpty()) { // 같은 메뉴 없다면 새로 입력
                                                                                     storeColRef.document(storeDocName).collection("menu").add(menuData);
                                                                                 } else { // 이미 입력된 메뉴라면, 카운트 값만 추가
-                                                                                    for(QueryDocumentSnapshot document : temp.getResult()){
+                                                                                    for (QueryDocumentSnapshot document : temp.getResult()) {
                                                                                         storeColRef.document(storeDocName).collection("menu").document(document.getId())
                                                                                                 .update("lover", FieldValue.increment(1));
                                                                                     }
@@ -340,6 +339,7 @@ public class AddStore extends Fragment {
                                 FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
                                 fragmentManager.beginTransaction().remove(AddStore.this).commit();
                                 fragmentManager.popBackStack();
+                                Toast.makeText(mContext, "맛집이 등록되었습니다.", Toast.LENGTH_SHORT).show();
                             }
                         });
             }
@@ -357,20 +357,8 @@ public class AddStore extends Fragment {
     public String uploadPicture() {
         StorageReference storageRef = storage.getReference();
         StorageReference riversRef = storageRef.child(storeDocName + "/" + myId + ".png");
-        Log.d(TAG,"사진 : " + riversRef.getPath());
-
-        UploadTask uploadTask = riversRef.putFile(file);
-        uploadTask.addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Toast.makeText(mContext,"사진이 정상적으로 업로드 되지 않음", Toast.LENGTH_SHORT).show();
-            }
-        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-            @Override
-            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                Toast.makeText(mContext,"사진이 정상적으로 업로드 됨",Toast.LENGTH_SHORT).show();
-            }
-        });
+        Log.d(TAG, "사진 : " + riversRef.getPath());
+        riversRef.putFile(file);
         return riversRef.getPath();
     }
 
@@ -386,7 +374,7 @@ public class AddStore extends Fragment {
         return docType + "_" + userID + "_" + dateformat.format(time);
     }
 
-    private void loadAlbum(){
+    private void loadAlbum() {
         Intent intent = new Intent(Intent.ACTION_PICK);
         intent.setType(MediaStore.Images.Media.CONTENT_TYPE);
         startActivityResult.launch(intent);
@@ -395,11 +383,11 @@ public class AddStore extends Fragment {
     ActivityResultLauncher<Intent> startActivityResult = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
         @Override
         public void onActivityResult(ActivityResult result) {
-            if(result.getResultCode() == Activity.RESULT_OK){
+            if (result.getResultCode() == Activity.RESULT_OK) {
                 Intent data = result.getData();
-                Log.d(TAG," 데이터는 : " + data.getData());
+                Log.d(TAG, " 데이터는 : " + data.getData());
                 file = data.getData();
-                try{
+                try {
                     InputStream in = getActivity().getContentResolver().openInputStream(file);
                     Bitmap img = BitmapFactory.decodeStream(in);
                     food_image.setImageBitmap(img);
