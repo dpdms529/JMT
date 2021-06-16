@@ -1,15 +1,12 @@
 package org.techtown.jmt;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -23,9 +20,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
+
 
 import java.util.ArrayList;
 
@@ -60,7 +55,7 @@ public class FavoriteList extends Fragment {
         preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
         myId = preferences.getString("myId","noId");
 
-        db = FirebaseFirestore.getInstance();
+        db = FirebaseFirestore.getInstance();   // 즐겨찾기 등록한 회원 목록 가져오기
         db.collection("user")
                 .document(myId)
                 .get()
@@ -94,7 +89,7 @@ public class FavoriteList extends Fragment {
 
         recyclerView.setAdapter(adapter);
 
-        adapter.setOnItemClickListener(new OnFavoriteItemClickListener() {
+        adapter.setOnItemClickListener(new OnFavoriteItemClickListener() {  // 클릭한 회원의 맛집 리스트 화면으로 이동
             @Override
             public void onItemClick(FavoriteAdapter.ViewHolder holder, View view, int position) {
                 UserInfo item = adapter.getItem(position);

@@ -51,8 +51,6 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
-import com.kakao.sdk.user.UserApiClient;
-
 import org.jetbrains.annotations.NotNull;
 
 import java.io.InputStream;
