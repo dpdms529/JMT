@@ -18,3 +18,5 @@ local.properties
 /app/src/main/res/values/key.xml
 /.idea/gradle.xml
 /.idea/misc.xml
+/key
+/app/release
