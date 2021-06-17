@@ -30,19 +30,19 @@
                 android:textStyle="bold" />
 
             <HorizontalScrollView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="center">
 
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:orientation="vertical" >
+                    android:orientation="vertical">
 
                     <com.google.android.material.chip.ChipGroup
                         android:id="@+id/chip_group"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center">
+                        android:layout_height="wrap_content">
 
                     </com.google.android.material.chip.ChipGroup>
                 </LinearLayout>

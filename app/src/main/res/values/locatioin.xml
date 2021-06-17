@@ -9,7 +9,7 @@
         <item>광주</item>
         <item>대전</item>
         <item>울산</item>
-        <item>세종</item>
+        <item>세종특별자치시</item>
         <item>경기</item>
         <item>강원</item>
         <item>충북</item>
@@ -18,7 +18,7 @@
         <item>전남</item>
         <item>경북</item>
         <item>경남</item>
-        <item>제주</item>
+        <item>제주특별자치도</item>
     </string-array>
     <string-array name="location_si_seoul">
         <item>전체</item>
