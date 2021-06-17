@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -15,8 +16,11 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -34,6 +38,7 @@ public class MyList extends Fragment {
     private Context mContext;
     Fragment frag_add_store;
     Fragment frag_my_detail;
+    Fragment frag_my_list;
     RecyclerView recyclerView;
     MyAdapter adapter;
     FirebaseFirestore db;
@@ -45,6 +50,7 @@ public class MyList extends Fragment {
     TextView toolbar_text;
     FloatingActionButton add_btn;
     ImageView share_btn;
+    SwipeRefreshLayout mSwipeRefreshLayout;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -58,6 +64,7 @@ public class MyList extends Fragment {
 
         frag_add_store = new AddStore();
         frag_my_detail = new MyDetail();
+        frag_my_list = new MyList();
 
         recyclerView = v.findViewById(R.id.comments_recyclerview);
 
@@ -190,6 +197,17 @@ public class MyList extends Fragment {
                 startActivity(Sharing);
             }
         });
+
+        mSwipeRefreshLayout = v.findViewById(R.id.swipe_layout);
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                fragmentManager.beginTransaction().replace(R.id.main_layout, frag_my_list).commit();
+                mSwipeRefreshLayout.setRefreshing(false);
+            }
+        });
+
         return v;
     }
 
