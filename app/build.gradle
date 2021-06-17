@@ -3,6 +3,14 @@ plugins {
 }
 
 android {
+    signingConfigs {
+        debug {
+            storeFile file('D:\\JMT\\key\\test.jks')
+            storePassword 'jmt2021'
+            keyAlias 'key0'
+            keyPassword 'jmt2021'
+        }
+    }
     compileSdkVersion 30
     buildToolsVersion "30.0.1"
 
