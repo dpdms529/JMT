@@ -187,7 +187,8 @@
                     android:fontFamily="@font/font"
                     android:hint="한줄평"
                     android:inputType="textPersonName"
-                    android:textSize="18sp" />
+                    android:textSize="18sp"
+                    android:maxLength="30"/>
             </LinearLayout>
 
             <LinearLayout

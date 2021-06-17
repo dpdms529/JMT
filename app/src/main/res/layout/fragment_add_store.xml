@@ -192,7 +192,8 @@
                     android:hint="한줄평"
                     android:layout_margin="8dp"
                     android:textSize="18sp"
-                    android:inputType="textPersonName" />
+                    android:inputType="textPersonName"
+                    android:maxLength="30"/>
             </LinearLayout>
 
             <Button
