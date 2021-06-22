@@ -1,4 +1,4 @@
-# JMT
+# 찐맛 (JMT)
 ### 시연영상 : https://youtu.be/KBrbfD4bG8A
 ### 개발 배경
 #### - 광고성 글로 점철된 검색 플랫폼과 SNS
