@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,6 +24,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class FavoriteList extends Fragment {
     private static final String TAG = "TAG";
@@ -33,6 +36,7 @@ public class FavoriteList extends Fragment {
     String myId;
     SharedPreferences preferences;
     TextView toolbar_text;
+    Map<Integer, UserInfo> adapterData;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -51,6 +55,7 @@ public class FavoriteList extends Fragment {
         recyclerView.setLayoutManager(layoutManager);
 
         FavoriteAdapter adapter = new FavoriteAdapter(mContext);
+        adapterData = new HashMap<>();
 
         preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
         myId = preferences.getString("myId", "noId");
@@ -67,19 +72,28 @@ public class FavoriteList extends Fragment {
                             if (userDoc.exists()) {
                                 if (userDoc.get("favorite") != null) {
                                     ArrayList<DocumentReference> favoriteArr = (ArrayList) userDoc.get("favorite");
+                                    int i = 0;
                                     for (DocumentReference fdr : favoriteArr) {
+                                        int finalI = i;
                                         fdr.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                             @Override
                                             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                                                 if (task.isSuccessful()) {
                                                     DocumentSnapshot favoriteDoc = task.getResult();
                                                     if (favoriteDoc.exists()) {
-                                                        adapter.addItem(new UserInfo(favoriteDoc.getString("name"), favoriteDoc.getString("id"), favoriteDoc.getLong("storeNum")));
-                                                        adapter.notifyDataSetChanged();
+                                                        adapterData.put(finalI, new UserInfo(favoriteDoc.getString("name"), favoriteDoc.getString("id"), favoriteDoc.getLong("storeNum")));
+                                                        if (adapterData.size() == favoriteArr.size()) {
+                                                            Log.d(TAG, "data size is " + adapterData.size());
+                                                            for (int i = 0; i < adapterData.size(); i++) {
+                                                                adapter.addItem(adapterData.get(i));
+                                                                adapter.notifyDataSetChanged();
+                                                            }
+                                                        }
                                                     }
                                                 }
                                             }
                                         });
+                                        i++;
                                     }
                                 }
                             }
